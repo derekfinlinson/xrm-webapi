@@ -1,0 +1,9 @@
+{
+  "name": "xrm-webapi",
+  "version": "0.0.0",
+  "description": "xrm-webapi",
+  "main": "app.js",
+  "author": {
+    "name": "Derek Finlinson"
+  }
+}
