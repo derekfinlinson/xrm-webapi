@@ -51,7 +51,7 @@ export class WebApi {
     static retrieveMultiple(entitySet: string, queryString?: string) {
         if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;
         this.getRequest("GET", entitySet, queryString);
-
+        this.getRequest("", "");
         return new Promise((resolve, reject) => {
             this.request.onreadystatechange = () => {
                 if (this.request.readyState === 4 /* complete */) {
