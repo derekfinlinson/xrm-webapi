@@ -54,7 +54,6 @@
     <Content Include="typings\globals\node\typings.json" />
     <Content Include="typings\globals\xrm\typings.json" />
     <Content Include="package.json" />
-    <Content Include="README.md" />
     <TypeScriptCompile Include="dist\typings\globals\es6-promise\index.d.ts" />
     <TypeScriptCompile Include="dist\typings\globals\xrm\index.d.ts" />
     <TypeScriptCompile Include="dist\typings\index.d.ts" />
