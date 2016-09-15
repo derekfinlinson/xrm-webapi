@@ -1,12 +1,9 @@
 {
   "compilerOptions": {
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "noEmitOnError": true,
     "target": "es5",
-    "module": "commonjs"
+    "module": "commonjs"    
   },
-    "files":[
-        "typings/index.d.ts",
-        "src/scripts/xrm-webapi.ts"
-    ]
+  "files":[]
 }
