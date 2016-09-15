@@ -16,7 +16,6 @@
   "private": false,
   "devDependencies": {
     "del": "^2.2.2",
-    "gulp": "^3.9.1",
     "typings": "^1.3.3"
   },
   "dependencies": {
