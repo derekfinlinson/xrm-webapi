@@ -79,7 +79,7 @@ const inputs = new Object();
 inputs["title"] = "Note Title";
 inputs["body"] = "Note body";
 
-WebApi.executeAction("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "", JSON.stringify(inputs))
+WebApi.executeAction("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "", inputs)
     .then(
         (result) => {
             console.log(result["annotationid"]);

@@ -51,7 +51,7 @@ export class WebApi {
     static retrieveMultiple(entitySet: string, queryString?: string) {
         if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;
         this.getRequest("GET", entitySet, queryString);
-        this.getRequest("", "");
+        
         return new Promise((resolve, reject) => {
             this.request.onreadystatechange = () => {
                 if (this.request.readyState === 4 /* complete */) {
@@ -203,7 +203,7 @@ export class WebApi {
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
      */
-    static executeAction(entitySet: string, id: string, actionName: string, inputs: string) {
+    static executeAction(entitySet: string, id: string, actionName: string, inputs: Object) {
         id = id.replace(/[{}]/g, "");
         this.getRequest("POST", entitySet, `(${id})/Microsoft.Dynamics.CRM.${actionName}`);
 

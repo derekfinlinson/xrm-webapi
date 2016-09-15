@@ -31,7 +31,7 @@
     <DebugSymbols>true</DebugSymbols>
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
-    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptCompileOnSaveEnabled>False</TypeScriptCompileOnSaveEnabled>
     <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
     <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
     <TypeScriptOutFile />
@@ -44,14 +44,24 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugSymbols>true</DebugSymbols>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>False</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>False</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
   </PropertyGroup>
   <ItemGroup>
     <Content Include="dist\typings\globals\es6-promise\typings.json" />
     <Content Include="dist\typings\globals\xrm\typings.json" />
     <Content Include="typings.json" />
     <Content Include="typings\globals\es6-promise\typings.json" />
-    <Content Include="typings\globals\mocha\typings.json" />
-    <Content Include="typings\globals\node\typings.json" />
     <Content Include="typings\globals\xrm\typings.json" />
     <Content Include="package.json" />
     <TypeScriptCompile Include="dist\typings\globals\es6-promise\index.d.ts" />
@@ -78,8 +88,6 @@
     <Folder Include="typings\" />
     <Folder Include="typings\globals\" />
     <Folder Include="typings\globals\es6-promise\" />
-    <Folder Include="typings\globals\mocha\" />
-    <Folder Include="typings\globals\node\" />
     <Folder Include="typings\globals\xrm\" />
   </ItemGroup>
   <ItemGroup>
