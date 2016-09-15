@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/5953dd4f6c9cebee89f6f26da74280d525c21d08/xrm/xrm.d.ts",
+    "raw": "registry:dt/xrm#7.1.0+20160817180801",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/5953dd4f6c9cebee89f6f26da74280d525c21d08/xrm/xrm.d.ts"
+  }
+}
