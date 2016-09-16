@@ -26,7 +26,7 @@ export class WebApi {
         id = id.replace(/[{}]/g, "");
 
         this.getRequest("GET", entityType, `(${id})${queryString}`);
-        
+
         return new Promise((resolve, reject) => {
             this.request.onreadystatechange = () => {
                 if (this.request.readyState === 4 /* complete */) {
@@ -51,7 +51,7 @@ export class WebApi {
     static retrieveMultiple(entitySet: string, queryString?: string) {
         if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;
         this.getRequest("GET", entitySet, queryString);
-        
+
         return new Promise((resolve, reject) => {
             this.request.onreadystatechange = () => {
                 if (this.request.readyState === 4 /* complete */) {
@@ -141,7 +141,7 @@ export class WebApi {
                 }
             };
 
-            this.request.send(JSON.stringify({attribute: value}));
+            this.request.send(JSON.stringify({ attribute: value }));
         });
     }
 

@@ -1,9 +1,15 @@
 {
-  "compilerOptions": {
-    "noImplicitAny": true,
-    "noEmitOnError": true,
-    "target": "es5",
-    "module": "commonjs"    
-  },
-  "files":[]
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": false,
+        "noImplicitAny": false,
+        "noImplicitUseStrict": false,
+        "removeComments": true,
+        "noLib": false,
+        "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors": true
+    },
+    "files": [],
+    "compileOnSave": false
 }
