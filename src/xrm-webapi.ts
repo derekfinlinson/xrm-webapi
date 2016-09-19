@@ -60,7 +60,7 @@ export class WebApi {
         if (includeFormattedValues || maxPageSize) {
           this.request.setRequestHeader("Prefer", [
             includeFormattedValues ? 'odata.include-annotations="OData.Community.Display.V1.FormattedValue' : "",
-            maxPageSize ? `odata.maxpagesize=${maxPageSize}`
+            maxPageSize ? `odata.maxpagesize=${maxPageSize}` : ""
           ].join(","));
         }
 
