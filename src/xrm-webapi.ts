@@ -21,11 +21,15 @@ export class WebApi {
      * @param id Id of record to retrieve
      * @param queryString OData query string parameters
      */
-    static retrieve(entityType: string, id: string, queryString?: string) {
+    static retrieve(entityType: string, id: string, queryString?: string, includeFormattedValues?: boolean) {
         if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;
         id = id.replace(/[{}]/g, "");
 
         this.getRequest("GET", entityType, `(${id})${queryString}`);
+
+        if (includeFormattedValues) {
+          this.request.setRequestHeader("Prefer", 'odata.include-annotations="OData.Community.Display.V1.FormattedValue');
+        }
 
         return new Promise((resolve, reject) => {
             this.request.onreadystatechange = () => {
@@ -48,9 +52,17 @@ export class WebApi {
      * @param entitySet Type of entity to retrieve
      * @param queryString OData query string parameters
      */
-    static retrieveMultiple(entitySet: string, queryString?: string) {
+    static retrieveMultiple(entitySet: string, queryString?: string, includeFormattedValues?: boolean, maxPageSize?: number) {
         if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;
+
         this.getRequest("GET", entitySet, queryString);
+
+        if (includeFormattedValues || maxPageSize) {
+          this.request.setRequestHeader("Prefer", [
+            includeFormattedValues ? 'odata.include-annotations="OData.Community.Display.V1.FormattedValue' : "",
+            maxPageSize ? `odata.maxpagesize=${maxPageSize}`
+          ].join(","));
+        }
 
         return new Promise((resolve, reject) => {
             this.request.onreadystatechange = () => {
