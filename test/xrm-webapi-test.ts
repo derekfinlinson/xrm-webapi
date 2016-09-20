@@ -1,5 +1,6 @@
 ﻿import {WebApi} from "../src/xrm-webapi";
 
+/// Demonstrate create
 const account = { name: "Test Account" };
 
 WebApi.create("accounts", account)
@@ -12,6 +13,7 @@ WebApi.create("accounts", account)
         }
     );
 
+/// Demonstrate retrieve
 WebApi.retrieve("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "$select=name")
     .then(
         (account) => {
@@ -22,6 +24,7 @@ WebApi.retrieve("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "$select=nam
         }
     );
 
+/// Demonstrate retrieve multiple
 const options = "$filter=name eq 'Test Account'&$select=name,accountid";
 
 WebApi.retrieveMultiple("accounts", options)
@@ -39,7 +42,7 @@ WebApi.retrieveMultiple("accounts", options)
         }
     );
 
-// Update returns no content
+/// Demonstrate update. Update returns no content
 WebApi.update("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", account)
     .then(
         () => {},
@@ -48,7 +51,7 @@ WebApi.update("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", account)
         }
     );
 
-// Update property returns no content
+/// Demonstrate create. Update property returns no content
 WebApi.updateProperty("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "name", "Updated Account")
     .then(() => {},
         (error) => {
@@ -56,7 +59,7 @@ WebApi.updateProperty("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "name"
         }
     );
 
-// Delete returns no content
+/// Demonstrate create. Delete returns no content
 WebApi.delete("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6")
     .then(
         () => {},
@@ -65,7 +68,7 @@ WebApi.delete("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6")
         }
     );
 
-// Delete property returns no content
+/// Demonstrate create. Delete property returns no content
 WebApi.deleteProperty("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "address1_line1")
     .then(
         () => {},
@@ -74,7 +77,7 @@ WebApi.deleteProperty("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "addre
         }
 );
 
-// Custom action - Add note to account
+/// Demonstrate create. Custom action - Add note to account
 const inputs = new Object();
 inputs["title"] = "Note Title";
 inputs["body"] = "Note body";
