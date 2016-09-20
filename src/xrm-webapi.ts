@@ -1,4 +1,5 @@
-﻿import {Promise} from "es6-promise";
+/// <reference path="./typings/index.d.ts" />
+import {Promise} from "es6-promise";
 
 export class WebApi {
     private static request: XMLHttpRequest;

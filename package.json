@@ -1,11 +1,14 @@
 {
   "name": "xrm-webapi",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Dynamics CRM Web Api Typescript Module",
   "main": "src/xrm-webapi.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/derekfinlinson/xrm-webapi/xrm-webapi.git"
+  },
+  "scripts": {
+    "test": "tsc --noEmit --target es5 test/xrm-webapi-test.ts"
   },
   "author": "Derek Finlinson",
   "keywords": [
