@@ -216,7 +216,7 @@ export class WebApi {
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
      */
-    static executeAction(entitySet: string, id: string, actionName: string, inputs: Object) {
+    static executeAction(entitySet: string, id: string, actionName: string, inputs?: Object) {
         id = id.replace(/[{}]/g, "");
         this.getRequest("POST", entitySet, `(${id})/Microsoft.Dynamics.CRM.${actionName}`);
 
