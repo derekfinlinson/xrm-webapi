@@ -6,7 +6,11 @@ export class WebApi {
 
     private static getRequest(method: string, entitySet: string, queryString?: string) {
         const context = typeof GetGlobalContext != "undefined" ? GetGlobalContext() : Xrm.Page.context;
-        const url = context.getClientUrl() + "/api/data/v8.0/" + entitySet + queryString;
+        let url = context.getClientUrl() + "/api/data/v8.0/" + entitySet;
+
+        if (queryString) {
+            url += queryString;
+        }
 
         this.request = new XMLHttpRequest();
         this.request.open(method, url, true);
