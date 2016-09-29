@@ -11,7 +11,7 @@ export class WebApi {
         if (queryString) {
           url += queryString;
         }
-        
+
         this.request = new XMLHttpRequest();
         this.request.open(method, url, true);
         this.request.setRequestHeader("Accept", "application/json");
@@ -97,7 +97,7 @@ export class WebApi {
             this.request.onreadystatechange = () => {
                 if (this.request.readyState === 4 /* complete */) {
                     this.request.onreadystatechange = null;
-                    if (this.request.status === 200) {
+                    if (this.request.status === 204) {
                         resolve(this.request.getResponseHeader("OData-EntityId"));
                     } else {
                         reject(JSON.parse(this.request.response).error);
