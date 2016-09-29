@@ -4,13 +4,9 @@ import {Promise} from "es6-promise";
 export class WebApi {
     private static request: XMLHttpRequest;
 
-    private static getRequest(method: string, entitySet: string, queryString?: string) {
+    private static getRequest(method: string, entitySet: string, queryString = "") {
         const context = typeof GetGlobalContext != "undefined" ? GetGlobalContext() : Xrm.Page.context;
         let url = context.getClientUrl() + "/api/data/v8.0/" + entitySet;
-
-        if (queryString) {
-            url += queryString;
-        }
 
         this.request = new XMLHttpRequest();
         this.request.open(method, url, true);
@@ -105,7 +101,7 @@ export class WebApi {
                 }
             };
 
-            this.request.send(entity);
+            this.request.send(JSON.stringify(entity));
         });
     }
 
