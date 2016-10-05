@@ -7,5 +7,5 @@ deploy:
   api_key:
     secure: WC3Zsv4zfeh74klupWCDgG6AAM7h525GdBU2rOwLHd8OKE/MVlUYsgWEQZnl371g/0YA+VxlA5ZQ8+18+gN/VDx+HNNhQvxM7rYet+E8N/uexqm3/6G02/JdK5wwpjwcuBU6/G+89sAVuple8sWRCLNXkMF1keWfY22QPD0v2G+dbn2QV3jPEJcAS0a3mBtSqOzD3EK1fovIA/YSuXYJZeZgfs8HZj9aL7TCPcJ9gDRFa7k6FWhJ8HfEu3O2wXdqeNmoJ9Sh5fyZ2Kh7fAy9v4OWXzq1ko3Bp2r7+r+s488Zxxg8WOY7iC0LAY0yQSbwvw7TvjkVPvLQ+JoyL3ej0IRUGNlSsoQ0R2CRU2UoaBEHnmHDZCyyr8x8VJPpG1jqJaYjWPOvGMRflxfQk/ri967f3SD+1oviRR9yrZtxImye0QSR9hsYmtFtKjpke0S3De2T3ftpOSvuBQpBnd0cnHJhnomefAf3zrQmoHbOKpDX1fdC7oLSHSA+9P+jEqiqYCdT7mcjP20ey8qhfExXMKmsbaVJ5bsVU+c/fzWWYsJCjDSOE3C34Y4tesk3/pXWgcN8vQPXYiNoR1QKGTQ17odbC9ZWZ51Xj/vOwTx6TvPuTpPzVGJy5JnLW8PXPpU1J8W1ngG9ljQ6cYeEq3p1RCV+aASQWQ7gyFcDwPbb3Ik=
   on:
-    tags: true
+    branch: master
     repo: derekfinlinson/xrm-webapi
