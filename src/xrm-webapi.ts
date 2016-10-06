@@ -4,7 +4,7 @@ import {Promise} from "es6-promise";
 export interface FunctionInput {
     name: string;
     value: string;
-    alias?: string
+    alias?: string;
 }
 
 export class WebApi {
