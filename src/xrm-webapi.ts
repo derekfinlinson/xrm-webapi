@@ -45,20 +45,45 @@ export class WebApi {
         return queryString;
     }
 
+    private static getPreferHeader(formattedValues, lookupLogicalNames, associatedNavigationProperties, maxPageSize?: number) {
+        let prefer = [];
+
+        if (maxPageSize) {
+            prefer.push(`odata.maxpagesize=${maxPageSize}`);
+        }
+        
+        if (formattedValues && lookupLogicalNames & associatedNavigationProperties) {
+            prefer.push('odata.include-annotations="*"');
+        } else {
+            const preferExtra = [            
+                formattedValues ? "OData.Community.Display.V1.FormattedValue" : "",
+                lookupLogicalNames ? "Microsoft.Dynamics.CRM.lookuplogicalname" : "",
+                associatedNavigationProperties ? "Microsoft.Dynamics.CRM.associatednavigationproperty" : ""
+            ].filter((v, i) => { return v != ""}).join(",");
+
+            prefer.push('odata.include-annotations="' + preferExtra + '"');
+        }
+              
+        return prefer.join(",");
+    }
+
     /**
      * Retrieve a record from CRM
      * @param entityType Type of entity to retrieve
      * @param id Id of record to retrieve
      * @param queryString OData query string parameters
+     * @param includeFormattedValues Include formatted values in results
+     * @param includeLookupLogicalNames Include lookup logical names in results
+     * @param includeAssociatedNavigationProperty Include associated navigation property in results
      */
-    static retrieve(entityType: string, id: string, queryString?: string, includeFormattedValues?: boolean) {
+    static retrieve(entityType: string, id: string, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false) {
         if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;
         id = id.replace(/[{}]/g, "");
 
         this.getRequest("GET", `${entityType}(${id})${queryString}`);
 
-        if (includeFormattedValues) {
-          this.request.setRequestHeader("Prefer", 'odata.include-annotations="OData.Community.Display.V1.FormattedValue');
+        if (includeFormattedValues || includeLookupLogicalNames || includeAssociatedNavigationProperties) {
+          this.request.setRequestHeader("Prefer", this.getPreferHeader(includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties));
         }
 
         return new Promise((resolve, reject) => {
@@ -81,17 +106,18 @@ export class WebApi {
      * Retrieve multiple records from CRM
      * @param entitySet Type of entity to retrieve
      * @param queryString OData query string parameters
+     * @param includeFormattedValues Include formatted values in results
+     * @param includeLookupLogicalNames Include lookup logical names in results
+     * @param includeAssociatedNavigationProperty Include associated navigation property in results
+     * @param maxPageSize Records per page to return
      */
-    static retrieveMultiple(entitySet: string, queryString?: string, includeFormattedValues?: boolean, maxPageSize?: number) {
+    static retrieveMultiple(entitySet: string, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false, maxPageSize?: number) {
         if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;
 
         this.getRequest("GET", entitySet + queryString);
 
-        if (includeFormattedValues || maxPageSize) {
-          this.request.setRequestHeader("Prefer", [
-            includeFormattedValues ? 'odata.include-annotations="OData.Community.Display.V1.FormattedValue' : "",
-            maxPageSize ? `odata.maxpagesize=${maxPageSize}` : ""
-          ].join(","));
+        if (includeFormattedValues || includeLookupLogicalNames || includeAssociatedNavigationProperties) {
+          this.request.setRequestHeader("Prefer", this.getPreferHeader(includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties, maxPageSize));
         }
 
         return new Promise((resolve, reject) => {
