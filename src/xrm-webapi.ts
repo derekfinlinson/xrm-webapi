@@ -8,18 +8,18 @@ export interface FunctionInput {
 }
 
 export class WebApi {
-    private static request: XMLHttpRequest;
-
     private static getRequest(method: string, queryString: string) {
         const context = typeof GetGlobalContext != "undefined" ? GetGlobalContext() : Xrm.Page.context;
         let url = context.getClientUrl() + "/api/data/v8.0/" + queryString;
 
-        this.request = new XMLHttpRequest();
-        this.request.open(method, url, true);
-        this.request.setRequestHeader("Accept", "application/json");
-        this.request.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        this.request.setRequestHeader("OData-MaxVersion", "4.0");
-        this.request.setRequestHeader("OData-Version", "4.0");
+        const request = new XMLHttpRequest();
+        request.open(method, url, true);
+        request.setRequestHeader("Accept", "application/json");
+        request.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+        request.setRequestHeader("OData-MaxVersion", "4.0");
+        request.setRequestHeader("OData-Version", "4.0");
+
+        return request;
     }
 
     private static getFunctionInputs(queryString: string, inputs: Array<FunctionInput>) {        
@@ -80,25 +80,25 @@ export class WebApi {
         if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;
         id = id.replace(/[{}]/g, "");
 
-        this.getRequest("GET", `${entityType}(${id})${queryString}`);
+        var req = this.getRequest("GET", `${entityType}(${id})${queryString}`);
 
         if (includeFormattedValues || includeLookupLogicalNames || includeAssociatedNavigationProperties) {
-          this.request.setRequestHeader("Prefer", this.getPreferHeader(includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties));
+          req.setRequestHeader("Prefer", this.getPreferHeader(includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties));
         }
 
         return new Promise((resolve, reject) => {
-            this.request.onreadystatechange = () => {
-                if (this.request.readyState === 4 /* complete */) {
-                    this.request.onreadystatechange = null;
-                    if (this.request.status === 200) {
-                        resolve(JSON.parse(this.request.response));
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 200) {
+                        resolve(JSON.parse(req.response));
                     } else {
-                        reject(JSON.parse(this.request.response).error);
+                        reject(JSON.parse(req.response).error);
                     }
                 }
             };
 
-            this.request.send();
+            req.send();
         });
     }
 
@@ -114,25 +114,25 @@ export class WebApi {
     static retrieveMultiple(entitySet: string, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false, maxPageSize?: number) {
         if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;
 
-        this.getRequest("GET", entitySet + queryString);
+        var req = this.getRequest("GET", entitySet + queryString);
 
         if (includeFormattedValues || includeLookupLogicalNames || includeAssociatedNavigationProperties) {
-          this.request.setRequestHeader("Prefer", this.getPreferHeader(includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties, maxPageSize));
+          req.setRequestHeader("Prefer", this.getPreferHeader(includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties, maxPageSize));
         }
 
         return new Promise((resolve, reject) => {
-            this.request.onreadystatechange = () => {
-                if (this.request.readyState === 4 /* complete */) {
-                    this.request.onreadystatechange = null;
-                    if (this.request.status === 200) {
-                        resolve(JSON.parse(this.request.response));
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 200) {
+                        resolve(JSON.parse(req.response));
                     } else {
-                        reject(JSON.parse(this.request.response).error);
+                        reject(JSON.parse(req.response).error);
                     }
                 }
             };
 
-            this.request.send();
+            req.send();
         });
     }
 
@@ -142,21 +142,21 @@ export class WebApi {
      * @param entity Entity to create
      */
     static create(entitySet: string, entity: Object) {
-        this.getRequest("POST", entitySet);
+        var req = this.getRequest("POST", entitySet);
 
         return new Promise((resolve, reject) => {
-            this.request.onreadystatechange = () => {
-                if (this.request.readyState === 4 /* complete */) {
-                    this.request.onreadystatechange = null;
-                    if (this.request.status === 204) {
-                        resolve(this.request.getResponseHeader("OData-EntityId"));
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 204) {
+                        resolve(req.getResponseHeader("OData-EntityId"));
                     } else {
-                        reject(JSON.parse(this.request.response).error);
+                        reject(JSON.parse(req.response).error);
                     }
                 }
             };
 
-            this.request.send(JSON.stringify(entity));
+            req.send(JSON.stringify(entity));
         });
     }
 
@@ -168,21 +168,21 @@ export class WebApi {
      */
     static update(entitySet: string, id: string, entity: Object) {
         id = id.replace(/[{}]/g, "");
-        this.getRequest("PATCH", `${entitySet}(${id})`);
+        var req = this.getRequest("PATCH", `${entitySet}(${id})`);
 
         return new Promise((resolve, reject) => {
-            this.request.onreadystatechange = () => {
-                if (this.request.readyState === 4 /* complete */) {
-                    this.request.onreadystatechange = null;
-                    if (this.request.status === 204) {
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 204) {
                         resolve();
                     } else {
-                        reject(JSON.parse(this.request.response).error);
+                        reject(JSON.parse(req.response).error);
                     }
                 }
             };
 
-            this.request.send(JSON.stringify(entity));
+            req.send(JSON.stringify(entity));
         });
     }
 
@@ -195,21 +195,21 @@ export class WebApi {
      */
     static updateProperty(entitySet: string, id: string, attribute: string, value: any) {
         id = id.replace(/[{}]/g, "");
-        this.getRequest("PUT", `${entitySet}(${id})`);
+        var req = this.getRequest("PUT", `${entitySet}(${id})`);
 
         return new Promise((resolve, reject) => {
-            this.request.onreadystatechange = () => {
-                if (this.request.readyState === 4 /* complete */) {
-                    this.request.onreadystatechange = null;
-                    if (this.request.status === 204) {
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 204) {
                         resolve();
                     } else {
-                        reject(JSON.parse(this.request.response).error);
+                        reject(JSON.parse(req.response).error);
                     }
                 }
             };
 
-            this.request.send(JSON.stringify({ attribute: value }));
+            req.send(JSON.stringify({ attribute: value }));
         });
     }
 
@@ -220,21 +220,21 @@ export class WebApi {
      */
     static delete(entitySet: string, id: string) {
         id = id.replace(/[{}]/g, "");
-        this.getRequest("DELETE", `${entitySet}(${id})`);
+        var req = this.getRequest("DELETE", `${entitySet}(${id})`);
 
         return new Promise((resolve, reject) => {
-            this.request.onreadystatechange = () => {
-                if (this.request.readyState === 4 /* complete */) {
-                    this.request.onreadystatechange = null;
-                    if (this.request.status === 204) {
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 204) {
                         resolve();
                     } else {
-                        reject(JSON.parse(this.request.response).error);
+                        reject(JSON.parse(req.response).error);
                     }
                 }
             };
 
-            this.request.send();
+            req.send();
         });
     }
 
@@ -246,21 +246,21 @@ export class WebApi {
      */
     static deleteProperty(entitySet: string, id: string, attribute: string) {
         id = id.replace(/[{}]/g, "");
-        this.getRequest("DELETE", `${entitySet}(${id})/${attribute}`);
+        var req = this.getRequest("DELETE", `${entitySet}(${id})/${attribute}`);
 
         return new Promise((resolve, reject) => {
-            this.request.onreadystatechange = () => {
-                if (this.request.readyState === 4 /* complete */) {
-                    this.request.onreadystatechange = null;
-                    if (this.request.status === 204) {
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 204) {
                         resolve();
                     } else {
-                        reject(JSON.parse(this.request.response).error);
+                        reject(JSON.parse(req.response).error);
                     }
                 }
             };
 
-            this.request.send();
+            req.send();
         });
     }
 
@@ -273,23 +273,23 @@ export class WebApi {
      */
     static boundAction(entitySet: string, id: string, actionName: string, inputs?: Object) {
         id = id.replace(/[{}]/g, "");
-        this.getRequest("POST", `${entitySet}(${id})/Microsoft.Dynamics.CRM.${actionName}`);
+        var req = this.getRequest("POST", `${entitySet}(${id})/Microsoft.Dynamics.CRM.${actionName}`);
 
         return new Promise((resolve, reject) => {
-            this.request.onreadystatechange = () => {
-                if (this.request.readyState === 4 /* complete */) {
-                    this.request.onreadystatechange = null;
-                    if (this.request.status === 200) {
-                        resolve(JSON.parse(this.request.response));
-                    } else if (this.request.status === 204) {
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 200) {
+                        resolve(JSON.parse(req.response));
+                    } else if (req.status === 204) {
                         resolve();
                     } else {
-                        reject(JSON.parse(this.request.response).error);
+                        reject(JSON.parse(req.response).error);
                     }
                 }
             };
 
-            inputs != null ? this.request.send(JSON.stringify(inputs)) : this.request.send();
+            inputs != null ? req.send(JSON.stringify(inputs)) : req.send();
         });
     }
     
@@ -299,23 +299,23 @@ export class WebApi {
      * @param inputs Any inputs required by the action
      */
     static unboundAction(actionName: string, inputs?: Object) {
-        this.getRequest("POST", `Microsoft.Dynamics.CRM.${actionName}`);
+        var req = this.getRequest("POST", `Microsoft.Dynamics.CRM.${actionName}`);
 
         return new Promise((resolve, reject) => {
-            this.request.onreadystatechange = () => {
-                if (this.request.readyState === 4 /* complete */) {
-                    this.request.onreadystatechange = null;
-                    if (this.request.status === 200) {
-                        resolve(JSON.parse(this.request.response));
-                    } else if (this.request.status === 204) {
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 200) {
+                        resolve(JSON.parse(req.response));
+                    } else if (req.status === 204) {
                         resolve();
                     } else {
-                        reject(JSON.parse(this.request.response).error);
+                        reject(JSON.parse(req.response).error);
                     }
                 }
             };
 
-            inputs != null ? this.request.send(JSON.stringify(inputs)) : this.request.send();
+            inputs != null ? req.send(JSON.stringify(inputs)) : req.send();
         });
     }
 
@@ -332,23 +332,23 @@ export class WebApi {
         let queryString = `${entitySet}(${id})/Microsoft.Dynamics.CRM.${functionName}(`;
         queryString = this.getFunctionInputs(queryString, inputs);
 
-        this.getRequest("GET", queryString);
+        var req = this.getRequest("GET", queryString);
 
         return new Promise((resolve, reject) => {
-            this.request.onreadystatechange = () => {
-                if (this.request.readyState === 4 /* complete */) {
-                    this.request.onreadystatechange = null;
-                    if (this.request.status === 200) {
-                        resolve(JSON.parse(this.request.response));
-                    } else if (this.request.status === 204) {
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 200) {
+                        resolve(JSON.parse(req.response));
+                    } else if (req.status === 204) {
                         resolve();
                     } else {
-                        reject(JSON.parse(this.request.response).error);
+                        reject(JSON.parse(req.response).error);
                     }
                 }
             };
 
-            inputs != null ? this.request.send(JSON.stringify(inputs)) : this.request.send();
+            inputs != null ? req.send(JSON.stringify(inputs)) : req.send();
         });
     }
 
@@ -361,23 +361,23 @@ export class WebApi {
         let queryString = `${functionName}(`;
         queryString = this.getFunctionInputs(queryString, inputs);
         
-        this.getRequest("GET", queryString);
+        var req = this.getRequest("GET", queryString);
 
         return new Promise((resolve, reject) => {
-            this.request.onreadystatechange = () => {
-                if (this.request.readyState === 4 /* complete */) {
-                    this.request.onreadystatechange = null;
-                    if (this.request.status === 200) {
-                        resolve(JSON.parse(this.request.response));
-                    } else if (this.request.status === 204) {
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 200) {
+                        resolve(JSON.parse(req.response));
+                    } else if (req.status === 204) {
                         resolve();
                     } else {
-                        reject(JSON.parse(this.request.response).error);
+                        reject(JSON.parse(req.response).error);
                     }
                 }
             };
 
-            inputs != null ? this.request.send(JSON.stringify(inputs)) : this.request.send();
+            inputs != null ? req.send(JSON.stringify(inputs)) : req.send();
         });
     }
 }
