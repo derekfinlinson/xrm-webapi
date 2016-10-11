@@ -10,7 +10,7 @@ export interface FunctionInput {
 export class WebApi {
     private static getRequest(method: string, queryString: string) {
         const context = typeof GetGlobalContext != "undefined" ? GetGlobalContext() : Xrm.Page.context;
-        let url = context.getClientUrl() + "/api/data/v8.0/" + queryString;
+        let url = context.getClientUrl() + "/api/data/v8.1/" + queryString;
 
         const request = new XMLHttpRequest();
         request.open(method, url, true);
