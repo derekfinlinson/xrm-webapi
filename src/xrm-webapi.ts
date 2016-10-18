@@ -1,4 +1,3 @@
-/// <reference path="./typings/index.d.ts" />
 import {Promise} from "es6-promise";
 
 export interface FunctionInput {
@@ -11,7 +10,7 @@ export class WebApi {
     private static getRequest(method: string, queryString: string) {
         const context = typeof GetGlobalContext != "undefined" ? GetGlobalContext() : Xrm.Page.context;
         let url = context.getClientUrl() + "/api/data/v8.1/" + queryString;
-
+        
         const request = new XMLHttpRequest();
         request.open(method, url, true);
         request.setRequestHeader("Accept", "application/json");

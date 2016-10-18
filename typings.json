@@ -1,6 +1,0 @@
-{
-  "globalDependencies": {
-    "xrm": "registry:dt/xrm#7.1.0+20160817180801"
-  },
-  "resolution": "src/typings"
-}
