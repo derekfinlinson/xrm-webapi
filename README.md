@@ -19,7 +19,7 @@ npm install --save-dev xrm-webapi
 Import the module into your TypeScript files
 
 ```typescript
-import {WebApi} from "../node_modules/xrm-webapi/dist/xrm-webapi";
+import {WebApi} from "../node_modules/xrm-webapi/src/xrm-webapi";
 ```
 
 ##### Create
