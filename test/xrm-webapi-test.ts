@@ -1,6 +1,5 @@
 ﻿import {WebApi} from "../src/xrm-webapi";
-import {FunctionInput} from "../src/xrm-webapi";
-import {Guid, Entity, Attribute} from "../src/xrm-types";
+import {Guid, Entity, Attribute, FunctionInput} from "../src/xrm-types";
 
 /// Demonstrate create
 const account: Entity = { attributes: new Array<Attribute>() };
