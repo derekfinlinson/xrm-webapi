@@ -23,7 +23,7 @@ import {WebApi} from "../node_modules/xrm-webapi/src/xrm-webapi";
 ```
 
 ##### Samples
-See [xrm-webapi-test.ts](test/xrm-wbapi-test.ts) for samples
+See [xrm-webapi-test.ts](test/xrm-webapi-test.ts) for samples
 
 ### Useful Links
 
