@@ -8,7 +8,7 @@ export class Guid {
     value: string;
 
     constructor(value: string) {
-        value.replace(/[{}]/g, "");
+        value = value.replace(/[{}]/g, "");
         
         if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(value)) {
             this.value = value.toUpperCase();
