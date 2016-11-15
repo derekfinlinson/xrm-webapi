@@ -1,10 +1,5 @@
 import {Promise} from "es6-promise";
-
-export interface FunctionInput {
-    name: string;
-    value: string;
-    alias?: string;
-}
+import {Guid, Entity, Attribute, FunctionInput} from "./xrm-types";
 
 export class WebApi {
     private static getRequest(method: string, queryString: string) {
@@ -75,11 +70,10 @@ export class WebApi {
      * @param includeLookupLogicalNames Include lookup logical names in results
      * @param includeAssociatedNavigationProperty Include associated navigation property in results
      */
-    static retrieve(entityType: string, id: string, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false) {
-        if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;
-        id = id.replace(/[{}]/g, "");
+    static retrieve(entityType: string, id: Guid, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false) {
+        if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;        
 
-        var req = this.getRequest("GET", `${entityType}(${id})${queryString}`);
+        var req = this.getRequest("GET", `${entityType}(${id.value})${queryString}`);
 
         if (includeFormattedValues || includeLookupLogicalNames || includeAssociatedNavigationProperties) {
           req.setRequestHeader("Prefer", this.getPreferHeader(includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties));
@@ -140,7 +134,7 @@ export class WebApi {
      * @param entitySet Type of entity to create
      * @param entity Entity to create
      */
-    static create(entitySet: string, entity: Object) {
+    static create(entitySet: string, entity: Entity): Promise<string> {
         var req = this.getRequest("POST", entitySet);
 
         return new Promise((resolve, reject) => {
@@ -155,7 +149,9 @@ export class WebApi {
                 }
             };
 
-            req.send(JSON.stringify(entity));
+            const attributes = entity.attributes.map(attribute => { return { [attribute.name]: attribute.value }});            
+
+            req.send(JSON.stringify(attributes));
         });
     }
 
@@ -165,9 +161,8 @@ export class WebApi {
      * @param id Id of record to update
      * @param entity Entity fields to update
      */
-    static update(entitySet: string, id: string, entity: Object) {
-        id = id.replace(/[{}]/g, "");
-        var req = this.getRequest("PATCH", `${entitySet}(${id})`);
+    static update(entitySet: string, id: Guid, entity: Entity) {        
+        var req = this.getRequest("PATCH", `${entitySet}(${id.value})`);
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -181,7 +176,9 @@ export class WebApi {
                 }
             };
 
-            req.send(JSON.stringify(entity));
+            const attributes = entity.attributes.map(attribute => { return { [attribute.name]: attribute.value }});
+
+            req.send(JSON.stringify(attributes));
         });
     }
 
@@ -189,12 +186,10 @@ export class WebApi {
      * Update a single property of a record in CRM
      * @param entitySet Type of entity to update
      * @param id Id of record to update
-     * @param attribute Attribute logical name
-     * @param value Update value
+     * @param attribute Attribute to update     
      */
-    static updateProperty(entitySet: string, id: string, attribute: string, value: any) {
-        id = id.replace(/[{}]/g, "");
-        var req = this.getRequest("PUT", `${entitySet}(${id})`);
+    static updateProperty(entitySet: string, id: Guid, attribute: Attribute) {        
+        var req = this.getRequest("PUT", `${entitySet}(${id.value})`);
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -208,7 +203,9 @@ export class WebApi {
                 }
             };
 
-            req.send(JSON.stringify({ attribute: value }));
+            const name = attribute.name;
+
+            req.send(JSON.stringify({ name : attribute.value }));
         });
     }
 
@@ -217,9 +214,8 @@ export class WebApi {
      * @param entitySet Type of entity to delete
      * @param id Id of record to delete
      */
-    static delete(entitySet: string, id: string) {
-        id = id.replace(/[{}]/g, "");
-        var req = this.getRequest("DELETE", `${entitySet}(${id})`);
+    static delete(entitySet: string, id: Guid) {        
+        var req = this.getRequest("DELETE", `${entitySet}(${id.value})`);
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -243,9 +239,8 @@ export class WebApi {
      * @param id Id of record to update
      * @param attribute Attribute to delete
      */
-    static deleteProperty(entitySet: string, id: string, attribute: string) {
-        id = id.replace(/[{}]/g, "");
-        var req = this.getRequest("DELETE", `${entitySet}(${id})/${attribute}`);
+    static deleteProperty(entitySet: string, id: Guid, attribute: Attribute) {
+        var req = this.getRequest("DELETE", `${entitySet}(${id.value})/${attribute.name}`);
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -270,9 +265,8 @@ export class WebApi {
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
      */
-    static boundAction(entitySet: string, id: string, actionName: string, inputs?: Object) {
-        id = id.replace(/[{}]/g, "");
-        var req = this.getRequest("POST", `${entitySet}(${id})/Microsoft.Dynamics.CRM.${actionName}`);
+    static boundAction(entitySet: string, id: Guid, actionName: string, inputs?: Object) {        
+        var req = this.getRequest("POST", `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${actionName}`);
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -325,10 +319,8 @@ export class WebApi {
      * @param functionName Name of the action to run
      * @param inputs Any inputs required by the action
      */
-    static boundFunction(entitySet: string, id: string, functionName: string, inputs?: Array<FunctionInput>) {
-        id = id.replace(/[{}]/g, "");
-        
-        let queryString = `${entitySet}(${id})/Microsoft.Dynamics.CRM.${functionName}(`;
+    static boundFunction(entitySet: string, id: Guid, functionName: string, inputs?: Array<FunctionInput>) {
+        let queryString = `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${functionName}(`;
         queryString = this.getFunctionInputs(queryString, inputs);
 
         var req = this.getRequest("GET", queryString);

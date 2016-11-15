@@ -1,13 +1,14 @@
 ﻿import {WebApi} from "../src/xrm-webapi";
-import {FunctionInput} from "../src/xrm-webapi";
+import {Guid, Entity, Attribute, FunctionInput} from "../src/xrm-types";
 
 /// Demonstrate create
-const account = { name: "Test Account" };
+const account: Entity = { attributes: new Array<Attribute>() };
+account.attributes.push({name: "name", value: "Test Account"});
 
 WebApi.create("accounts", account)
     .then(
         (accountId) => {
-            console.log(accountId);
+            account.id = new Guid(accountId);
         },
         (error) => {
             console.log(error);
@@ -15,7 +16,7 @@ WebApi.create("accounts", account)
     );
 
 /// Demonstrate retrieve
-WebApi.retrieve("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "$select=name")
+WebApi.retrieve("accounts", account.id, "$select=name")
     .then(
         (account) => {
             console.log(account["name"]);
@@ -44,7 +45,7 @@ WebApi.retrieveMultiple("accounts", options)
     );
 
 /// Demonstrate update. Update returns no content
-WebApi.update("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", account)
+WebApi.update("accounts", account.id, account)
     .then(
         () => {},
         (error) => {
@@ -53,7 +54,7 @@ WebApi.update("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", account)
     );
 
 /// Demonstrate update property. Update property returns no content
-WebApi.updateProperty("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "name", "Updated Account")
+WebApi.updateProperty("accounts", account.id, {name: "name", value: "Updated Account"})
     .then(() => {},
         (error) => {
             console.log(error);
@@ -61,7 +62,7 @@ WebApi.updateProperty("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "name"
     );
 
 /// Demonstrate delete. Delete returns no content
-WebApi.delete("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6")
+WebApi.delete("accounts", account.id)
     .then(
         () => {},
         (error) => {
@@ -70,7 +71,7 @@ WebApi.delete("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6")
     );
 
 /// Demonstrate delete property. Delete property returns no content
-WebApi.deleteProperty("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "address1_line1")
+WebApi.deleteProperty("accounts", account.id, {name: "address1_line1"})
     .then(
         () => {},
         (error) => {
@@ -83,7 +84,7 @@ const inputs = new Object();
 inputs["string"] = "Text";
 inputs["number"] = 100;
 
-WebApi.boundAction("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "sample_BoundAction", inputs)
+WebApi.boundAction("accounts", account.id, "sample_BoundAction", inputs)
     .then(
         (result) => {
             console.log(result["annotationid"]);
@@ -112,7 +113,7 @@ WebApi.unboundAction("sample_UnboundAction", inputs2)
 const inputs3 = new Array<FunctionInput>();
 inputs3.push({name: "Argument", value: "Value"});
 
-WebApi.boundAction("accounts", "87989176-0887-45D1-93DA-4D5F228C10E6", "sample_BoundFunction", inputs3)
+WebApi.boundAction("accounts", account.id, "sample_BoundFunction", inputs3)
     .then(
         (result) => {
             console.log(result["annotationid"]);
