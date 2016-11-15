@@ -15,7 +15,6 @@ All methods return a generic Promise. The module depends on es6-promise to add P
 ```
 npm install --save-dev xrm-webapi
 ```
-
 ### Usage
 
 Import the module into your TypeScript files
@@ -23,8 +22,7 @@ Import the module into your TypeScript files
 ```typescript
 import {WebApi} from "../node_modules/xrm-webapi/src/xrm-webapi";
 ```
-
-##### Samples
+### Samples
 See [xrm-webapi-test.ts](test/xrm-webapi-test.ts) for samples
 
 ### Useful Links
