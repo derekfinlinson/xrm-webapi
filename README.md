@@ -1,4 +1,6 @@
-﻿# xrm-webapi [![Build Status](https://travis-ci.org/derekfinlinson/xrm-webapi.png?branch=master)](https://travis-ci.org/derekfinlinson/xrm-webapi)
+﻿# xrm-webapi
+[![Build Status](https://travis-ci.org/derekfinlinson/xrm-webapi.png?branch=master)](https://travis-ci.org/derekfinlinson/xrm-webapi)
+[![Join the chat at https://gitter.im/xrm-webapi/Lobby](https://badges.gitter.im/xrm-webapi/Lobby.svg)](https://gitter.im/xrm-webapi/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 A Dynamics CRM Web API TypeScript module for use in Web Resources.
 
@@ -13,7 +15,6 @@ All methods return a generic Promise. The module depends on es6-promise to add P
 ```
 npm install --save-dev xrm-webapi
 ```
-
 ### Usage
 
 Import the module into your TypeScript files
@@ -21,8 +22,7 @@ Import the module into your TypeScript files
 ```typescript
 import {WebApi} from "../node_modules/xrm-webapi/src/xrm-webapi";
 ```
-
-##### Samples
+### Samples
 See [xrm-webapi-test.ts](test/xrm-webapi-test.ts) for samples
 
 ### Useful Links
