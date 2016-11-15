@@ -1,5 +1,5 @@
-﻿# xrm-webapi [![Build Status](https://travis-ci.org/derekfinlinson/xrm-webapi.png?branch=master)](https://travis-ci.org/derekfinlinson/xrm-webapi) [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/xrm-webapi/Lobby)
-
+﻿# xrm-webapi
+[![Build Status](https://travis-ci.org/derekfinlinson/xrm-webapi.png?branch=master)](https://travis-ci.org/derekfinlinson/xrm-webapi)
 [![Join the chat at https://gitter.im/xrm-webapi/Lobby](https://badges.gitter.im/xrm-webapi/Lobby.svg)](https://gitter.im/xrm-webapi/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 A Dynamics CRM Web API TypeScript module for use in Web Resources.
