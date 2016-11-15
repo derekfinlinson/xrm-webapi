@@ -10,13 +10,5 @@
         "preserveConstEnums": true,
         "suppressImplicitAnyIndexErrors": true
     },
-    "files": [
-      "src/xrm-webapi.ts",
-      "test/xrm-webapi-test.ts"
-    ],
-    "filesGlob" : [
-      "**/*.ts",      
-      "!node_modules/**"
-    ],
     "compileOnSave": false
 }
