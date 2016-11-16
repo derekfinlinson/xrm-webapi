@@ -1,5 +1,34 @@
 import {Promise} from "es6-promise";
-import {Guid, Entity, Attribute, FunctionInput} from "./xrm-types";
+
+export interface FunctionInput {
+    name: string;
+    value: string;
+    alias?: string;
+}
+
+export class Guid {
+    value: string;
+
+    constructor(value: string) {
+        value = value.replace(/[{}]/g, "");
+        
+        if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(value)) {
+            this.value = value.toUpperCase();
+        } else {
+            throw Error(`Id ${value} is not a valid GUID`);
+        }
+    }
+}
+
+export interface Attribute {
+    name: string;
+    value?: any
+}
+
+export interface Entity {
+    id?: Guid;
+    attributes: Array<Attribute>;
+}
 
 export class WebApi {
     private static getRequest(method: string, queryString: string) {
