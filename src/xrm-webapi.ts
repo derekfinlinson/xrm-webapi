@@ -102,7 +102,8 @@ export class WebApi {
     static retrieve(entityType: string, id: Guid, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false) {
         if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;        
 
-        var req = this.getRequest("GET", `${entityType}(${id.value})${queryString}`);
+        let query: string = (queryString != null) ? `${entityType}(${id.value})${queryString}` : `${entityType}(${id.value})`;
+        var req = this.getRequest("GET", query);
 
         if (includeFormattedValues || includeLookupLogicalNames || includeAssociatedNavigationProperties) {
           req.setRequestHeader("Prefer", this.getPreferHeader(includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties));
@@ -136,7 +137,8 @@ export class WebApi {
     static retrieveMultiple(entitySet: string, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false, maxPageSize?: number) {
         if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;
 
-        var req = this.getRequest("GET", entitySet + queryString);
+        let query: string = (queryString != null) ? entitySet + queryString : entitySet;
+        var req = this.getRequest("GET", query);
 
         if (includeFormattedValues || includeLookupLogicalNames || includeAssociatedNavigationProperties) {
           req.setRequestHeader("Prefer", this.getPreferHeader(includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties, maxPageSize));
