@@ -180,11 +180,11 @@ export class WebApi {
                 }
             };
 
-            let attributes;
+            let attributes = {};
 
             entity.attributes.forEach(attribute => {
                 attributes[attribute.name] = attribute.value;
-            });         
+            });
 
             req.send(JSON.stringify(attributes));
         });
@@ -211,7 +211,7 @@ export class WebApi {
                 }
             };
 
-            let attributes;
+            let attributes = {};
 
             entity.attributes.forEach(attribute => {
                 attributes[attribute.name] = attribute.value;
