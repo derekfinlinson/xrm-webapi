@@ -1,14 +1,14 @@
 {
   "name": "xrm-webapi",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "description": "Dynamics CRM Web Api Typescript Module",
-  "main": "src/xrm-webapi.ts",
+  "main": "xrm-webapi.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/derekfinlinson/xrm-webapi/xrm-webapi.git"
   },
   "scripts": {
-    "test": "tsc --noEmit --target es5 test/xrm-webapi-test.ts"
+    "test": "tsc --noEmit --target es5 --lib dom,es5,es2015.promise test/xrm-webapi-test.ts"
   },
   "author": "Derek Finlinson",
   "keywords": [
@@ -18,10 +18,11 @@
   ],
   "devDependencies": {},
   "dependencies": {
-    "@types/xrm": "^8.0.35",
-    "es6-promise": "^3.3.1"
+    "@types/xrm": "^8.0.36",
+    "es6-promise": "^4.0.5"
   },
   "files": [
-    "src"
+    "dist/xrm-webapi.js",
+    "dist/xrm-webapi.d.ts"
   ]
 }

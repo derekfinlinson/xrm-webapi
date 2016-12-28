@@ -5,9 +5,8 @@ const account: Entity = { attributes: new Array<Attribute>() };
 account.attributes.push({name: "name", value: "Test Account"});
 
 WebApi.create("accounts", account)
-    .then(
-        (accountId) => {
-            account.id = new Guid(accountId);
+    .then(createdAccount => {
+            account.id = createdAccount.id;
         },
         (error) => {
             console.log(error);

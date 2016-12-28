@@ -2,13 +2,12 @@
     "compilerOptions": {
         "target": "es5",
         "module": "commonjs",
-        "declaration": false,
         "noImplicitAny": false,
         "noImplicitUseStrict": false,
-        "removeComments": true,
-        "noLib": false,
-        "preserveConstEnums": true,
-        "suppressImplicitAnyIndexErrors": true
+        "declaration": true,
+        "outDir": "dist"
     },
-    "compileOnSave": false
+    "files": [
+        "src/xrm-webapi.ts"
+    ]
 }
