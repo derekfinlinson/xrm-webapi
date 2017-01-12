@@ -201,7 +201,7 @@ var WebApi = (function () {
      * @param attribute Attribute to update
      */
     WebApi.updateProperty = function (entitySet, id, attribute) {
-        var req = this.getRequest("PUT", entitySet + "(" + id.value + ")");
+        var req = this.getRequest("PUT", entitySet + "(" + id.value + ")/" + attribute.name);
         return new es6_promise_1.Promise(function (resolve, reject) {
             req.onreadystatechange = function () {
                 if (req.readyState === 4 /* complete */) {
@@ -214,8 +214,7 @@ var WebApi = (function () {
                     }
                 }
             };
-            var name = attribute.name;
-            req.send(JSON.stringify({ name: attribute.value }));
+            req.send(JSON.stringify({ "value": attribute.value }));
         });
     };
     /**
@@ -296,7 +295,7 @@ var WebApi = (function () {
      * @param inputs Any inputs required by the action
      */
     WebApi.unboundAction = function (actionName, inputs) {
-        var req = this.getRequest("POST", "Microsoft.Dynamics.CRM." + actionName);
+        var req = this.getRequest("POST", actionName);
         return new es6_promise_1.Promise(function (resolve, reject) {
             req.onreadystatechange = function () {
                 if (req.readyState === 4 /* complete */) {
