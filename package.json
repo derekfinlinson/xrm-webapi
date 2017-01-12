@@ -1,6 +1,6 @@
 {
   "name": "xrm-webapi",
-  "version": "0.5.7",
+  "version": "0.5.9",
   "description": "Dynamics CRM Web Api Typescript Module",
   "main": "xrm-webapi.js",
   "repository": {

@@ -242,7 +242,7 @@ export class WebApi {
      * @param attribute Attribute to update     
      */
     static updateProperty(entitySet: string, id: Guid, attribute: Attribute) {        
-        var req = this.getRequest("PUT", `${entitySet}(${id.value})`);
+        var req = this.getRequest("PUT", `${entitySet}(${id.value})/${attribute.name}`);
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -256,9 +256,7 @@ export class WebApi {
                 }
             };
 
-            const name = attribute.name;
-
-            req.send(JSON.stringify({ name : attribute.value }));
+            req.send(JSON.stringify({ "value": attribute.value }));
         });
     }
 
@@ -345,7 +343,7 @@ export class WebApi {
      * @param inputs Any inputs required by the action
      */
     static unboundAction(actionName: string, inputs?: Object) {
-        var req = this.getRequest("POST", `Microsoft.Dynamics.CRM.${actionName}`);
+        var req = this.getRequest("POST", actionName);
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
