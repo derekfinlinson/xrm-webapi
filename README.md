@@ -22,8 +22,13 @@ Import the module into your TypeScript files
 ```typescript
 import {WebApi} from "../node_modules/xrm-webapi/src/xrm-webapi";
 ```
+
 ### Samples
 See [xrm-webapi-test.ts](test/xrm-webapi-test.ts) for samples
+
+### Whats New
+* 0.6.1
+    * Support for batch operations
 
 ### Useful Links
 

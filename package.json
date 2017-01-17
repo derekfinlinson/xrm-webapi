@@ -1,8 +1,9 @@
 {
   "name": "xrm-webapi",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Dynamics CRM Web Api Typescript Module",
   "main": "xrm-webapi.js",
+  "readme": "",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/derekfinlinson/xrm-webapi/xrm-webapi.git"
@@ -18,7 +19,7 @@
   ],
   "devDependencies": {},
   "dependencies": {
-    "@types/xrm": "^8.0.36",
+    "@types/xrm": "^8.0.37",
     "es6-promise": "^4.0.5"
   },
   "files": [
