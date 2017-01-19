@@ -5,7 +5,7 @@
         "noImplicitAny": false,
         "noImplicitUseStrict": false,
         "declaration": true,
-        "outDir": "dist"
+        "outDir": "dist"        
     },
     "files": [
         "src/xrm-webapi.ts"

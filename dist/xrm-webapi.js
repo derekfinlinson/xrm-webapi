@@ -14,14 +14,13 @@ var Guid = (function () {
 }());
 exports.Guid = Guid;
 var WebApi = (function () {
-    function WebApi() {
+    /**
+     * Constructor. Version should be 8.0, 8.1 or 8.2
+     */
+    function WebApi(version) {
+        this.version = version;
     }
-    WebApi.getClientUrl = function (queryString) {
-        var context = typeof GetGlobalContext != "undefined" ? GetGlobalContext() : Xrm.Page.context;
-        var url = context.getClientUrl() + ("/api/data/v" + this.version + "/") + queryString;
-        return url;
-    };
-    WebApi.getRequest = function (method, queryString, contentType) {
+    WebApi.prototype.getRequest = function (method, queryString, contentType) {
         if (contentType === void 0) { contentType = "application/json; charset=utf-8"; }
         var url = this.getClientUrl(queryString);
         var request = new XMLHttpRequest();
@@ -32,7 +31,7 @@ var WebApi = (function () {
         request.setRequestHeader("OData-Version", "4.0");
         return request;
     };
-    WebApi.getFunctionInputs = function (queryString, inputs) {
+    WebApi.prototype.getFunctionInputs = function (queryString, inputs) {
         var aliases = "?";
         for (var i = 0; i < inputs.length; i++) {
             queryString += inputs[i].name;
@@ -50,7 +49,7 @@ var WebApi = (function () {
         }
         return queryString;
     };
-    WebApi.getPreferHeader = function (formattedValues, lookupLogicalNames, associatedNavigationProperties, maxPageSize) {
+    WebApi.prototype.getPreferHeader = function (formattedValues, lookupLogicalNames, associatedNavigationProperties, maxPageSize) {
         var prefer = [];
         if (maxPageSize) {
             prefer.push("odata.maxpagesize=" + maxPageSize);
@@ -69,6 +68,16 @@ var WebApi = (function () {
         return prefer.join(",");
     };
     /**
+     * Get the OData URL
+     * @param queryString Query string to append to URL. Defaults to a blank string
+     */
+    WebApi.prototype.getClientUrl = function (queryString) {
+        if (queryString === void 0) { queryString = ""; }
+        var context = typeof GetGlobalContext != "undefined" ? GetGlobalContext() : Xrm.Page.context;
+        var url = context.getClientUrl() + ("/api/data/v" + this.version + "/") + queryString;
+        return url;
+    };
+    /**
      * Retrieve a record from CRM
      * @param entityType Type of entity to retrieve
      * @param id Id of record to retrieve
@@ -77,7 +86,7 @@ var WebApi = (function () {
      * @param includeLookupLogicalNames Include lookup logical names in results
      * @param includeAssociatedNavigationProperty Include associated navigation property in results
      */
-    WebApi.retrieve = function (entityType, id, queryString, includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties) {
+    WebApi.prototype.retrieve = function (entityType, id, queryString, includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties) {
         if (includeFormattedValues === void 0) { includeFormattedValues = false; }
         if (includeLookupLogicalNames === void 0) { includeLookupLogicalNames = false; }
         if (includeAssociatedNavigationProperties === void 0) { includeAssociatedNavigationProperties = false; }
@@ -112,7 +121,7 @@ var WebApi = (function () {
      * @param includeAssociatedNavigationProperty Include associated navigation property in results
      * @param maxPageSize Records per page to return
      */
-    WebApi.retrieveMultiple = function (entitySet, queryString, includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties, maxPageSize) {
+    WebApi.prototype.retrieveMultiple = function (entitySet, queryString, includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties, maxPageSize) {
         if (includeFormattedValues === void 0) { includeFormattedValues = false; }
         if (includeLookupLogicalNames === void 0) { includeLookupLogicalNames = false; }
         if (includeAssociatedNavigationProperties === void 0) { includeAssociatedNavigationProperties = false; }
@@ -143,7 +152,7 @@ var WebApi = (function () {
      * @param entitySet Type of entity to create
      * @param entity Entity to create
      */
-    WebApi.create = function (entitySet, entity) {
+    WebApi.prototype.create = function (entitySet, entity) {
         var req = this.getRequest("POST", entitySet);
         return new es6_promise_1.Promise(function (resolve, reject) {
             req.onreadystatechange = function () {
@@ -178,7 +187,7 @@ var WebApi = (function () {
      * @param id Id of record to update
      * @param entity Entity fields to update
      */
-    WebApi.update = function (entitySet, id, entity) {
+    WebApi.prototype.update = function (entitySet, id, entity) {
         var req = this.getRequest("PATCH", entitySet + "(" + id.value + ")");
         return new es6_promise_1.Promise(function (resolve, reject) {
             req.onreadystatechange = function () {
@@ -205,7 +214,7 @@ var WebApi = (function () {
      * @param id Id of record to update
      * @param attribute Attribute to update
      */
-    WebApi.updateProperty = function (entitySet, id, attribute) {
+    WebApi.prototype.updateProperty = function (entitySet, id, attribute) {
         var req = this.getRequest("PUT", entitySet + "(" + id.value + ")/" + attribute.name);
         return new es6_promise_1.Promise(function (resolve, reject) {
             req.onreadystatechange = function () {
@@ -227,7 +236,7 @@ var WebApi = (function () {
      * @param entitySet Type of entity to delete
      * @param id Id of record to delete
      */
-    WebApi.delete = function (entitySet, id) {
+    WebApi.prototype.delete = function (entitySet, id) {
         var req = this.getRequest("DELETE", entitySet + "(" + id.value + ")");
         return new es6_promise_1.Promise(function (resolve, reject) {
             req.onreadystatechange = function () {
@@ -250,7 +259,7 @@ var WebApi = (function () {
      * @param id Id of record to update
      * @param attribute Attribute to delete
      */
-    WebApi.deleteProperty = function (entitySet, id, attribute) {
+    WebApi.prototype.deleteProperty = function (entitySet, id, attribute) {
         var req = this.getRequest("DELETE", entitySet + "(" + id.value + ")/" + attribute.name);
         return new es6_promise_1.Promise(function (resolve, reject) {
             req.onreadystatechange = function () {
@@ -274,7 +283,7 @@ var WebApi = (function () {
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
      */
-    WebApi.boundAction = function (entitySet, id, actionName, inputs) {
+    WebApi.prototype.boundAction = function (entitySet, id, actionName, inputs) {
         var req = this.getRequest("POST", entitySet + "(" + id.value + ")/Microsoft.Dynamics.CRM." + actionName);
         return new es6_promise_1.Promise(function (resolve, reject) {
             req.onreadystatechange = function () {
@@ -299,7 +308,7 @@ var WebApi = (function () {
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
      */
-    WebApi.unboundAction = function (actionName, inputs) {
+    WebApi.prototype.unboundAction = function (actionName, inputs) {
         var req = this.getRequest("POST", actionName);
         return new es6_promise_1.Promise(function (resolve, reject) {
             req.onreadystatechange = function () {
@@ -326,7 +335,7 @@ var WebApi = (function () {
      * @param functionName Name of the action to run
      * @param inputs Any inputs required by the action
      */
-    WebApi.boundFunction = function (entitySet, id, functionName, inputs) {
+    WebApi.prototype.boundFunction = function (entitySet, id, functionName, inputs) {
         var queryString = entitySet + "(" + id.value + ")/Microsoft.Dynamics.CRM." + functionName + "(";
         queryString = this.getFunctionInputs(queryString, inputs);
         var req = this.getRequest("GET", queryString);
@@ -353,7 +362,7 @@ var WebApi = (function () {
      * @param functionName Name of the action to run
      * @param inputs Any inputs required by the action
      */
-    WebApi.unboundFunction = function (functionName, inputs) {
+    WebApi.prototype.unboundFunction = function (functionName, inputs) {
         var queryString = functionName + "(";
         queryString = this.getFunctionInputs(queryString, inputs);
         var req = this.getRequest("GET", queryString);
@@ -382,7 +391,7 @@ var WebApi = (function () {
      * @param changeSets Array of change sets (create or update) for the operation
      * @param batchGets Array of get requests for the operation
      */
-    WebApi.batchOperation = function (batchId, changeSetId, changeSets, batchGets) {
+    WebApi.prototype.batchOperation = function (batchId, changeSetId, changeSets, batchGets) {
         var req = this.getRequest("POST", "$batch", "multipart/mixed;boundary=batch_" + batchId);
         // Build post body
         var body = [
@@ -445,5 +454,4 @@ var WebApi = (function () {
     };
     return WebApi;
 }());
-WebApi.version = "8.1";
 exports.WebApi = WebApi;
