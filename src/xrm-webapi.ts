@@ -41,16 +41,16 @@ export interface ChangeSet {
 }
 
 export class WebApi {
-    private static version = "8.1";
+    private version;
 
-    private static getClientUrl(queryString: string) {
-        const context = typeof GetGlobalContext != "undefined" ? GetGlobalContext() : Xrm.Page.context;
-        const url = context.getClientUrl() + `/api/data/v${this.version}/` + queryString;
-
-        return url;
+    /**
+     * Constructor. Version should be 8.0, 8.1 or 8.2
+     */
+    constructor (version: string) {
+        this.version = version;
     }
 
-    private static getRequest(method: string, queryString: string, contentType = "application/json; charset=utf-8") {
+    private getRequest(method: string, queryString: string, contentType = "application/json; charset=utf-8") {
         const url = this.getClientUrl(queryString);
         
         const request = new XMLHttpRequest();
@@ -63,7 +63,7 @@ export class WebApi {
         return request;
     }
 
-    private static getFunctionInputs(queryString: string, inputs: Array<FunctionInput>) {        
+    private getFunctionInputs(queryString: string, inputs: Array<FunctionInput>) {        
         let aliases = "?";
 
         for (let i = 0; i < inputs.length; i++) {
@@ -86,7 +86,7 @@ export class WebApi {
         return queryString;
     }
 
-    private static getPreferHeader(formattedValues, lookupLogicalNames, associatedNavigationProperties, maxPageSize?: number) {
+    private getPreferHeader(formattedValues, lookupLogicalNames, associatedNavigationProperties, maxPageSize?: number) {
         let prefer = [];
 
         if (maxPageSize) {
@@ -109,6 +109,17 @@ export class WebApi {
     }
 
     /**
+     * Get the OData URL
+     * @param queryString Query string to append to URL. Defaults to a blank string
+     */
+    getClientUrl(queryString = "") {
+        const context = typeof GetGlobalContext != "undefined" ? GetGlobalContext() : Xrm.Page.context;
+        const url = context.getClientUrl() + `/api/data/v${this.version}/` + queryString;
+
+        return url;
+    }
+
+    /**
      * Retrieve a record from CRM
      * @param entityType Type of entity to retrieve
      * @param id Id of record to retrieve
@@ -117,8 +128,9 @@ export class WebApi {
      * @param includeLookupLogicalNames Include lookup logical names in results
      * @param includeAssociatedNavigationProperty Include associated navigation property in results
      */
-    static retrieve(entityType: string, id: Guid, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false): Promise<any> {
-        if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;        
+    retrieve(entityType: string, id: Guid, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false): Promise<any> {
+        if (queryString != null && ! /^[?]/.test(queryString))
+            queryString = `?${queryString}`;
 
         let query: string = (queryString != null) ? `${entityType}(${id.value})${queryString}` : `${entityType}(${id.value})`;
         var req = this.getRequest("GET", query);
@@ -152,7 +164,7 @@ export class WebApi {
      * @param includeAssociatedNavigationProperty Include associated navigation property in results
      * @param maxPageSize Records per page to return
      */
-    static retrieveMultiple(entitySet: string, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false, maxPageSize?: number): Promise<any> {
+    retrieveMultiple(entitySet: string, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false, maxPageSize?: number): Promise<any> {
         if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;
 
         let query: string = (queryString != null) ? entitySet + queryString : entitySet;
@@ -183,7 +195,7 @@ export class WebApi {
      * @param entitySet Type of entity to create
      * @param entity Entity to create
      */
-    static create(entitySet: string, entity: Entity): Promise<CreatedEntity> {
+    create(entitySet: string, entity: Entity): Promise<CreatedEntity> {
         var req = this.getRequest("POST", entitySet);
 
         return new Promise((resolve, reject) => {
@@ -223,7 +235,7 @@ export class WebApi {
      * @param id Id of record to update
      * @param entity Entity fields to update
      */
-    static update(entitySet: string, id: Guid, entity: Entity): Promise<any> {        
+    update(entitySet: string, id: Guid, entity: Entity): Promise<any> {        
         var req = this.getRequest("PATCH", `${entitySet}(${id.value})`);
 
         return new Promise((resolve, reject) => {
@@ -254,7 +266,7 @@ export class WebApi {
      * @param id Id of record to update
      * @param attribute Attribute to update     
      */
-    static updateProperty(entitySet: string, id: Guid, attribute: Attribute): Promise<any> {        
+    updateProperty(entitySet: string, id: Guid, attribute: Attribute): Promise<any> {        
         var req = this.getRequest("PUT", `${entitySet}(${id.value})/${attribute.name}`);
 
         return new Promise((resolve, reject) => {
@@ -278,7 +290,7 @@ export class WebApi {
      * @param entitySet Type of entity to delete
      * @param id Id of record to delete
      */
-    static delete(entitySet: string, id: Guid): Promise<any> {        
+    delete(entitySet: string, id: Guid): Promise<any> {        
         var req = this.getRequest("DELETE", `${entitySet}(${id.value})`);
 
         return new Promise((resolve, reject) => {
@@ -303,7 +315,7 @@ export class WebApi {
      * @param id Id of record to update
      * @param attribute Attribute to delete
      */
-    static deleteProperty(entitySet: string, id: Guid, attribute: Attribute): Promise<any> {
+    deleteProperty(entitySet: string, id: Guid, attribute: Attribute): Promise<any> {
         var req = this.getRequest("DELETE", `${entitySet}(${id.value})/${attribute.name}`);
 
         return new Promise((resolve, reject) => {
@@ -329,7 +341,7 @@ export class WebApi {
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
      */
-    static boundAction(entitySet: string, id: Guid, actionName: string, inputs?: Object): Promise<any> {        
+    boundAction(entitySet: string, id: Guid, actionName: string, inputs?: Object): Promise<any> {        
         var req = this.getRequest("POST", `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${actionName}`);
 
         return new Promise((resolve, reject) => {
@@ -355,7 +367,7 @@ export class WebApi {
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
      */
-    static unboundAction(actionName: string, inputs?: Object): Promise<any> {
+    unboundAction(actionName: string, inputs?: Object): Promise<any> {
         var req = this.getRequest("POST", actionName);
 
         return new Promise((resolve, reject) => {
@@ -383,7 +395,7 @@ export class WebApi {
      * @param functionName Name of the action to run
      * @param inputs Any inputs required by the action
      */
-    static boundFunction(entitySet: string, id: Guid, functionName: string, inputs?: Array<FunctionInput>): Promise<any> {
+    boundFunction(entitySet: string, id: Guid, functionName: string, inputs?: Array<FunctionInput>): Promise<any> {
         let queryString = `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${functionName}(`;
         queryString = this.getFunctionInputs(queryString, inputs);
 
@@ -412,7 +424,7 @@ export class WebApi {
      * @param functionName Name of the action to run
      * @param inputs Any inputs required by the action
      */
-    static unboundFunction(functionName: string, inputs?: Array<FunctionInput>): Promise<any> {
+    unboundFunction(functionName: string, inputs?: Array<FunctionInput>): Promise<any> {
         let queryString = `${functionName}(`;
         queryString = this.getFunctionInputs(queryString, inputs);
         
@@ -443,7 +455,7 @@ export class WebApi {
      * @param changeSets Array of change sets (create or update) for the operation
      * @param batchGets Array of get requests for the operation
      */
-    static batchOperation(batchId: string, changeSetId: string, changeSets: Array<ChangeSet>, batchGets: Array<string>): Promise<any> {
+    batchOperation(batchId: string, changeSetId: string, changeSets: Array<ChangeSet>, batchGets: Array<string>): Promise<any> {
         var req = this.getRequest("POST", "$batch", `multipart/mixed;boundary=batch_${batchId}`);
 
         // Build post body
