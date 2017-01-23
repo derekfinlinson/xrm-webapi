@@ -259,8 +259,12 @@ var WebApi = (function () {
      * @param id Id of record to update
      * @param attribute Attribute to delete
      */
-    WebApi.prototype.deleteProperty = function (entitySet, id, attribute) {
-        var req = this.getRequest("DELETE", entitySet + "(" + id.value + ")/" + attribute.name);
+    WebApi.prototype.deleteProperty = function (entitySet, id, attribute, isNavigationProperty) {
+        var queryString = "/" + attribute.name;
+        if (isNavigationProperty) {
+            queryString += "/$ref";
+        }
+        var req = this.getRequest("DELETE", entitySet + "(" + id.value + ")" + queryString);
         return new es6_promise_1.Promise(function (resolve, reject) {
             req.onreadystatechange = function () {
                 if (req.readyState === 4 /* complete */) {

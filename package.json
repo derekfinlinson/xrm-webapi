@@ -9,7 +9,11 @@
     "url": "git+https://github.com/derekfinlinson/xrm-webapi/xrm-webapi.git"
   },
   "scripts": {
-    "test": "tsc --noEmit --target es5 --lib dom,es5,es2015.promise test/xrm-webapi-test.ts"
+    "test": "tsc --noEmit --target es5 --lib dom,es5,es2015.promise test/xrm-webapi-test.ts",
+    "build": "tsc -p .",
+    "preversion": "npm test",
+    "version": "npm run build && git add -A",
+    "postversion": "git push"
   },
   "author": "Derek Finlinson",
   "keywords": [

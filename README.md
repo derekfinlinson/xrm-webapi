@@ -29,6 +29,8 @@ const api = new WebApi("8.1");
 See [xrm-webapi-test.ts](test/xrm-webapi-test.ts) for samples
 
 ### Whats New
+* 0.6.4
+    * Add support for deleting navigation properties
 * 0.6.2 - BREAKING CHANGE
     * WebApi class object must now be instantiated
     * Allows to enter in WebApi version to use

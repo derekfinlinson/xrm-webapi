@@ -61,7 +61,14 @@ api.delete("accounts", account.id)
     );
 
 /// Demonstrate delete property. Delete property returns no content
-api.deleteProperty("accounts", account.id, {name: "address1_line1"})
+api.deleteProperty("accounts", account.id, {name: "address1_line1"}, false)
+    .then(() => {}, error => {
+            console.log(error);
+        }
+);
+
+/// Demonstrate delete navigation property. Delete property returns no content
+api.deleteProperty("accounts", account.id, {name: "primarycontactid"}, true)
     .then(() => {}, error => {
             console.log(error);
         }

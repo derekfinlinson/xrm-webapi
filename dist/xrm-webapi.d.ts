@@ -90,7 +90,7 @@ export declare class WebApi {
      * @param id Id of record to update
      * @param attribute Attribute to delete
      */
-    deleteProperty(entitySet: string, id: Guid, attribute: Attribute): Promise<any>;
+    deleteProperty(entitySet: string, id: Guid, attribute: Attribute, isNavigationProperty: boolean): Promise<any>;
     /**
      * Execute a default or custom bound action in CRM
      * @param entitySet Type of entity to run the action against

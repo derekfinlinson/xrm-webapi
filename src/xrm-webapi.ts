@@ -315,8 +315,14 @@ export class WebApi {
      * @param id Id of record to update
      * @param attribute Attribute to delete
      */
-    deleteProperty(entitySet: string, id: Guid, attribute: Attribute): Promise<any> {
-        var req = this.getRequest("DELETE", `${entitySet}(${id.value})/${attribute.name}`);
+    deleteProperty(entitySet: string, id: Guid, attribute: Attribute, isNavigationProperty: boolean): Promise<any> {
+        let queryString = `/${attribute.name}`;
+
+        if (isNavigationProperty) {
+            queryString += "/$ref";
+        }
+
+        var req = this.getRequest("DELETE", `${entitySet}(${id.value})${queryString}`);
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
