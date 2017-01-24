@@ -59,6 +59,7 @@ export class WebApi {
         request.setRequestHeader("Content-Type", contentType);
         request.setRequestHeader("OData-MaxVersion", "4.0");
         request.setRequestHeader("OData-Version", "4.0");
+        request.setRequestHeader("Cache-Control", "no-cache");
 
         return request;
     }
