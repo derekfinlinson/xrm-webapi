@@ -2,8 +2,8 @@
   "name": "xrm-webapi",
   "version": "0.0.0-development",
   "description": "Dynamics CRM Web Api Typescript Module",
-  "main": "./dist/xrm-webapi.js",
-  "type": "./dist/xrm-webapi.d.ts",
+  "main": "./dist/xrm-webapi.js",  
+  "types": "./dist/xrm-webapi.d.ts",
   "license": "MIT",
   "repository": {
     "type": "git",
