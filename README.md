@@ -20,23 +20,13 @@ npm install --save-dev xrm-webapi
 Import the module into your TypeScript files
 
 ```typescript
-import {WebApi} from "../node_modules/xrm-webapi/src/xrm-webapi";
+import {WebApi} from "xrm-webapi";
 
 const api = new WebApi("8.1");
 ```
 
 ### Samples
 See [xrm-webapi-test.ts](test/xrm-webapi-test.ts) for samples
-
-### Whats New
-* 0.6.4
-    * Add support for deleting navigation properties
-* 0.6.2 - BREAKING CHANGE
-    * WebApi class object must now be instantiated
-    * Allows to enter in WebApi version to use
-    * Exposes getClientUrl method for use with batch operations
-* 0.6.1
-    * Support for batch operations
 
 ### Useful Links
 

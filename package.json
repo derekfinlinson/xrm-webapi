@@ -1,19 +1,18 @@
 {
   "name": "xrm-webapi",
-  "version": "0.6.5",
+  "version": "0.0.0-development",
   "description": "Dynamics CRM Web Api Typescript Module",
-  "main": "xrm-webapi.js",
-  "readme": "",
+  "main": "./dist/xrm-webapi.js",
+  "type": "./dist/xrm-webapi.d.ts",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/derekfinlinson/xrm-webapi/xrm-webapi.git"
+    "url": "https://github.com/derekfinlinson/xrm-webapi.git"
   },
   "scripts": {
     "test": "tsc --noEmit --target es5 --lib dom,es5,es2015.promise test/xrm-webapi-test.ts",
     "build": "tsc -p .",
-    "preversion": "npm test",
-    "version": "npm run build && git add -A",
-    "postversion": "git push"
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "author": "Derek Finlinson",
   "keywords": [
@@ -21,13 +20,20 @@
     "xrm",
     "typescript"
   ],
-  "devDependencies": {},
-  "dependencies": {
+  "devDependencies": {
     "@types/xrm": "^8.0.37",
+    "cz-conventional-changelog": "^1.2.0",
+    "semantic-release": "^6.3.2"
+  },
+  "dependencies": {
     "es6-promise": "^4.0.5"
   },
   "files": [
-    "dist/xrm-webapi.js",
-    "dist/xrm-webapi.d.ts"
-  ]
+    "dist"
+  ],
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }
