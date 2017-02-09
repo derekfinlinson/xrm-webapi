@@ -27,7 +27,7 @@ export interface Attribute {
 
 export interface Entity {
     id?: Guid;
-    attributes: Array<Attribute>;
+    attributes: Attribute[];
 }
 
 export interface CreatedEntity {
@@ -129,11 +129,11 @@ export class WebApi {
      * @param includeLookupLogicalNames Include lookup logical names in results
      * @param includeAssociatedNavigationProperty Include associated navigation property in results
      */
-    retrieve(entityType: string, id: Guid, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false): Promise<any> {
+    retrieve(entitySet: string, id: Guid, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false): Promise<any> {
         if (queryString != null && ! /^[?]/.test(queryString))
             queryString = `?${queryString}`;
 
-        let query: string = (queryString != null) ? `${entityType}(${id.value})${queryString}` : `${entityType}(${id.value})`;
+        let query: string = (queryString != null) ? `${entitySet}(${id.value})${queryString}` : `${entitySet}(${id.value})`;
         var req = this.getRequest("GET", query);
 
         if (includeFormattedValues || includeLookupLogicalNames || includeAssociatedNavigationProperties) {
@@ -231,12 +231,47 @@ export class WebApi {
     }
 
     /**
+     * Create a record in CRM and return data
+     * @param entitySet Type of entity to create
+     * @param entity Entity to create
+     * @param select Select odata query parameter
+     */
+    createWithReturnData(entitySet: string, entity: Entity, select: string): Promise<any> {
+        if (select != null && ! /^[?]/.test(select))
+            select = `?${select}`;
+
+        var req = this.getRequest("POST", entitySet + select);
+        req.setRequestHeader("Prefer", "return=representation");
+
+        return new Promise((resolve, reject) => {
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 201) {                        
+                        resolve(JSON.parse(req.response));
+                    } else {
+                        reject(JSON.parse(req.response).error);
+                    }
+                }
+            };
+
+            let attributes = {};
+
+            entity.attributes.forEach(attribute => {
+                attributes[attribute.name] = attribute.value;
+            });
+
+            req.send(JSON.stringify(attributes));
+        });
+    }
+
+    /**
      * Update a record in CRM
      * @param entitySet Type of entity to update
      * @param id Id of record to update
      * @param entity Entity fields to update
      */
-    update(entitySet: string, id: Guid, entity: Entity): Promise<any> {        
+    update(entitySet: string, id: Guid, entity: Entity): Promise<any> {
         var req = this.getRequest("PATCH", `${entitySet}(${id.value})`);
 
         return new Promise((resolve, reject) => {
