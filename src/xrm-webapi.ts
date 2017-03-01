@@ -7,11 +7,11 @@ export interface FunctionInput {
 }
 
 export class Guid {
-    value: string;
+    public value: string;
 
     constructor(value: string) {
         value = value.replace(/[{}]/g, "");
-        
+
         if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(value)) {
             this.value = value.toUpperCase();
         } else {
@@ -22,7 +22,7 @@ export class Guid {
 
 export interface Attribute {
     name: string;
-    value?: any
+    value?: any;
 }
 
 export interface Entity {
@@ -40,82 +40,31 @@ export interface ChangeSet {
     object: Entity;
 }
 
+export interface QueryOptions {
+    includeFormattedValues?: boolean;
+    includeLookupLogicalNames?: boolean;
+    includeAssociatedNavigationProperties?: boolean;
+    maxPageSize?: number;
+}
+
 export class WebApi {
     private version;
 
     /**
-     * Constructor. Version should be 8.0, 8.1 or 8.2
+     * Constructor
+     * @param version Version should be 8.0, 8.1 or 8.2
      */
     constructor (version: string) {
         this.version = version;
-    }
-
-    private getRequest(method: string, queryString: string, contentType = "application/json; charset=utf-8") {
-        const url = this.getClientUrl(queryString);
-        
-        const request = new XMLHttpRequest();
-        request.open(method, url, true);
-        request.setRequestHeader("Accept", "application/json");
-        request.setRequestHeader("Content-Type", contentType);
-        request.setRequestHeader("OData-MaxVersion", "4.0");
-        request.setRequestHeader("OData-Version", "4.0");
-        request.setRequestHeader("Cache-Control", "no-cache");
-
-        return request;
-    }
-
-    private getFunctionInputs(queryString: string, inputs: Array<FunctionInput>) {        
-        let aliases = "?";
-
-        for (let i = 0; i < inputs.length; i++) {
-            queryString += inputs[i].name;
-
-            if (inputs[i].alias) {
-                queryString += `=@${inputs[i].alias},`
-                aliases += `@${inputs[i].alias}=${inputs[i].value}`
-            } else {
-                queryString += `=${inputs[i].value},`
-            }
-        }
-
-        queryString += queryString.substr(0, queryString.length - 1) + ")";
-
-        if (aliases != "?") {
-            queryString += aliases
-        }
-
-        return queryString;
-    }
-
-    private getPreferHeader(formattedValues, lookupLogicalNames, associatedNavigationProperties, maxPageSize?: number) {
-        let prefer = [];
-
-        if (maxPageSize) {
-            prefer.push(`odata.maxpagesize=${maxPageSize}`);
-        }
-        
-        if (formattedValues && lookupLogicalNames & associatedNavigationProperties) {
-            prefer.push('odata.include-annotations="*"');
-        } else {
-            const preferExtra = [            
-                formattedValues ? "OData.Community.Display.V1.FormattedValue" : "",
-                lookupLogicalNames ? "Microsoft.Dynamics.CRM.lookuplogicalname" : "",
-                associatedNavigationProperties ? "Microsoft.Dynamics.CRM.associatednavigationproperty" : ""
-            ].filter((v, i) => { return v != ""}).join(",");
-
-            prefer.push('odata.include-annotations="' + preferExtra + '"');
-        }
-              
-        return prefer.join(",");
     }
 
     /**
      * Get the OData URL
      * @param queryString Query string to append to URL. Defaults to a blank string
      */
-    getClientUrl(queryString = "") {
-        const context = typeof GetGlobalContext != "undefined" ? GetGlobalContext() : Xrm.Page.context;
-        const url = context.getClientUrl() + `/api/data/v${this.version}/` + queryString;
+    public getClientUrl(queryString: string = ""): string {
+        const context: Xrm.Context = typeof GetGlobalContext !== "undefined" ? GetGlobalContext() : Xrm.Page.context;
+        const url: string = context.getClientUrl() + `/api/data/v${this.version}/` + queryString;
 
         return url;
     }
@@ -129,15 +78,16 @@ export class WebApi {
      * @param includeLookupLogicalNames Include lookup logical names in results
      * @param includeAssociatedNavigationProperty Include associated navigation property in results
      */
-    retrieve(entitySet: string, id: Guid, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false): Promise<any> {
-        if (queryString != null && ! /^[?]/.test(queryString))
+    public retrieve(entitySet: string, id: Guid, queryString?: string, queryOptions?: QueryOptions): Promise<any> {
+        if (queryString != null && ! /^[?]/.test(queryString)) {
             queryString = `?${queryString}`;
+        }
 
         let query: string = (queryString != null) ? `${entitySet}(${id.value})${queryString}` : `${entitySet}(${id.value})`;
-        var req = this.getRequest("GET", query);
+        const req: XMLHttpRequest = this.getRequest("GET", query);
 
-        if (includeFormattedValues || includeLookupLogicalNames || includeAssociatedNavigationProperties) {
-          req.setRequestHeader("Prefer", this.getPreferHeader(includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties));
+        if (queryOptions != null) {
+          req.setRequestHeader("Prefer", this.getPreferHeader(queryOptions));
         }
 
         return new Promise((resolve, reject) => {
@@ -165,14 +115,16 @@ export class WebApi {
      * @param includeAssociatedNavigationProperty Include associated navigation property in results
      * @param maxPageSize Records per page to return
      */
-    retrieveMultiple(entitySet: string, queryString?: string, includeFormattedValues = false, includeLookupLogicalNames = false, includeAssociatedNavigationProperties = false, maxPageSize?: number): Promise<any> {
-        if (queryString != null && ! /^[?]/.test(queryString)) queryString = `?${queryString}`;
+    public retrieveMultiple(entitySet: string, queryString?: string, queryOptions?: QueryOptions): Promise<any> {
+        if (queryString != null && ! /^[?]/.test(queryString)) {
+            queryString = `?${queryString}`;
+        }
 
         let query: string = (queryString != null) ? entitySet + queryString : entitySet;
-        var req = this.getRequest("GET", query);
+        const req = this.getRequest("GET", query);
 
-        if (includeFormattedValues || includeLookupLogicalNames || includeAssociatedNavigationProperties) {
-          req.setRequestHeader("Prefer", this.getPreferHeader(includeFormattedValues, includeLookupLogicalNames, includeAssociatedNavigationProperties, maxPageSize));
+        if (queryOptions != null) {
+          req.setRequestHeader("Prefer", this.getPreferHeader(queryOptions));
         }
 
         return new Promise((resolve, reject) => {
@@ -195,9 +147,14 @@ export class WebApi {
      * Create a record in CRM
      * @param entitySet Type of entity to create
      * @param entity Entity to create
+     * @param impersonateUser Impersonate another user
      */
-    create(entitySet: string, entity: Entity): Promise<CreatedEntity> {
-        var req = this.getRequest("POST", entitySet);
+    public create(entitySet: string, entity: Entity, impersonateUser?: Guid): Promise<CreatedEntity> {
+        const req = this.getRequest("POST", entitySet);
+
+        if (impersonateUser != null) {
+            req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
+        }
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -205,14 +162,15 @@ export class WebApi {
                     req.onreadystatechange = null;
                     if (req.status === 204) {
                         const uri = req.getResponseHeader("OData-EntityId");
-                        const start = uri.indexOf('(') + 1;
-                        const end = uri.indexOf(')', start);
-                        const id = uri.substring(start, end)
+                        const start = uri.indexOf("(") + 1;
+                        const end = uri.indexOf(")", start);
+                        const id = uri.substring(start, end);
 
                         const createdEntity: CreatedEntity = {
                             id: new Guid(id),
-                            uri: uri
-                        };               
+                            uri,
+                        };
+
                         resolve(createdEntity);
                     } else {
                         reject(JSON.parse(req.response).error);
@@ -222,7 +180,7 @@ export class WebApi {
 
             let attributes = {};
 
-            entity.attributes.forEach(attribute => {
+            entity.attributes.forEach((attribute) => {
                 attributes[attribute.name] = attribute.value;
             });
 
@@ -235,19 +193,26 @@ export class WebApi {
      * @param entitySet Type of entity to create
      * @param entity Entity to create
      * @param select Select odata query parameter
+     * @param impersonateUser Impersonate another user
      */
-    createWithReturnData(entitySet: string, entity: Entity, select: string): Promise<any> {
-        if (select != null && ! /^[?]/.test(select))
+    public createWithReturnData(entitySet: string, entity: Entity, select: string, impersonateUser?: Guid): Promise<any> {
+        if (select != null && ! /^[?]/.test(select)) {
             select = `?${select}`;
+        }
 
-        var req = this.getRequest("POST", entitySet + select);
+        const req = this.getRequest("POST", entitySet + select);
+
         req.setRequestHeader("Prefer", "return=representation");
+
+        if (impersonateUser != null) {
+            req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
+        }
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
                 if (req.readyState === 4 /* complete */) {
                     req.onreadystatechange = null;
-                    if (req.status === 201) {                        
+                    if (req.status === 201) {
                         resolve(JSON.parse(req.response));
                     } else {
                         reject(JSON.parse(req.response).error);
@@ -270,9 +235,14 @@ export class WebApi {
      * @param entitySet Type of entity to update
      * @param id Id of record to update
      * @param entity Entity fields to update
+     * @param impersonateUser Impersonate another user
      */
-    update(entitySet: string, id: Guid, entity: Entity): Promise<any> {
-        var req = this.getRequest("PATCH", `${entitySet}(${id.value})`);
+    public update(entitySet: string, id: Guid, entity: Entity, impersonateUser?: Guid): Promise<any> {
+        const req = this.getRequest("PATCH", `${entitySet}(${id.value})`);
+
+        if (impersonateUser != null) {
+            req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
+        }
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -288,7 +258,7 @@ export class WebApi {
 
             let attributes = {};
 
-            entity.attributes.forEach(attribute => {
+            entity.attributes.forEach((attribute) => {
                 attributes[attribute.name] = attribute.value;
             });
 
@@ -300,10 +270,15 @@ export class WebApi {
      * Update a single property of a record in CRM
      * @param entitySet Type of entity to update
      * @param id Id of record to update
-     * @param attribute Attribute to update     
+     * @param attribute Attribute to update
+     * @param impersonateUser Impersonate another user
      */
-    updateProperty(entitySet: string, id: Guid, attribute: Attribute): Promise<any> {        
-        var req = this.getRequest("PUT", `${entitySet}(${id.value})/${attribute.name}`);
+    public updateProperty(entitySet: string, id: Guid, attribute: Attribute, impersonateUser?: Guid): Promise<any> {
+        const req = this.getRequest("PUT", `${entitySet}(${id.value})/${attribute.name}`);
+
+        if (impersonateUser != null) {
+            req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
+        }
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -317,7 +292,7 @@ export class WebApi {
                 }
             };
 
-            req.send(JSON.stringify({ "value": attribute.value }));
+            req.send(JSON.stringify({ value: attribute.value }));
         });
     }
 
@@ -326,8 +301,8 @@ export class WebApi {
      * @param entitySet Type of entity to delete
      * @param id Id of record to delete
      */
-    delete(entitySet: string, id: Guid): Promise<any> {        
-        var req = this.getRequest("DELETE", `${entitySet}(${id.value})`);
+    public delete(entitySet: string, id: Guid): Promise<any> {
+        const req = this.getRequest("DELETE", `${entitySet}(${id.value})`);
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -351,14 +326,14 @@ export class WebApi {
      * @param id Id of record to update
      * @param attribute Attribute to delete
      */
-    deleteProperty(entitySet: string, id: Guid, attribute: Attribute, isNavigationProperty: boolean): Promise<any> {
+    public deleteProperty(entitySet: string, id: Guid, attribute: Attribute, isNavigationProperty: boolean): Promise<any> {
         let queryString = `/${attribute.name}`;
 
         if (isNavigationProperty) {
             queryString += "/$ref";
         }
 
-        var req = this.getRequest("DELETE", `${entitySet}(${id.value})${queryString}`);
+        const req = this.getRequest("DELETE", `${entitySet}(${id.value})${queryString}`);
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -382,9 +357,14 @@ export class WebApi {
      * @param id Id of record to run the action against
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
+     * @param impersonateUser Impersonate another user
      */
-    boundAction(entitySet: string, id: Guid, actionName: string, inputs?: Object): Promise<any> {        
-        var req = this.getRequest("POST", `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${actionName}`);
+    public boundAction(entitySet: string, id: Guid, actionName: string, inputs?: Object, impersonateUser?: Guid): Promise<any> {
+        const req = this.getRequest("POST", `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${actionName}`);
+
+        if (impersonateUser != null) {
+            req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
+        }
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -403,14 +383,19 @@ export class WebApi {
             inputs != null ? req.send(JSON.stringify(inputs)) : req.send();
         });
     }
-    
+
     /**
      * Execute a default or custom unbound action in CRM
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
+     * @param impersonateUser Impersonate another user
      */
-    unboundAction(actionName: string, inputs?: Object): Promise<any> {
-        var req = this.getRequest("POST", actionName);
+    public unboundAction(actionName: string, inputs?: Object, impersonateUser?: Guid): Promise<any> {
+        const req = this.getRequest("POST", actionName);
+
+        if (impersonateUser != null) {
+            req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
+        }
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -436,12 +421,17 @@ export class WebApi {
      * @param id Id of record to run the action against
      * @param functionName Name of the action to run
      * @param inputs Any inputs required by the action
+     * @param impersonateUser Impersonate another user
      */
-    boundFunction(entitySet: string, id: Guid, functionName: string, inputs?: Array<FunctionInput>): Promise<any> {
+    public boundFunction(entitySet: string, id: Guid, functionName: string, inputs?: FunctionInput[], impersonateUser?: Guid): Promise<any> {
         let queryString = `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${functionName}(`;
         queryString = this.getFunctionInputs(queryString, inputs);
 
-        var req = this.getRequest("GET", queryString);
+        const req = this.getRequest("GET", queryString);
+
+        if (impersonateUser != null) {
+            req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
+        }
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -465,12 +455,17 @@ export class WebApi {
      * Execute an unbound function in CRM
      * @param functionName Name of the action to run
      * @param inputs Any inputs required by the action
+     * @param impersonateUser Impersonate another user
      */
-    unboundFunction(functionName: string, inputs?: Array<FunctionInput>): Promise<any> {
+    public unboundFunction(functionName: string, inputs?: FunctionInput[], impersonateUser?: Guid): Promise<any> {
         let queryString = `${functionName}(`;
         queryString = this.getFunctionInputs(queryString, inputs);
-        
-        var req = this.getRequest("GET", queryString);
+
+        const req = this.getRequest("GET", queryString);
+
+        if (impersonateUser != null) {
+            req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
+        }
 
         return new Promise((resolve, reject) => {
             req.onreadystatechange = () => {
@@ -496,18 +491,23 @@ export class WebApi {
      * @param changeSetId Unique change set id for any changesets in the operation
      * @param changeSets Array of change sets (create or update) for the operation
      * @param batchGets Array of get requests for the operation
+     * @param impersonateUser Impersonate another user
      */
-    batchOperation(batchId: string, changeSetId: string, changeSets: Array<ChangeSet>, batchGets: Array<string>): Promise<any> {
-        var req = this.getRequest("POST", "$batch", `multipart/mixed;boundary=batch_${batchId}`);
+    public batchOperation(batchId: string, changeSetId: string, changeSets: ChangeSet[], batchGets: string[], impersonateUser?: Guid): Promise<any> {
+        const req = this.getRequest("POST", "$batch", `multipart/mixed;boundary=batch_${batchId}`);
 
-        // Build post body
+        if (impersonateUser != null) {
+            req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
+        }
+
+        // build post body
         const body = [
             `--batch_${batchId}`,
             `Content-Type: multipart/mixed;boundary=changeset_${changeSetId}`,
-            ""
+            "",
         ];
 
-        // Push change sets to body
+        // push change sets to body
         for (let i = 0; i < changeSets.length; i++) {
             body.push(`--changeset_${changeSetId}`);
             body.push("Content-Type: application/http");
@@ -520,19 +520,19 @@ export class WebApi {
 
             let attributes = {};
 
-            changeSets[i].object.attributes.forEach(attribute => {
+            changeSets[i].object.attributes.forEach((attribute) => {
                 attributes[attribute.name] = attribute.value;
             });
 
-            body.push(JSON.stringify(attributes));            
+            body.push(JSON.stringify(attributes));
         }
 
         if (changeSets.length > 0) {
             body.push(`--changeset_${changeSetId}--`);
             body.push("");
         }
-        
-        // Push get requests to body
+
+        // push get requests to body
         for (let get of batchGets) {
             body.push(`--batch_${batchId}`);
             body.push("Content-Type: application/http");
@@ -560,5 +560,66 @@ export class WebApi {
 
             req.send(body.join("\r\n"));
         });
+    }
+
+    private getRequest(method: string, queryString: string, contentType: string = "application/json; charset=utf-8"): XMLHttpRequest {
+        const url: string = this.getClientUrl(queryString);
+
+        const request: XMLHttpRequest = new XMLHttpRequest();
+        request.open(method, url, true);
+        request.setRequestHeader("Accept", "application/json");
+        request.setRequestHeader("Content-Type", contentType);
+        request.setRequestHeader("OData-MaxVersion", "4.0");
+        request.setRequestHeader("OData-Version", "4.0");
+        request.setRequestHeader("Cache-Control", "no-cache");
+
+        return request;
+    }
+
+    private getFunctionInputs(queryString: string, inputs: FunctionInput[]): string {
+        let aliases: string = "?";
+
+        for (let i: number = 0; i < inputs.length; i++) {
+            queryString += inputs[i].name;
+
+            if (inputs[i].alias) {
+                queryString += `=@${inputs[i].alias},`;
+                aliases += `@${inputs[i].alias}=${inputs[i].value}`;
+            } else {
+                queryString += `=${inputs[i].value},`;
+            }
+        }
+
+        queryString += queryString.substr(0, queryString.length - 1) + ")";
+
+        if (aliases !== "?") {
+            queryString += aliases;
+        }
+
+        return queryString;
+    }
+
+    private getPreferHeader(queryOptions: QueryOptions): string {
+        let prefer: string[] = [];
+
+        if (queryOptions.maxPageSize) {
+            prefer.push(`odata.maxpagesize=${queryOptions.maxPageSize}`);
+        }
+
+        if (queryOptions.includeFormattedValues && queryOptions.includeLookupLogicalNames && queryOptions.includeAssociatedNavigationProperties) {
+            prefer.push("odata.include-annotations=\"*\"");
+        } else {
+            const preferExtra: string = [
+                queryOptions.includeFormattedValues ? "OData.Community.Display.V1.FormattedValue" : "",
+                queryOptions.includeLookupLogicalNames ? "Microsoft.Dynamics.CRM.lookuplogicalname" : "",
+                queryOptions.includeAssociatedNavigationProperties ? "Microsoft.Dynamics.CRM.associatednavigationproperty" : "",
+            ].filter((v, i) => {
+                return v !== "";
+            }).join(",");
+
+            prefer.push("odata.include-annotations=\"" + preferExtra + "\"");
+        }
+
+        return prefer.join(",");
     }
 }
