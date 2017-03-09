@@ -84,7 +84,7 @@ export class WebApi {
         let query: string = (queryString != null) ? `${entitySet}(${id.value})${queryString}` : `${entitySet}(${id.value})`;
         const req: XMLHttpRequest = this.getRequest("GET", query);
 
-        if (queryOptions != null) {
+        if (queryOptions != null && typeof(queryOptions) !== "undefined") {
           req.setRequestHeader("Prefer", this.getPreferHeader(queryOptions));
         }
 
@@ -118,7 +118,7 @@ export class WebApi {
         let query: string = (queryString != null) ? entitySet + queryString : entitySet;
         const req = this.getRequest("GET", query);
 
-        if (queryOptions != null) {
+        if (queryOptions != null && typeof(queryOptions) !== "undefined") {
           req.setRequestHeader("Prefer", this.getPreferHeader(queryOptions));
         }
 
