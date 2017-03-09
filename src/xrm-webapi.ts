@@ -74,9 +74,7 @@ export class WebApi {
      * @param entityType Type of entity to retrieve
      * @param id Id of record to retrieve
      * @param queryString OData query string parameters
-     * @param includeFormattedValues Include formatted values in results
-     * @param includeLookupLogicalNames Include lookup logical names in results
-     * @param includeAssociatedNavigationProperty Include associated navigation property in results
+     * @param queryOptions Various query options for the query
      */
     public retrieve(entitySet: string, id: Guid, queryString?: string, queryOptions?: QueryOptions): Promise<any> {
         if (queryString != null && ! /^[?]/.test(queryString)) {
@@ -110,10 +108,7 @@ export class WebApi {
      * Retrieve multiple records from CRM
      * @param entitySet Type of entity to retrieve
      * @param queryString OData query string parameters
-     * @param includeFormattedValues Include formatted values in results
-     * @param includeLookupLogicalNames Include lookup logical names in results
-     * @param includeAssociatedNavigationProperty Include associated navigation property in results
-     * @param maxPageSize Records per page to return
+     * @param queryOptions Various query options for the query
      */
     public retrieveMultiple(entitySet: string, queryString?: string, queryOptions?: QueryOptions): Promise<any> {
         if (queryString != null && ! /^[?]/.test(queryString)) {
@@ -122,6 +117,34 @@ export class WebApi {
 
         let query: string = (queryString != null) ? entitySet + queryString : entitySet;
         const req = this.getRequest("GET", query);
+
+        if (queryOptions != null) {
+          req.setRequestHeader("Prefer", this.getPreferHeader(queryOptions));
+        }
+
+        return new Promise((resolve, reject) => {
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 200) {
+                        resolve(JSON.parse(req.response));
+                    } else {
+                        reject(JSON.parse(req.response).error);
+                    }
+                }
+            };
+
+            req.send();
+        });
+    }
+
+    /**
+     * Retrieve next page from a retrieveMultiple request
+     * @param query Query from the @odata.nextlink property of a retrieveMultiple
+     * @param queryOptions Various query options for the query
+     */
+    public getNextPage(query: string, queryOptions?: QueryOptions): Promise<any> {
+        const req = this.getRequest("GET", query, undefined, false);
 
         if (queryOptions != null) {
           req.setRequestHeader("Prefer", this.getPreferHeader(queryOptions));
@@ -562,9 +585,16 @@ export class WebApi {
         });
     }
 
-    private getRequest(method: string, queryString: string, contentType: string = "application/json; charset=utf-8"): XMLHttpRequest {
-        const url: string = this.getClientUrl(queryString);
+    private getRequest(method: string, queryString: string, contentType: string = "application/json; charset=utf-8", needsUrl: boolean = true): XMLHttpRequest {
+        let url: string;
 
+        if (needsUrl) {
+            url = this.getClientUrl(queryString);
+        } else {
+            url = queryString;
+        }
+
+        // Build XMLHttpRequest
         const request: XMLHttpRequest = new XMLHttpRequest();
         request.open(method, url, true);
         request.setRequestHeader("Accept", "application/json");
@@ -602,10 +632,12 @@ export class WebApi {
     private getPreferHeader(queryOptions: QueryOptions): string {
         let prefer: string[] = [];
 
+        // Add max page size to prefer request header
         if (queryOptions.maxPageSize) {
             prefer.push(`odata.maxpagesize=${queryOptions.maxPageSize}`);
         }
 
+        // Add formatted values to prefer request header
         if (queryOptions.includeFormattedValues && queryOptions.includeLookupLogicalNames && queryOptions.includeAssociatedNavigationProperties) {
             prefer.push("odata.include-annotations=\"*\"");
         } else {
