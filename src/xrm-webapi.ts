@@ -1,5 +1,3 @@
-import {Promise} from "es6-promise";
-
 export interface FunctionInput {
     name: string;
     value: string;
@@ -52,9 +50,9 @@ export class WebApi {
 
     /**
      * Constructor
-     * @param version Version should be 8.0, 8.1 or 8.2
+     * @param version Version must be 8.0, 8.1 or 8.2
      */
-    constructor (version: string) {
+    constructor (version: string) {        
         this.version = version;
     }
 
@@ -245,7 +243,7 @@ export class WebApi {
 
             let attributes = {};
 
-            entity.attributes.forEach(attribute => {
+            entity.attributes.forEach((attribute) => {
                 attributes[attribute.name] = attribute.value;
             });
 

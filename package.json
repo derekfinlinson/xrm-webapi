@@ -2,7 +2,7 @@
   "name": "xrm-webapi",
   "version": "0.0.0-development",
   "description": "Dynamics CRM Web Api Typescript Module",
-  "main": "./dist/xrm-webapi.js",  
+  "main": "./dist/xrm-webapi.js",
   "types": "./dist/xrm-webapi.d.ts",
   "license": "MIT",
   "repository": {
@@ -25,9 +25,7 @@
     "cz-conventional-changelog": "^1.2.0",
     "semantic-release": "^6.3.2"
   },
-  "dependencies": {
-    "es6-promise": "^4.0.5"
-  },
+  "dependencies": {},
   "files": [
     "dist"
   ],

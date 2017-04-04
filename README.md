@@ -6,7 +6,7 @@
 
 A Dynamics CRM Web API TypeScript module for use in Web Resources.
 
-All methods return a generic Promise. The module depends on [es6-promise](https://github.com/stefanpenner/es6-promise) to add Promise support for Internet Explorer but any promise polyfill may be used when deploying to CRM.
+All methods return a Promise. To support IE 11, be sure to include a promise polyfill when deploying to CRM.
 
 *Requires Dynamics CRM 2016 Online/On-Prem or later*
 
@@ -22,9 +22,9 @@ npm install --save-dev xrm-webapi
 Import the module into your TypeScript files
 
 ```typescript
-import {WebApi} from "xrm-webapi";
+import { WebApi } from "xrm-webapi";
 
-const api = new WebApi("8.1");
+const api = new WebApi("8.2");
 ```
 
 ### Samples
