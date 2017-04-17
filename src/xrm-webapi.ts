@@ -47,13 +47,16 @@ export interface QueryOptions {
 
 export class WebApi {
     private version;
+    private accessToken;
 
     /**
      * Constructor
      * @param version Version must be 8.0, 8.1 or 8.2
+     * @param accessToken Optional access token if using from outside Dynamics 365
      */
-    constructor (version: string) {        
+    constructor (version: string, accessToken?: string) {
         this.version = version;
+        this.accessToken = accessToken;
     }
 
     /**
@@ -601,6 +604,10 @@ export class WebApi {
         request.setRequestHeader("OData-Version", "4.0");
         request.setRequestHeader("Cache-Control", "no-cache");
 
+        if (this.accessToken != null) {
+            request.setRequestHeader("Authorization", `Bearer ${this.accessToken}`);
+        }
+        
         return request;
     }
 
