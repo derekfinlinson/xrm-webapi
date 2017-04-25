@@ -591,7 +591,7 @@ export class WebApi {
             }
         }
 
-        queryString += queryString.substr(0, queryString.length - 1) + ")";
+        queryString = queryString.substr(0, queryString.length - 1) + ")";
 
         if (aliases !== "?") {
             queryString += aliases;
