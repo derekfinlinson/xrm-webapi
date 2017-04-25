@@ -18,16 +18,6 @@ export class Guid {
     }
 }
 
-export interface Attribute {
-    name: string;
-    value?: any;
-}
-
-export interface Entity {
-    id?: Guid;
-    attributes: Attribute[];
-}
-
 export interface CreatedEntity {
     id: Guid;
     uri: string;
@@ -35,7 +25,7 @@ export interface CreatedEntity {
 
 export interface ChangeSet {
     queryString: string;
-    object: Entity;
+    entity: object;
 }
 
 export interface QueryOptions {
@@ -119,7 +109,7 @@ export class WebApi {
         let query: string = (queryString != null) ? entitySet + queryString : entitySet;
         const req = this.getRequest("GET", query);
 
-        if (queryOptions != null && typeof(queryOptions) !== "undefined") {
+        if (queryOptions != null && typeof queryOptions === "object") {
           req.setRequestHeader("Prefer", this.getPreferHeader(queryOptions));
         }
 
@@ -173,7 +163,7 @@ export class WebApi {
      * @param entity Entity to create
      * @param impersonateUser Impersonate another user
      */
-    public create(entitySet: string, entity: Entity, impersonateUser?: Guid): Promise<CreatedEntity> {
+    public create(entitySet: string, entity: object, impersonateUser?: Guid): Promise<CreatedEntity> {
         const req = this.getRequest("POST", entitySet);
 
         if (impersonateUser != null) {
@@ -202,13 +192,7 @@ export class WebApi {
                 }
             };
 
-            let attributes = {};
-
-            entity.attributes.forEach((attribute) => {
-                attributes[attribute.name] = attribute.value;
-            });
-
-            req.send(JSON.stringify(attributes));
+            req.send(JSON.stringify(entity));
         });
     }
 
@@ -219,7 +203,7 @@ export class WebApi {
      * @param select Select odata query parameter
      * @param impersonateUser Impersonate another user
      */
-    public createWithReturnData(entitySet: string, entity: Entity, select: string, impersonateUser?: Guid): Promise<any> {
+    public createWithReturnData(entitySet: string, entity: object, select: string, impersonateUser?: Guid): Promise<any> {
         if (select != null && ! /^[?]/.test(select)) {
             select = `?${select}`;
         }
@@ -244,13 +228,7 @@ export class WebApi {
                 }
             };
 
-            let attributes = {};
-
-            entity.attributes.forEach((attribute) => {
-                attributes[attribute.name] = attribute.value;
-            });
-
-            req.send(JSON.stringify(attributes));
+            req.send(JSON.stringify(entity));
         });
     }
 
@@ -261,7 +239,7 @@ export class WebApi {
      * @param entity Entity fields to update
      * @param impersonateUser Impersonate another user
      */
-    public update(entitySet: string, id: Guid, entity: Entity, impersonateUser?: Guid): Promise<any> {
+    public update(entitySet: string, id: Guid, entity: object, impersonateUser?: Guid): Promise<any> {
         const req = this.getRequest("PATCH", `${entitySet}(${id.value})`);
 
         if (impersonateUser != null) {
@@ -280,13 +258,7 @@ export class WebApi {
                 }
             };
 
-            let attributes = {};
-
-            entity.attributes.forEach((attribute) => {
-                attributes[attribute.name] = attribute.value;
-            });
-
-            req.send(JSON.stringify(attributes));
+            req.send(JSON.stringify(entity));
         });
     }
 
@@ -297,8 +269,8 @@ export class WebApi {
      * @param attribute Attribute to update
      * @param impersonateUser Impersonate another user
      */
-    public updateProperty(entitySet: string, id: Guid, attribute: Attribute, impersonateUser?: Guid): Promise<any> {
-        const req = this.getRequest("PUT", `${entitySet}(${id.value})/${attribute.name}`);
+    public updateProperty(entitySet: string, id: Guid, attribute: string, value: any, impersonateUser?: Guid): Promise<any> {
+        const req = this.getRequest("PUT", `${entitySet}(${id.value})/${attribute}`);
 
         if (impersonateUser != null) {
             req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
@@ -316,7 +288,7 @@ export class WebApi {
                 }
             };
 
-            req.send(JSON.stringify({ value: attribute.value }));
+            req.send(JSON.stringify({ value: value }));
         });
     }
 
@@ -350,8 +322,8 @@ export class WebApi {
      * @param id Id of record to update
      * @param attribute Attribute to delete
      */
-    public deleteProperty(entitySet: string, id: Guid, attribute: Attribute, isNavigationProperty: boolean): Promise<any> {
-        let queryString = `/${attribute.name}`;
+    public deleteProperty(entitySet: string, id: Guid, attribute: string, isNavigationProperty: boolean): Promise<any> {
+        let queryString = `/${attribute}`;
 
         if (isNavigationProperty) {
             queryString += "/$ref";
@@ -542,13 +514,7 @@ export class WebApi {
             body.push("Content-Type: application/json;type=entry");
             body.push("");
 
-            let attributes = {};
-
-            changeSets[i].object.attributes.forEach((attribute) => {
-                attributes[attribute.name] = attribute.value;
-            });
-
-            body.push(JSON.stringify(attributes));
+            body.push(JSON.stringify(changeSets[i].entity));
         }
 
         if (changeSets.length > 0) {

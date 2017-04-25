@@ -2,9 +2,7 @@
 // tslint:disable:no-empty
 
 import {
-    Attribute,
     ChangeSet,
-    Entity,
     FunctionInput,
     Guid,
     WebApi,
@@ -13,30 +11,25 @@ import {
 const api = new WebApi("8.1");
 
 /// Demonstrate create
-const account: Entity = {
-    attributes: new Array < Attribute > (),
+const account = {
+    name: "Test Account"
 };
-
-account.attributes.push({
-    name: "name",
-    value: "Test Account",
-});
 
 api.create("accounts", account)
     .then((createdAccount) => {
-        account.id = createdAccount.id;
+        console.log(createdAccount.id);
     }, (error) => {
         console.log(error);
     });
 
 /// Demonstrate create with returned odata
 api.createWithReturnData("accounts", account, "$select=name,accountid")
-    .then((created) => {
+    .then((created: any) => {
         console.log(created.name);
     });
 
 /// Demonstrate retrieve
-api.retrieve("accounts", account.id, "$select=name")
+api.retrieve("accounts", new Guid(""), "$select=name")
     .then((retrieved) => {
         console.log(retrieved.name);
     }, (error) => {
@@ -59,38 +52,31 @@ api.retrieveMultiple("accounts", options)
     });
 
 /// Demonstrate update. Update returns no content
-api.update("accounts", account.id, account)
+api.update("accounts", new Guid(""), account)
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 /// Demonstrate update property. Update property returns no content
-api.updateProperty("accounts", account.id, {
-        name: "name",
-        value: "Updated Account",
-    })
+api.updateProperty("accounts", new Guid(""), "name", "Updated Account")
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 /// Demonstrate delete. Delete returns no content
-api.delete("accounts", account.id)
+api.delete("accounts", new Guid(""))
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 /// Demonstrate delete property. Delete property returns no content
-api.deleteProperty("accounts", account.id, {
-        name: "address1_line1",
-    }, false)
+api.deleteProperty("accounts", new Guid(""), "address1_line1", false)
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 /// Demonstrate delete navigation property. Delete property returns no content
-api.deleteProperty("accounts", account.id, {
-        name: "primarycontactid",
-    }, true)
+api.deleteProperty("accounts", new Guid(""), "primarycontactid", true)
     .then(() => {}, (error) => {
         console.log(error);
     });
@@ -101,7 +87,7 @@ const inputs = {
     StringInput: "Text",
 };
 
-api.boundAction("accounts", account.id, "sample_BoundAction", inputs)
+api.boundAction("accounts", new Guid(""), "sample_BoundAction", inputs)
     .then((result) => {
         console.log(result.annotationid);
     }, (error) => {
@@ -123,7 +109,7 @@ inputs3.push({
     value: "Value",
 });
 
-api.boundAction("accounts", account.id, "sample_BoundFunction", inputs3)
+api.boundAction("accounts", new Guid(""), "sample_BoundFunction", inputs3)
     .then((result) => {
         console.log(result.annotationid);
     }, (error) => {
@@ -149,20 +135,14 @@ api.unboundAction("sample_UnboundAction", inputs4)
 /// Demonstrate batch operation
 const changeSets = [
     {
-        object: {
-            attributes: [{
-                name: "name",
-                value: "Test 1",
-            }],
+        entity: {
+            name: "Test 1"
         },
         queryString: "accounts",
     },
     {
-        object: {
-            attributes: [{
-                name: "name",
-                value: "Test 2",
-            }],
+        entity: {
+            name: "Test 2"
         },
         queryString: "accounts",
     },
