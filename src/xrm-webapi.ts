@@ -578,6 +578,10 @@ export class WebApi {
     }
 
     private getFunctionInputs(queryString: string, inputs: FunctionInput[]): string {
+        if (inputs = null) {
+            return queryString + ")";
+        }
+
         let aliases: string = "?";
 
         for (let i: number = 0; i < inputs.length; i++) {
