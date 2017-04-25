@@ -578,7 +578,7 @@ export class WebApi {
     }
 
     private getFunctionInputs(queryString: string, inputs: FunctionInput[]): string {
-        if (inputs = null) {
+        if (inputs == null) {
             return queryString + ")";
         }
 

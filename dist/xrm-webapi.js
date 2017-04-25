@@ -499,7 +499,7 @@ var WebApi = (function () {
         return request;
     };
     WebApi.prototype.getFunctionInputs = function (queryString, inputs) {
-        if (inputs = null) {
+        if (inputs == null) {
             return queryString + ")";
         }
         var aliases = "?";
