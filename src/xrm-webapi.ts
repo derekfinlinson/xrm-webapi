@@ -497,11 +497,13 @@ export class WebApi {
         }
 
         // build post body
-        const body = [
-            `--batch_${batchId}`,
-            `Content-Type: multipart/mixed;boundary=changeset_${changeSetId}`,
-            "",
-        ];
+        const body = [];
+
+        if (changeSets.length > 0) {
+            body.push(`--batch_${batchId}`);
+            body.push(`Content-Type: multipart/mixed;boundary=changeset_${changeSetId}`);
+            body.push("");
+        }
 
         // push change sets to body
         for (let i = 0; i < changeSets.length; i++) {
