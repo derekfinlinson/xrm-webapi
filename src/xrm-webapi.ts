@@ -534,6 +534,10 @@ export class WebApi {
             body.push("Accept: application/json");
         }
 
+        if (batchGets.length > 0) {
+            body.push("");
+        }
+
         body.push(`--batch_${batchId}--`);
 
         return new Promise((resolve, reject) => {
