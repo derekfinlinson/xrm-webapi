@@ -425,11 +425,12 @@ var WebApi = (function () {
             req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
         }
         // build post body
-        var body = [
-            "--batch_" + batchId,
-            "Content-Type: multipart/mixed;boundary=changeset_" + changeSetId,
-            "",
-        ];
+        var body = [];
+        if (changeSets.length > 0) {
+            body.push("--batch_" + batchId);
+            body.push("Content-Type: multipart/mixed;boundary=changeset_" + changeSetId);
+            body.push("");
+        }
         // push change sets to body
         for (var i = 0; i < changeSets.length; i++) {
             body.push("--changeset_" + changeSetId);
@@ -455,6 +456,9 @@ var WebApi = (function () {
             body.push("");
             body.push("GET " + this.getClientUrl(get) + " HTTP/1.1");
             body.push("Accept: application/json");
+        }
+        if (batchGets.length > 0) {
+            body.push("");
         }
         body.push("--batch_" + batchId + "--");
         return new Promise(function (resolve, reject) {
