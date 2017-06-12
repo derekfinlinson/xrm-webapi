@@ -21,9 +21,9 @@
     "typescript"
   ],
   "devDependencies": {
-    "@types/xrm": "^8.0.37",
-    "cz-conventional-changelog": "^1.2.0",
-    "semantic-release": "^6.3.2"
+    "@types/xrm": "^8.2.5",
+    "cz-conventional-changelog": "^2.0.0",
+    "semantic-release": "^6.3.6"
   },
   "dependencies": {},
   "files": [
