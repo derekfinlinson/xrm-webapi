@@ -16,6 +16,14 @@ export class Guid {
             throw Error(`Id ${value} is not a valid GUID`);
         }
     }
+
+    areEqual(compare: Guid) {
+        if (this === null || compare === null || this === undefined || compare === undefined) {
+            return false;
+        }
+
+        return this.value.toLowerCase() === compare.value.toLowerCase();
+    }
 }
 
 export interface CreatedEntity {
