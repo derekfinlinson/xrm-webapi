@@ -10,6 +10,12 @@ var Guid = (function () {
             throw Error("Id " + value + " is not a valid GUID");
         }
     }
+    Guid.prototype.areEqual = function (compare) {
+        if (this === null || compare === null || this === undefined || compare === undefined) {
+            return false;
+        }
+        return this.value.toLowerCase() === compare.value.toLowerCase();
+    };
     return Guid;
 }());
 exports.Guid = Guid;
