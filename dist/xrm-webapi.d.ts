@@ -6,6 +6,7 @@ export interface FunctionInput {
 export declare class Guid {
     value: string;
     constructor(value: string);
+    areEqual(compare: Guid): boolean;
 }
 export interface CreatedEntity {
     id: Guid;
