@@ -81,6 +81,12 @@ api.deleteProperty("accounts", new Guid(""), "primarycontactid", true)
         console.log(error);
     });
 
+/// Demonstrate associate. Associate returns no content
+api.associate("accounts", new Guid(""), "contact_customer_accounts", "contacts", new Guid(""))
+    .then(() => {}, (error) => {
+        console.log(error);
+    });
+
 /// Demonstrate bound action
 const inputs = {
     NumberInput: 100,
