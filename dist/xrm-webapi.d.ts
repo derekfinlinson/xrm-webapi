@@ -103,14 +103,23 @@ export declare class WebApi {
     deleteProperty(entitySet: string, id: Guid, attribute: string, isNavigationProperty: boolean): Promise<any>;
     /**
      * Associate two records
-     * @param entitySet Type of entity or primary record
+     * @param entitySet Type of entity for primary record
      * @param id Id of primary record
      * @param relationship Schema name of relationship
-     * @param relatedEntitySet Type of entity of secondary record
+     * @param relatedEntitySet Type of entity for secondary record
      * @param relatedEntityId Id of secondary record
      * @param impersonateUser Impersonate another user
      */
     associate(entitySet: string, id: Guid, relationship: string, relatedEntitySet: string, relatedEntityId: Guid, impersonateUser?: Guid): Promise<any>;
+    /**
+     * Disassociate two records
+     * @param entitySet Type of entity for primary record
+     * @param id  Id of primary record
+     * @param relationship Schema name of relationship
+     * @param relatedEntitySet Type of entity for secondary record
+     * @param relatedEntityId Id of secondary record. Only needed for collection-valued navigation properties
+     */
+    disassociate(entitySet: string, id: Guid, relationship: string, relatedEntitySet: string, relatedEntityId?: Guid): Promise<any>;
     /**
      * Execute a default or custom bound action in CRM
      * @param entitySet Type of entity to run the action against
