@@ -294,6 +294,39 @@ var WebApi = (function () {
         });
     };
     /**
+     * Associate two records
+     * @param entitySet Type of entity or primary record
+     * @param id Id of primary record
+     * @param relationship Schema name of relationship
+     * @param relatedEntitySet Type of entity of secondary record
+     * @param relatedEntityId Id of secondary record
+     * @param impersonateUser Impersonate another user
+     */
+    WebApi.prototype.associate = function (entitySet, id, relationship, relatedEntitySet, relatedEntityId, impersonateUser) {
+        var _this = this;
+        var req = this.getRequest("POST", entitySet + "(" + id + ")/" + relationship + "/$ref");
+        if (impersonateUser != null) {
+            req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
+        }
+        return new Promise(function (resolve, reject) {
+            req.onreadystatechange = function () {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 204) {
+                        resolve();
+                    }
+                    else {
+                        reject(JSON.parse(req.response).error);
+                    }
+                }
+            };
+            var related = {
+                "@odata.id": _this.getClientUrl(relatedEntitySet + "(" + relatedEntityId.value + ")")
+            };
+            req.send(JSON.stringify(related));
+        });
+    };
+    /**
      * Execute a default or custom bound action in CRM
      * @param entitySet Type of entity to run the action against
      * @param id Id of record to run the action against

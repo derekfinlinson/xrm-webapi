@@ -356,6 +356,42 @@ export class WebApi {
     }
 
     /**
+     * Associate two records
+     * @param entitySet Type of entity or primary record
+     * @param id Id of primary record
+     * @param relationship Schema name of relationship
+     * @param relatedEntitySet Type of entity of secondary record
+     * @param relatedEntityId Id of secondary record
+     * @param impersonateUser Impersonate another user
+     */
+    public associate(entitySet: string, id: Guid, relationship: string, relatedEntitySet: string, relatedEntityId: Guid, impersonateUser?: Guid) : Promise<any> {
+        const req = this.getRequest("POST", `${entitySet}(${id})/${relationship}/$ref`);
+
+        if (impersonateUser != null) {
+            req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
+        }
+
+        return new Promise((resolve, reject) => {
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 204) {                        
+                        resolve();
+                    } else {
+                        reject(JSON.parse(req.response).error);
+                    }
+                }
+            };
+
+            const related = {
+                "@odata.id": this.getClientUrl(`${relatedEntitySet}(${relatedEntityId.value})`)
+            };
+
+            req.send(JSON.stringify(related));
+        });
+    }
+
+    /**
      * Execute a default or custom bound action in CRM
      * @param entitySet Type of entity to run the action against
      * @param id Id of record to run the action against
