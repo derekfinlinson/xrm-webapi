@@ -357,10 +357,10 @@ export class WebApi {
 
     /**
      * Associate two records
-     * @param entitySet Type of entity or primary record
+     * @param entitySet Type of entity for primary record
      * @param id Id of primary record
      * @param relationship Schema name of relationship
-     * @param relatedEntitySet Type of entity of secondary record
+     * @param relatedEntitySet Type of entity for secondary record
      * @param relatedEntityId Id of secondary record
      * @param impersonateUser Impersonate another user
      */
@@ -388,6 +388,41 @@ export class WebApi {
             };
 
             req.send(JSON.stringify(related));
+        });
+    }
+
+    /**
+     * Disassociate two records
+     * @param entitySet Type of entity for primary record
+     * @param id  Id of primary record
+     * @param relationship Schema name of relationship
+     * @param relatedEntitySet Type of entity for secondary record
+     * @param relatedEntityId Id of secondary record. Only needed for collection-valued navigation properties
+     */
+    public disassociate(entitySet: string, id: Guid, relationship: string, relatedEntitySet: string, relatedEntityId?: Guid): Promise<any> {
+        let queryString;
+
+        if (relatedEntityId != null) {
+            queryString = `${relationship}(${relatedEntityId})/$ref`;
+        } else {
+            queryString = `${relationship}/$ref`;
+        }
+
+        const req = this.getRequest("DELETE", `${entitySet}(${id.value})/${queryString}`);
+
+        return new Promise((resolve, reject) => {
+            req.onreadystatechange = () => {
+                if (req.readyState === 4 /* complete */) {
+                    req.onreadystatechange = null;
+                    if (req.status === 204) {
+                        resolve();
+                    } else {
+                        reject(JSON.parse(req.response).error);
+                    }
+                }
+            };
+
+            req.send();
         });
     }
 

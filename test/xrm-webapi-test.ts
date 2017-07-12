@@ -87,6 +87,12 @@ api.associate("accounts", new Guid(""), "contact_customer_accounts", "contacts",
         console.log(error);
     });
 
+/// Demonstrate disassociate. Disassociate returns no content
+api.disassociate("accounts", new Guid(""), "contact_customer_accounts", "contacts")
+    .then(() => {}, (error) => {
+        console.log(error);
+    });
+
 /// Demonstrate bound action
 const inputs = {
     NumberInput: 100,
