@@ -304,7 +304,7 @@ var WebApi = (function () {
      */
     WebApi.prototype.associate = function (entitySet, id, relationship, relatedEntitySet, relatedEntityId, impersonateUser) {
         var _this = this;
-        var req = this.getRequest("POST", entitySet + "(" + id + ")/" + relationship + "/$ref");
+        var req = this.getRequest("POST", entitySet + "(" + id.value + ")/" + relationship + "/$ref");
         if (impersonateUser != null) {
             req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
         }
@@ -337,7 +337,7 @@ var WebApi = (function () {
     WebApi.prototype.disassociate = function (entitySet, id, relationship, relatedEntitySet, relatedEntityId) {
         var queryString;
         if (relatedEntityId != null) {
-            queryString = relationship + "(" + relatedEntityId + ")/$ref";
+            queryString = relationship + "(" + relatedEntityId.value + ")/$ref";
         }
         else {
             queryString = relationship + "/$ref";

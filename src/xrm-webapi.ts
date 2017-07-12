@@ -365,7 +365,7 @@ export class WebApi {
      * @param impersonateUser Impersonate another user
      */
     public associate(entitySet: string, id: Guid, relationship: string, relatedEntitySet: string, relatedEntityId: Guid, impersonateUser?: Guid) : Promise<any> {
-        const req = this.getRequest("POST", `${entitySet}(${id})/${relationship}/$ref`);
+        const req = this.getRequest("POST", `${entitySet}(${id.value})/${relationship}/$ref`);
 
         if (impersonateUser != null) {
             req.setRequestHeader("MSCRMCallerID", impersonateUser.value);
@@ -403,7 +403,7 @@ export class WebApi {
         let queryString;
 
         if (relatedEntityId != null) {
-            queryString = `${relationship}(${relatedEntityId})/$ref`;
+            queryString = `${relationship}(${relatedEntityId.value})/$ref`;
         } else {
             queryString = `${relationship}/$ref`;
         }
