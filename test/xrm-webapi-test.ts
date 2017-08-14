@@ -40,16 +40,26 @@ api.retrieve("accounts", new Guid(""), "$select=name")
 const options = "$filter=name eq 'Test Account'&$select=name,accountid";
 
 api.retrieveMultiple("accounts", options)
-    .then((results) => {
-        const accounts = [];
-        for (let record of results.value) {
-            accounts.push(record);
-        }
+    .then(
+        (results) => {
+            const accounts = [];
+            for (let record of results.value) {
+                accounts.push(record);
+            }
 
-        console.log(accounts.length);
-    }, (error) => {
-        console.log(error);
-    });
+            /// Demonstrate getting next page from retreiveMultiple
+            api.getNextPage(results["@odata.nextlink"]).then(
+                (moreResults) => {
+                    console.log(moreResults.value.length);
+                }
+            )
+
+            console.log(accounts.length);
+        },
+        (error) => {
+            console.log(error);
+        }
+    );
 
 /// Demonstrate update. Update returns no content
 api.update("accounts", new Guid(""), account)

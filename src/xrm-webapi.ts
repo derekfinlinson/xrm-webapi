@@ -44,17 +44,19 @@ export interface QueryOptions {
 }
 
 export class WebApi {
-    private version;
-    private accessToken;
+    private version: string;
+    private accessToken: string;
+    private url: string;
 
     /**
      * Constructor
      * @param version Version must be 8.0, 8.1 or 8.2
      * @param accessToken Optional access token if using from outside Dynamics 365
      */
-    constructor (version: string, accessToken?: string) {
+    constructor (version: string, accessToken?: string, url?: string) {
         this.version = version;
         this.accessToken = accessToken;
+        this.url = url;
     }
 
     /**
@@ -62,8 +64,11 @@ export class WebApi {
      * @param queryString Query string to append to URL. Defaults to a blank string
      */
     public getClientUrl(queryString: string = ""): string {
+        if (this.url != null)
+            return `${this.url}/api/data/v${this.version}/${queryString}`;
+
         const context: Xrm.Context = typeof GetGlobalContext !== "undefined" ? GetGlobalContext() : Xrm.Page.context;
-        const url: string = context.getClientUrl() + `/api/data/v${this.version}/` + queryString;
+        const url: string = `${context.getClientUrl()}/api/data/v${this.version}/${queryString}`;
 
         return url;
     }
@@ -143,10 +148,10 @@ export class WebApi {
      * @param queryOptions Various query options for the query
      */
     public getNextPage(query: string, queryOptions?: QueryOptions): Promise<any> {
-        const req = this.getRequest("GET", query, undefined, false);
+        const req = this.getRequest("GET", query, null, false);
 
         if (queryOptions != null) {
-          req.setRequestHeader("Prefer", this.getPreferHeader(queryOptions));
+            req.setRequestHeader("Prefer", this.getPreferHeader(queryOptions));
         }
 
         return new Promise((resolve, reject) => {

@@ -25,12 +25,13 @@ export interface QueryOptions {
 export declare class WebApi {
     private version;
     private accessToken;
+    private url;
     /**
      * Constructor
      * @param version Version must be 8.0, 8.1 or 8.2
      * @param accessToken Optional access token if using from outside Dynamics 365
      */
-    constructor(version: string, accessToken?: string);
+    constructor(version: string, accessToken?: string, url?: string);
     /**
      * Get the OData URL
      * @param queryString Query string to append to URL. Defaults to a blank string
