@@ -25,9 +25,10 @@ var WebApi = (function () {
      * @param version Version must be 8.0, 8.1 or 8.2
      * @param accessToken Optional access token if using from outside Dynamics 365
      */
-    function WebApi(version, accessToken) {
+    function WebApi(version, accessToken, url) {
         this.version = version;
         this.accessToken = accessToken;
+        this.url = url;
     }
     /**
      * Get the OData URL
@@ -35,8 +36,10 @@ var WebApi = (function () {
      */
     WebApi.prototype.getClientUrl = function (queryString) {
         if (queryString === void 0) { queryString = ""; }
+        if (this.url != null)
+            return this.url + "/api/data/v" + this.version + "/" + queryString;
         var context = typeof GetGlobalContext !== "undefined" ? GetGlobalContext() : Xrm.Page.context;
-        var url = context.getClientUrl() + ("/api/data/v" + this.version + "/") + queryString;
+        var url = context.getClientUrl() + "/api/data/v" + this.version + "/" + queryString;
         return url;
     };
     /**
@@ -106,7 +109,7 @@ var WebApi = (function () {
      * @param queryOptions Various query options for the query
      */
     WebApi.prototype.getNextPage = function (query, queryOptions) {
-        var req = this.getRequest("GET", query, undefined, false);
+        var req = this.getRequest("GET", query, null, false);
         if (queryOptions != null) {
             req.setRequestHeader("Prefer", this.getPreferHeader(queryOptions));
         }
