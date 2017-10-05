@@ -21,8 +21,10 @@ export interface QueryOptions {
     includeLookupLogicalNames?: boolean;
     includeAssociatedNavigationProperties?: boolean;
     maxPageSize?: number;
+    impersonateUser?: Guid;
+    representation?: boolean;
 }
-export declare class WebApi {
+export declare class WebApiBase {
     private version;
     private accessToken;
     private url;
@@ -64,7 +66,7 @@ export declare class WebApi {
      * @param entity Entity to create
      * @param impersonateUser Impersonate another user
      */
-    create(entitySet: string, entity: object, impersonateUser?: Guid): Promise<CreatedEntity>;
+    create(entitySet: string, entity: object, queryOptions?: QueryOptions): Promise<CreatedEntity>;
     /**
      * Create a record in CRM and return data
      * @param entitySet Type of entity to create
@@ -72,7 +74,7 @@ export declare class WebApi {
      * @param select Select odata query parameter
      * @param impersonateUser Impersonate another user
      */
-    createWithReturnData(entitySet: string, entity: object, select: string, impersonateUser?: Guid): Promise<any>;
+    createWithReturnData(entitySet: string, entity: object, select: string, queryOptions?: QueryOptions): Promise<any>;
     /**
      * Update a record in CRM
      * @param entitySet Type of entity to update
@@ -80,7 +82,7 @@ export declare class WebApi {
      * @param entity Entity fields to update
      * @param impersonateUser Impersonate another user
      */
-    update(entitySet: string, id: Guid, entity: object, impersonateUser?: Guid): Promise<any>;
+    update(entitySet: string, id: Guid, entity: object, queryOptions?: QueryOptions): Promise<any>;
     /**
      * Update a single property of a record in CRM
      * @param entitySet Type of entity to update
@@ -88,7 +90,7 @@ export declare class WebApi {
      * @param attribute Attribute to update
      * @param impersonateUser Impersonate another user
      */
-    updateProperty(entitySet: string, id: Guid, attribute: string, value: any, impersonateUser?: Guid): Promise<any>;
+    updateProperty(entitySet: string, id: Guid, attribute: string, value: any, queryOptions?: QueryOptions): Promise<any>;
     /**
      * Delete a record from CRM
      * @param entitySet Type of entity to delete
@@ -111,7 +113,7 @@ export declare class WebApi {
      * @param relatedEntityId Id of secondary record
      * @param impersonateUser Impersonate another user
      */
-    associate(entitySet: string, id: Guid, relationship: string, relatedEntitySet: string, relatedEntityId: Guid, impersonateUser?: Guid): Promise<any>;
+    associate(entitySet: string, id: Guid, relationship: string, relatedEntitySet: string, relatedEntityId: Guid, queryOptions?: QueryOptions): Promise<any>;
     /**
      * Disassociate two records
      * @param entitySet Type of entity for primary record
@@ -129,14 +131,14 @@ export declare class WebApi {
      * @param inputs Any inputs required by the action
      * @param impersonateUser Impersonate another user
      */
-    boundAction(entitySet: string, id: Guid, actionName: string, inputs?: Object, impersonateUser?: Guid): Promise<any>;
+    boundAction(entitySet: string, id: Guid, actionName: string, inputs?: Object, queryOptions?: QueryOptions): Promise<any>;
     /**
      * Execute a default or custom unbound action in CRM
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
      * @param impersonateUser Impersonate another user
      */
-    unboundAction(actionName: string, inputs?: Object, impersonateUser?: Guid): Promise<any>;
+    unboundAction(actionName: string, inputs?: Object, queryOptions?: QueryOptions): Promise<any>;
     /**
      * Execute a default or custom bound action in CRM
      * @param entitySet Type of entity to run the action against
@@ -145,14 +147,14 @@ export declare class WebApi {
      * @param inputs Any inputs required by the action
      * @param impersonateUser Impersonate another user
      */
-    boundFunction(entitySet: string, id: Guid, functionName: string, inputs?: FunctionInput[], impersonateUser?: Guid): Promise<any>;
+    boundFunction(entitySet: string, id: Guid, functionName: string, inputs?: FunctionInput[], queryOptions?: QueryOptions): Promise<any>;
     /**
      * Execute an unbound function in CRM
      * @param functionName Name of the action to run
      * @param inputs Any inputs required by the action
      * @param impersonateUser Impersonate another user
      */
-    unboundFunction(functionName: string, inputs?: FunctionInput[], impersonateUser?: Guid): Promise<any>;
+    unboundFunction(functionName: string, inputs?: FunctionInput[], queryOptions?: QueryOptions): Promise<any>;
     /**
      * Execute a batch operation in CRM
      * @param batchId Unique batch id for the operation
@@ -161,8 +163,10 @@ export declare class WebApi {
      * @param batchGets Array of get requests for the operation
      * @param impersonateUser Impersonate another user
      */
-    batchOperation(batchId: string, changeSetId: string, changeSets: ChangeSet[], batchGets: string[], impersonateUser?: Guid): Promise<any>;
-    private getRequest(method, queryString, contentType?, needsUrl?);
-    private getFunctionInputs(queryString, inputs);
+    batchOperation(batchId: string, changeSetId: string, changeSets: ChangeSet[], batchGets: string[], queryOptions?: QueryOptions): Promise<any>;
+    private getRequest(method, queryString, queryOptions, contentType?, needsUrl?);
     private getPreferHeader(queryOptions);
+    private getFunctionInputs(queryString, inputs);
+}
+export declare class WebApi extends WebApiBase {
 }
