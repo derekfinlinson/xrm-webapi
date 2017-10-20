@@ -98,12 +98,12 @@ export declare class WebApiBase {
      */
     delete(entitySet: string, id: Guid): Promise<any>;
     /**
-     * Delete a property from a record in CRM
+     * Delete a property from a record in CRM. Non navigation properties only
      * @param entitySet Type of entity to update
      * @param id Id of record to update
      * @param attribute Attribute to delete
      */
-    deleteProperty(entitySet: string, id: Guid, attribute: string, isNavigationProperty: boolean): Promise<any>;
+    deleteProperty(entitySet: string, id: Guid, attribute: string): Promise<any>;
     /**
      * Associate two records
      * @param entitySet Type of entity for primary record
@@ -118,11 +118,10 @@ export declare class WebApiBase {
      * Disassociate two records
      * @param entitySet Type of entity for primary record
      * @param id  Id of primary record
-     * @param relationship Schema name of relationship
-     * @param relatedEntitySet Type of entity for secondary record
+     * @param property Schema name of property or relationship
      * @param relatedEntityId Id of secondary record. Only needed for collection-valued navigation properties
      */
-    disassociate(entitySet: string, id: Guid, relationship: string, relatedEntitySet: string, relatedEntityId?: Guid): Promise<any>;
+    disassociate(entitySet: string, id: Guid, property: string, relatedEntityId?: Guid): Promise<any>;
     /**
      * Execute a default or custom bound action in CRM
      * @param entitySet Type of entity to run the action against
