@@ -8,10 +8,10 @@ import {
     WebApi,
 } from "../src/xrm-webapi";
 
-const api = new WebApi("8.1");
+const api: WebApi = new WebApi("8.1");
 
-/// Demonstrate create
-const account = {
+// demonstrate create
+const account: any = {
     name: "Test Account"
 };
 
@@ -22,13 +22,13 @@ api.create("accounts", account)
         console.log(error);
     });
 
-/// Demonstrate create with returned odata
+// demonstrate create with returned odata
 api.createWithReturnData("accounts", account, "$select=name,accountid")
     .then((created: any) => {
         console.log(created.name);
     });
 
-/// Demonstrate retrieve
+// demonstrate retrieve
 api.retrieve("accounts", new Guid(""), "$select=name")
     .then((retrieved) => {
         console.log(retrieved.name);
@@ -36,23 +36,23 @@ api.retrieve("accounts", new Guid(""), "$select=name")
         console.log(error);
     });
 
-/// Demonstrate retrieve multiple
-const options = "$filter=name eq 'Test Account'&$select=name,accountid";
+// demonstrate retrieve multiple
+const options: string = "$filter=name eq 'Test Account'&$select=name,accountid";
 
 api.retrieveMultiple("accounts", options)
     .then(
         (results) => {
-            const accounts = [];
+            const accounts: any[] = [];
             for (let record of results.value) {
                 accounts.push(record);
             }
 
-            /// Demonstrate getting next page from retreiveMultiple
+            // demonstrate getting next page from retreiveMultiple
             api.getNextPage(results["@odata.nextlink"]).then(
                 (moreResults) => {
                     console.log(moreResults.value.length);
                 }
-            )
+            );
 
             console.log(accounts.length);
         },
@@ -61,50 +61,50 @@ api.retrieveMultiple("accounts", options)
         }
     );
 
-/// Demonstrate update. Update returns no content
+// demonstrate update. Update returns no content
 api.update("accounts", new Guid(""), account)
     .then(() => {}, (error) => {
         console.log(error);
     });
 
-/// Demonstrate update property. Update property returns no content
+// demonstrate update property. Update property returns no content
 api.updateProperty("accounts", new Guid(""), "name", "Updated Account")
     .then(() => {}, (error) => {
         console.log(error);
     });
 
-/// Demonstrate delete. Delete returns no content
+// demonstrate delete. Delete returns no content
 api.delete("accounts", new Guid(""))
     .then(() => {}, (error) => {
         console.log(error);
     });
 
-/// Demonstrate delete property. Delete property returns no content
-api.deleteProperty("accounts", new Guid(""), "address1_line1", false)
+// demonstrate delete property. Delete property returns no content
+api.deleteProperty("accounts", new Guid(""), "address1_line1")
     .then(() => {}, (error) => {
         console.log(error);
     });
 
-/// Demonstrate delete navigation property. Delete property returns no content
-api.deleteProperty("accounts", new Guid(""), "primarycontactid", true)
+// demonstrate delete navigation property. Delete property returns no content
+api.deleteProperty("accounts", new Guid(""), "primarycontactid")
     .then(() => {}, (error) => {
         console.log(error);
     });
 
-/// Demonstrate associate. Associate returns no content
+// demonstrate associate. Associate returns no content
 api.associate("accounts", new Guid(""), "contact_customer_accounts", "contacts", new Guid(""))
     .then(() => {}, (error) => {
         console.log(error);
     });
 
-/// Demonstrate disassociate. Disassociate returns no content
-api.disassociate("accounts", new Guid(""), "contact_customer_accounts", "contacts")
+// demonstrate disassociate. Disassociate returns no content
+api.disassociate("accounts", new Guid(""), "contact_customer_accounts")
     .then(() => {}, (error) => {
         console.log(error);
     });
 
-/// Demonstrate bound action
-const inputs = {
+// demonstrate bound action
+const inputs: object = {
     NumberInput: 100,
     StringInput: "Text",
 };
@@ -123,7 +123,7 @@ api.unboundAction("sample_UnboundAction", inputs)
         console.log(error);
     });
 
-/// Demonstrate bound function
+// demonstrate bound function
 const inputs3: FunctionInput[] = [];
 
 inputs3.push({
@@ -138,7 +138,7 @@ api.boundAction("accounts", new Guid(""), "sample_BoundFunction", inputs3)
         console.log(error);
     });
 
-/// Demonstrate create. Custom action - Add note to account
+// demonstrate create. Custom action - Add note to account
 const inputs4: FunctionInput[] = [];
 
 inputs4.push({
@@ -154,8 +154,8 @@ api.unboundAction("sample_UnboundAction", inputs4)
         console.log(error);
     });
 
-/// Demonstrate batch operation
-const changeSets = [
+// demonstrate batch operation
+const changeSets: ChangeSet[] = [
     {
         entity: {
             name: "Test 1"
@@ -170,7 +170,7 @@ const changeSets = [
     },
 ];
 
-const gets = [
+const gets: string[] = [
     "accounts?$select=name",
 ];
 

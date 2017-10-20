@@ -264,16 +264,13 @@ var WebApiBase = /** @class */ (function () {
         });
     };
     /**
-     * Delete a property from a record in CRM
+     * Delete a property from a record in CRM. Non navigation properties only
      * @param entitySet Type of entity to update
      * @param id Id of record to update
      * @param attribute Attribute to delete
      */
-    WebApiBase.prototype.deleteProperty = function (entitySet, id, attribute, isNavigationProperty) {
+    WebApiBase.prototype.deleteProperty = function (entitySet, id, attribute) {
         var queryString = "/" + attribute;
-        if (isNavigationProperty) {
-            queryString += "/$ref";
-        }
         var req = this.getRequest("DELETE", entitySet + "(" + id.value + ")" + queryString, null);
         return new Promise(function (resolve, reject) {
             req.onreadystatechange = function () {
@@ -324,18 +321,15 @@ var WebApiBase = /** @class */ (function () {
      * Disassociate two records
      * @param entitySet Type of entity for primary record
      * @param id  Id of primary record
-     * @param relationship Schema name of relationship
-     * @param relatedEntitySet Type of entity for secondary record
+     * @param property Schema name of property or relationship
      * @param relatedEntityId Id of secondary record. Only needed for collection-valued navigation properties
      */
-    WebApiBase.prototype.disassociate = function (entitySet, id, relationship, relatedEntitySet, relatedEntityId) {
-        var queryString;
+    WebApiBase.prototype.disassociate = function (entitySet, id, property, relatedEntityId) {
+        var queryString = property;
         if (relatedEntityId != null) {
-            queryString = relationship + "(" + relatedEntityId.value + ")/$ref";
+            queryString += "(" + relatedEntityId.value + ")";
         }
-        else {
-            queryString = relationship + "/$ref";
-        }
+        queryString += "/$ref";
         var req = this.getRequest("DELETE", entitySet + "(" + id.value + ")/" + queryString, null);
         return new Promise(function (resolve, reject) {
             req.onreadystatechange = function () {
@@ -613,10 +607,3 @@ var WebApi = /** @class */ (function (_super) {
     return WebApi;
 }(WebApiBase));
 exports.WebApi = WebApi;
-var WebApiNode = /** @class */ (function (_super) {
-    __extends(WebApiNode, _super);
-    function WebApiNode() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    return WebApiNode;
-}(WebApiBase));
