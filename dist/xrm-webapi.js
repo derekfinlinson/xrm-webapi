@@ -1,4 +1,3 @@
-"use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -9,7 +8,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-Object.defineProperty(exports, "__esModule", { value: true });
 var Guid = /** @class */ (function () {
     function Guid(value) {
         value = value.replace(/[{}]/g, "");
@@ -28,7 +26,7 @@ var Guid = /** @class */ (function () {
     };
     return Guid;
 }());
-exports.Guid = Guid;
+export { Guid };
 var WebApiBase = /** @class */ (function () {
     /**
      * Constructor
@@ -598,7 +596,7 @@ var WebApiBase = /** @class */ (function () {
     };
     return WebApiBase;
 }());
-exports.WebApiBase = WebApiBase;
+export { WebApiBase };
 var WebApi = /** @class */ (function (_super) {
     __extends(WebApi, _super);
     function WebApi() {
@@ -606,4 +604,4 @@ var WebApi = /** @class */ (function (_super) {
     }
     return WebApi;
 }(WebApiBase));
-exports.WebApi = WebApi;
+export { WebApi };

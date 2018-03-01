@@ -1,9 +1,8 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "module": "commonjs",
-        "noImplicitAny": false,
-        "noImplicitUseStrict": false,
+        "module": "es2015",
+        "moduleResolution": "node",
         "declaration": true,
         "outDir": "dist",
         "lib": [
