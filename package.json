@@ -30,9 +30,7 @@
     "travis-deploy-once": "^4.4.1"
   },
   "dependencies": {
-    "axios": "^0.18.0",
-    "global": "^4.3.2",
-    "semantic-release-cli": "^3.6.4"
+    "axios": "^0.18.0"
   },
   "files": [
     "dist"
