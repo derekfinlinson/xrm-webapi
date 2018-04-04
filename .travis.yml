@@ -7,8 +7,6 @@ notifications:
   email: false
 node_js:
   - '8'
-  - '7'
-  - '6'
 after_success:
   - yarn run semantic-release
 branches:
