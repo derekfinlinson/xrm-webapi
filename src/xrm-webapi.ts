@@ -1,3 +1,5 @@
+import axios, { AxiosRequestConfig, AxiosPromise } from 'axios';
+
 export interface FunctionInput {
     name: string;
     value: string;
@@ -45,7 +47,7 @@ export interface QueryOptions {
     representation?: boolean;
 }
 
-export class WebApiBase {
+export class WebApi {
     private version: string;
     private accessToken: string;
     private url: string;
@@ -59,6 +61,14 @@ export class WebApiBase {
         this.version = version;
         this.accessToken = accessToken;
         this.url = url;
+
+        axios.defaults.headers.common["Accept"] = "application/json";
+        axios.defaults.headers.common["OData-MaxVersion"] = "4.0";
+        axios.defaults.headers.common["OData-Version"] = "4.0";
+
+        if (this.accessToken != null) {
+            axios.defaults.headers.common["Authorization"] = `Bearer ${this.accessToken}`;
+        }
     }
 
     /**
@@ -83,28 +93,15 @@ export class WebApiBase {
      * @param queryString OData query string parameters
      * @param queryOptions Various query options for the query
      */
-    public retrieve(entitySet: string, id: Guid, queryString?: string, queryOptions?: QueryOptions): Promise<any> {
+    public retrieve(entitySet: string, id: Guid, queryString?: string, queryOptions?: QueryOptions): AxiosPromise<any> {
         if (queryString != null && ! /^[?]/.test(queryString)) {
             queryString = `?${queryString}`;
         }
 
         let query: string = (queryString != null) ? `${entitySet}(${id.value})${queryString}` : `${entitySet}(${id.value})`;
-        const req: XMLHttpRequest = this.getRequest("GET", query, queryOptions);
+        const config: AxiosRequestConfig = this.getRequestConfig("GET", query, queryOptions);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-
-            req.send();
-        });
+        return axios(config);
     }
 
     /**
@@ -113,28 +110,15 @@ export class WebApiBase {
      * @param queryString OData query string parameters
      * @param queryOptions Various query options for the query
      */
-    public retrieveMultiple(entitySet: string, queryString?: string, queryOptions?: QueryOptions): Promise<any> {
+    public retrieveMultiple(entitySet: string, queryString?: string, queryOptions?: QueryOptions): AxiosPromise<any> {
         if (queryString != null && ! /^[?]/.test(queryString)) {
             queryString = `?${queryString}`;
         }
 
         let query: string = (queryString != null) ? entitySet + queryString : entitySet;
-        const req: XMLHttpRequest = this.getRequest("GET", query, queryOptions);
+        const config: AxiosRequestConfig = this.getRequestConfig("GET", query, queryOptions);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-
-            req.send();
-        });
+        return axios(config);
     }
 
     /**
@@ -142,23 +126,10 @@ export class WebApiBase {
      * @param query Query from the @odata.nextlink property of a retrieveMultiple
      * @param queryOptions Various query options for the query
      */
-    public getNextPage(query: string, queryOptions?: QueryOptions): Promise<any> {
-        const req: XMLHttpRequest = this.getRequest("GET", query, queryOptions, null, false);
+    public getNextPage(query: string, queryOptions?: QueryOptions): AxiosPromise<any> {
+        const config: AxiosRequestConfig = this.getRequestConfig("GET", query, queryOptions, null, false);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-
-            req.send();
-        });
+        return axios(config);
     }
 
     /**
@@ -167,33 +138,24 @@ export class WebApiBase {
      * @param entity Entity to create
      * @param impersonateUser Impersonate another user
      */
-    public create(entitySet: string, entity: object, queryOptions?: QueryOptions): Promise<CreatedEntity> {
-        const req: XMLHttpRequest = this.getRequest("POST", entitySet, queryOptions);
+    public create(entitySet: string, entity: object, queryOptions?: QueryOptions): AxiosPromise<CreatedEntity> {
+        const config: AxiosRequestConfig = this.getRequestConfig("POST", entitySet, queryOptions);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        const uri: string = req.getResponseHeader("OData-EntityId");
-                        const start: number = uri.indexOf("(") + 1;
-                        const end: number = uri.indexOf(")", start);
-                        const id: string = uri.substring(start, end);
+        config.transformResponse = (data, headers) => {
+            const uri: string = headers["OData-EntityId"];
+            const start: number = uri.indexOf("(") + 1;
+            const end: number = uri.indexOf(")", start);
+            const id: string = uri.substring(start, end);
 
-                        const createdEntity: CreatedEntity = {
-                            id: new Guid(id),
-                            uri,
-                        };
-
-                        resolve(createdEntity);
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
+            data = {
+                id: new Guid(id),
+                uri,
             };
+        };
+        
+        config.data = JSON.stringify(entity);
 
-            req.send(JSON.stringify(entity));
-        });
+        return axios(config);        
     }
 
     /**
@@ -203,7 +165,7 @@ export class WebApiBase {
      * @param select Select odata query parameter
      * @param impersonateUser Impersonate another user
      */
-    public createWithReturnData(entitySet: string, entity: object, select: string, queryOptions?: QueryOptions): Promise<any> {
+    public createWithReturnData(entitySet: string, entity: object, select: string, queryOptions?: QueryOptions): AxiosPromise<any> {
         if (select != null && ! /^[?]/.test(select)) {
             select = `?${select}`;
         }
@@ -215,22 +177,11 @@ export class WebApiBase {
 
         queryOptions.representation = true;
 
-        const req: XMLHttpRequest = this.getRequest("POST", entitySet + select, queryOptions);
+        const config: AxiosRequestConfig = this.getRequestConfig("POST", entitySet + select, queryOptions);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 201) {
-                        resolve(JSON.parse(req.response));
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
+        config.data = JSON.stringify(entity);
 
-            req.send(JSON.stringify(entity));
-        });
+        return axios(config);
     }
 
     /**
@@ -241,22 +192,11 @@ export class WebApiBase {
      * @param impersonateUser Impersonate another user
      */
     public update(entitySet: string, id: Guid, entity: object, queryOptions?: QueryOptions): Promise<any> {
-        const req: XMLHttpRequest = this.getRequest("PATCH", `${entitySet}(${id.value})`, queryOptions);
+        const config: AxiosRequestConfig = this.getRequestConfig("PATCH", `${entitySet}(${id.value})`, queryOptions);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        resolve();
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
+        config.data = JSON.stringify(entity);
 
-            req.send(JSON.stringify(entity));
-        });
+        return axios(config);
     }
 
     /**
@@ -266,23 +206,12 @@ export class WebApiBase {
      * @param attribute Attribute to update
      * @param impersonateUser Impersonate another user
      */
-    public updateProperty(entitySet: string, id: Guid, attribute: string, value: any, queryOptions?: QueryOptions): Promise<any> {
-        const req: XMLHttpRequest = this.getRequest("PUT", `${entitySet}(${id.value})/${attribute}`, queryOptions);
+    public updateProperty(entitySet: string, id: Guid, attribute: string, value: any, queryOptions?: QueryOptions): AxiosPromise<any> {
+        const config: AxiosRequestConfig = this.getRequestConfig("PUT", `${entitySet}(${id.value})/${attribute}`, queryOptions);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        resolve();
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-
-            req.send(JSON.stringify({ value: value }));
-        });
+        config.data = JSON.stringify({ value: value });
+        
+        return axios(config);
     }
 
     /**
@@ -290,23 +219,10 @@ export class WebApiBase {
      * @param entitySet Type of entity to delete
      * @param id Id of record to delete
      */
-    public delete(entitySet: string, id: Guid): Promise<any> {
-        const req: XMLHttpRequest = this.getRequest("DELETE", `${entitySet}(${id.value})`, null);
+    public delete(entitySet: string, id: Guid): AxiosPromise<any> {
+        const config: AxiosRequestConfig = this.getRequestConfig("DELETE", `${entitySet}(${id.value})`, null);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        resolve();
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-
-            req.send();
-        });
+        return axios(config);
     }
 
     /**
@@ -315,25 +231,12 @@ export class WebApiBase {
      * @param id Id of record to update
      * @param attribute Attribute to delete
      */
-    public deleteProperty(entitySet: string, id: Guid, attribute: string): Promise<any> {
+    public deleteProperty(entitySet: string, id: Guid, attribute: string): AxiosPromise<any> {
         let queryString: string = `/${attribute}`;
 
-        const req: XMLHttpRequest = this.getRequest("DELETE", `${entitySet}(${id.value})${queryString}`, null);
+        const config: AxiosRequestConfig = this.getRequestConfig("DELETE", `${entitySet}(${id.value})${queryString}`, null);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        resolve();
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-
-            req.send();
-        });
+        return axios(config);
     }
 
     /**
@@ -346,27 +249,16 @@ export class WebApiBase {
      * @param impersonateUser Impersonate another user
      */
     public associate(entitySet: string, id: Guid, relationship: string, relatedEntitySet: string,
-        relatedEntityId: Guid, queryOptions?: QueryOptions): Promise<any> {
-        const req: XMLHttpRequest = this.getRequest("POST", `${entitySet}(${id.value})/${relationship}/$ref`, queryOptions);
+        relatedEntityId: Guid, queryOptions?: QueryOptions): AxiosPromise<any> {
+        const config: AxiosRequestConfig = this.getRequestConfig("POST", `${entitySet}(${id.value})/${relationship}/$ref`, queryOptions);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        resolve();
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
+        const related: object = {
+            "@odata.id": this.getClientUrl(`${relatedEntitySet}(${relatedEntityId.value})`)
+        };
 
-            const related: object = {
-                "@odata.id": this.getClientUrl(`${relatedEntitySet}(${relatedEntityId.value})`)
-            };
+        config.data = JSON.stringify(related);
 
-            req.send(JSON.stringify(related));
-        });
+        return axios(config);
     }
 
     /**
@@ -376,7 +268,7 @@ export class WebApiBase {
      * @param property Schema name of property or relationship
      * @param relatedEntityId Id of secondary record. Only needed for collection-valued navigation properties
      */
-    public disassociate(entitySet: string, id: Guid, property: string, relatedEntityId?: Guid): Promise<any> {
+    public disassociate(entitySet: string, id: Guid, property: string, relatedEntityId?: Guid): AxiosPromise<any> {
         let queryString: string = property;
 
         if (relatedEntityId != null) {
@@ -385,22 +277,9 @@ export class WebApiBase {
 
         queryString += "/$ref";
 
-        const req: XMLHttpRequest = this.getRequest("DELETE", `${entitySet}(${id.value})/${queryString}`, null);
+        const config: AxiosRequestConfig = this.getRequestConfig("DELETE", `${entitySet}(${id.value})/${queryString}`, null);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        resolve();
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-
-            req.send();
-        });
+        return axios(config);
     }
 
     /**
@@ -411,25 +290,14 @@ export class WebApiBase {
      * @param inputs Any inputs required by the action
      * @param impersonateUser Impersonate another user
      */
-    public boundAction(entitySet: string, id: Guid, actionName: string, inputs?: Object, queryOptions?: QueryOptions): Promise<any> {
-        const req: XMLHttpRequest = this.getRequest("POST", `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${actionName}`, queryOptions);
+    public boundAction(entitySet: string, id: Guid, actionName: string, inputs?: Object, queryOptions?: QueryOptions): AxiosPromise<any> {
+        const config: AxiosRequestConfig = this.getRequestConfig("POST", `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${actionName}`, queryOptions);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    } else if (req.status === 204) {
-                        resolve();
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
+        if (inputs != null) {
+            config.data = JSON.stringify(inputs);
+        }
 
-            inputs != null ? req.send(JSON.stringify(inputs)) : req.send();
-        });
+        return axios(config);
     }
 
     /**
@@ -438,25 +306,14 @@ export class WebApiBase {
      * @param inputs Any inputs required by the action
      * @param impersonateUser Impersonate another user
      */
-    public unboundAction(actionName: string, inputs?: Object, queryOptions?: QueryOptions): Promise<any> {
-        const req: XMLHttpRequest = this.getRequest("POST", actionName, queryOptions);
+    public unboundAction(actionName: string, inputs?: Object, queryOptions?: QueryOptions): AxiosPromise<any> {
+        const config: AxiosRequestConfig = this.getRequestConfig("POST", actionName, queryOptions);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    } else if (req.status === 204) {
-                        resolve();
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
+        if (inputs != null) {
+            config.data = JSON.stringify(inputs);
+        }
 
-            inputs != null ? req.send(JSON.stringify(inputs)) : req.send();
-        });
+        return axios(config);
     }
 
     /**
@@ -468,28 +325,17 @@ export class WebApiBase {
      * @param impersonateUser Impersonate another user
      */
     public boundFunction(entitySet: string, id: Guid, functionName: string, inputs?: FunctionInput[],
-        queryOptions?: QueryOptions): Promise<any> {
+        queryOptions?: QueryOptions): AxiosPromise<any> {
         let queryString: string = `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${functionName}(`;
         queryString = this.getFunctionInputs(queryString, inputs);
 
-        const req: XMLHttpRequest = this.getRequest("GET", queryString, queryOptions);
+        const config: AxiosRequestConfig = this.getRequestConfig("GET", queryString, queryOptions);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    } else if (req.status === 204) {
-                        resolve();
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
+        if (inputs != null) {
+            config.data = JSON.stringify(inputs);
+        }
 
-            inputs != null ? req.send(JSON.stringify(inputs)) : req.send();
-        });
+        return axios(config);
     }
 
     /**
@@ -498,28 +344,17 @@ export class WebApiBase {
      * @param inputs Any inputs required by the action
      * @param impersonateUser Impersonate another user
      */
-    public unboundFunction(functionName: string, inputs?: FunctionInput[], queryOptions?: QueryOptions): Promise<any> {
+    public unboundFunction(functionName: string, inputs?: FunctionInput[], queryOptions?: QueryOptions): AxiosPromise<any> {
         let queryString: string = `${functionName}(`;
         queryString = this.getFunctionInputs(queryString, inputs);
 
-        const req: XMLHttpRequest = this.getRequest("GET", queryString, queryOptions);
+        const config: AxiosRequestConfig = this.getRequestConfig("GET", queryString, queryOptions);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    } else if (req.status === 204) {
-                        resolve();
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
+        if (inputs != null) {
+            config.data = JSON.stringify(inputs);
+        }
 
-            inputs != null ? req.send(JSON.stringify(inputs)) : req.send();
-        });
+        return axios(config);
     }
 
     /**
@@ -531,8 +366,8 @@ export class WebApiBase {
      * @param impersonateUser Impersonate another user
      */
     public batchOperation(batchId: string, changeSetId: string, changeSets: ChangeSet[],
-        batchGets: string[], queryOptions?: QueryOptions): Promise<any> {
-        const req: XMLHttpRequest = this.getRequest("POST", "$batch", queryOptions, `multipart/mixed;boundary=batch_${batchId}`);
+        batchGets: string[], queryOptions?: QueryOptions): AxiosPromise<any> {
+        const config: AxiosRequestConfig = this.getRequestConfig("POST", "$batch", queryOptions, `multipart/mixed;boundary=batch_${batchId}`);
 
         // build post body
         const body: string[] = [];
@@ -578,26 +413,13 @@ export class WebApiBase {
 
         body.push(`--batch_${batchId}--`);
 
-        return new Promise((resolve, reject) => {
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(req.response);
-                    } else if (req.status === 204) {
-                        resolve();
-                    } else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
+        config.data = body.join("\r\n");
 
-            req.send(body.join("\r\n"));
-        });
+        return axios(config);
     }
 
-    private getRequest(method: string, queryString: string, queryOptions: QueryOptions,
-        contentType: string = "application/json; charset=utf-8", needsUrl: boolean = true): XMLHttpRequest {
+    private getRequestConfig(method: string, queryString: string, queryOptions: QueryOptions,
+        contentType: string = "application/json; charset=utf-8", needsUrl: boolean = true): AxiosRequestConfig {
         let url: string;
 
         if (needsUrl) {
@@ -606,28 +428,24 @@ export class WebApiBase {
             url = queryString;
         }
 
-        // build XMLHttpRequest
-        const request: XMLHttpRequest = new XMLHttpRequest();
-        request.open(method, url, true);
-        request.setRequestHeader("Accept", "application/json");
-        request.setRequestHeader("Content-Type", contentType);
-        request.setRequestHeader("OData-MaxVersion", "4.0");
-        request.setRequestHeader("OData-Version", "4.0");
-        request.setRequestHeader("Cache-Control", "no-cache");
+        // Get axios config
+        const config: AxiosRequestConfig = {
+            url: url,
+            method: method,
+            headers: {
+                "Content-Type": contentType
+            }
+        };
 
         if (queryOptions != null && typeof(queryOptions) !== "undefined") {
-            request.setRequestHeader("Prefer", this.getPreferHeader(queryOptions));
+            config.headers["Prefer"] = this.getPreferHeader(queryOptions);
 
             if (queryOptions.impersonateUser != null) {
-                request.setRequestHeader("MSCRMCallerID", queryOptions.impersonateUser.value);
+                config.headers["MSCRMCallerID"] = queryOptions.impersonateUser.value;
             }
         }
 
-        if (this.accessToken != null) {
-            request.setRequestHeader("Authorization", `Bearer ${this.accessToken}`);
-        }
-
-        return request;
+        return config;
     }
 
     private getPreferHeader(queryOptions: QueryOptions): string {
@@ -683,7 +501,4 @@ export class WebApiBase {
 
         return queryString;
     }
-}
-
-export class WebApi extends WebApiBase {
 }

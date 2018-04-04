@@ -1,13 +1,4 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+import axios from 'axios';
 var Guid = /** @class */ (function () {
     function Guid(value) {
         value = value.replace(/[{}]/g, "");
@@ -27,22 +18,28 @@ var Guid = /** @class */ (function () {
     return Guid;
 }());
 export { Guid };
-var WebApiBase = /** @class */ (function () {
+var WebApi = /** @class */ (function () {
     /**
      * Constructor
      * @param version Version must be 8.0, 8.1 or 8.2
      * @param accessToken Optional access token if using from outside Dynamics 365
      */
-    function WebApiBase(version, accessToken, url) {
+    function WebApi(version, accessToken, url) {
         this.version = version;
         this.accessToken = accessToken;
         this.url = url;
+        axios.defaults.headers.common["Accept"] = "application/json";
+        axios.defaults.headers.common["OData-MaxVersion"] = "4.0";
+        axios.defaults.headers.common["OData-Version"] = "4.0";
+        if (this.accessToken != null) {
+            axios.defaults.headers.common["Authorization"] = "Bearer " + this.accessToken;
+        }
     }
     /**
      * Get the OData URL
      * @param queryString Query string to append to URL. Defaults to a blank string
      */
-    WebApiBase.prototype.getClientUrl = function (queryString) {
+    WebApi.prototype.getClientUrl = function (queryString) {
         if (queryString === void 0) { queryString = ""; }
         if (this.url != null) {
             return this.url + "/api/data/v" + this.version + "/" + queryString;
@@ -58,26 +55,13 @@ var WebApiBase = /** @class */ (function () {
      * @param queryString OData query string parameters
      * @param queryOptions Various query options for the query
      */
-    WebApiBase.prototype.retrieve = function (entitySet, id, queryString, queryOptions) {
+    WebApi.prototype.retrieve = function (entitySet, id, queryString, queryOptions) {
         if (queryString != null && !/^[?]/.test(queryString)) {
             queryString = "?" + queryString;
         }
         var query = (queryString != null) ? entitySet + "(" + id.value + ")" + queryString : entitySet + "(" + id.value + ")";
-        var req = this.getRequest("GET", query, queryOptions);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            req.send();
-        });
+        var config = this.getRequestConfig("GET", query, queryOptions);
+        return axios(config);
     };
     /**
      * Retrieve multiple records from CRM
@@ -85,48 +69,22 @@ var WebApiBase = /** @class */ (function () {
      * @param queryString OData query string parameters
      * @param queryOptions Various query options for the query
      */
-    WebApiBase.prototype.retrieveMultiple = function (entitySet, queryString, queryOptions) {
+    WebApi.prototype.retrieveMultiple = function (entitySet, queryString, queryOptions) {
         if (queryString != null && !/^[?]/.test(queryString)) {
             queryString = "?" + queryString;
         }
         var query = (queryString != null) ? entitySet + queryString : entitySet;
-        var req = this.getRequest("GET", query, queryOptions);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            req.send();
-        });
+        var config = this.getRequestConfig("GET", query, queryOptions);
+        return axios(config);
     };
     /**
      * Retrieve next page from a retrieveMultiple request
      * @param query Query from the @odata.nextlink property of a retrieveMultiple
      * @param queryOptions Various query options for the query
      */
-    WebApiBase.prototype.getNextPage = function (query, queryOptions) {
-        var req = this.getRequest("GET", query, queryOptions, null, false);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            req.send();
-        });
+    WebApi.prototype.getNextPage = function (query, queryOptions) {
+        var config = this.getRequestConfig("GET", query, queryOptions, null, false);
+        return axios(config);
     };
     /**
      * Create a record in CRM
@@ -134,30 +92,20 @@ var WebApiBase = /** @class */ (function () {
      * @param entity Entity to create
      * @param impersonateUser Impersonate another user
      */
-    WebApiBase.prototype.create = function (entitySet, entity, queryOptions) {
-        var req = this.getRequest("POST", entitySet, queryOptions);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        var uri = req.getResponseHeader("OData-EntityId");
-                        var start = uri.indexOf("(") + 1;
-                        var end = uri.indexOf(")", start);
-                        var id = uri.substring(start, end);
-                        var createdEntity = {
-                            id: new Guid(id),
-                            uri: uri,
-                        };
-                        resolve(createdEntity);
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
+    WebApi.prototype.create = function (entitySet, entity, queryOptions) {
+        var config = this.getRequestConfig("POST", entitySet, queryOptions);
+        config.transformResponse = function (data, headers) {
+            var uri = headers["OData-EntityId"];
+            var start = uri.indexOf("(") + 1;
+            var end = uri.indexOf(")", start);
+            var id = uri.substring(start, end);
+            data = {
+                id: new Guid(id),
+                uri: uri,
             };
-            req.send(JSON.stringify(entity));
-        });
+        };
+        config.data = JSON.stringify(entity);
+        return axios(config);
     };
     /**
      * Create a record in CRM and return data
@@ -166,7 +114,7 @@ var WebApiBase = /** @class */ (function () {
      * @param select Select odata query parameter
      * @param impersonateUser Impersonate another user
      */
-    WebApiBase.prototype.createWithReturnData = function (entitySet, entity, select, queryOptions) {
+    WebApi.prototype.createWithReturnData = function (entitySet, entity, select, queryOptions) {
         if (select != null && !/^[?]/.test(select)) {
             select = "?" + select;
         }
@@ -175,21 +123,9 @@ var WebApiBase = /** @class */ (function () {
             queryOptions = {};
         }
         queryOptions.representation = true;
-        var req = this.getRequest("POST", entitySet + select, queryOptions);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 201) {
-                        resolve(JSON.parse(req.response));
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            req.send(JSON.stringify(entity));
-        });
+        var config = this.getRequestConfig("POST", entitySet + select, queryOptions);
+        config.data = JSON.stringify(entity);
+        return axios(config);
     };
     /**
      * Update a record in CRM
@@ -198,22 +134,10 @@ var WebApiBase = /** @class */ (function () {
      * @param entity Entity fields to update
      * @param impersonateUser Impersonate another user
      */
-    WebApiBase.prototype.update = function (entitySet, id, entity, queryOptions) {
-        var req = this.getRequest("PATCH", entitySet + "(" + id.value + ")", queryOptions);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        resolve();
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            req.send(JSON.stringify(entity));
-        });
+    WebApi.prototype.update = function (entitySet, id, entity, queryOptions) {
+        var config = this.getRequestConfig("PATCH", entitySet + "(" + id.value + ")", queryOptions);
+        config.data = JSON.stringify(entity);
+        return axios(config);
     };
     /**
      * Update a single property of a record in CRM
@@ -222,44 +146,19 @@ var WebApiBase = /** @class */ (function () {
      * @param attribute Attribute to update
      * @param impersonateUser Impersonate another user
      */
-    WebApiBase.prototype.updateProperty = function (entitySet, id, attribute, value, queryOptions) {
-        var req = this.getRequest("PUT", entitySet + "(" + id.value + ")/" + attribute, queryOptions);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        resolve();
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            req.send(JSON.stringify({ value: value }));
-        });
+    WebApi.prototype.updateProperty = function (entitySet, id, attribute, value, queryOptions) {
+        var config = this.getRequestConfig("PUT", entitySet + "(" + id.value + ")/" + attribute, queryOptions);
+        config.data = JSON.stringify({ value: value });
+        return axios(config);
     };
     /**
      * Delete a record from CRM
      * @param entitySet Type of entity to delete
      * @param id Id of record to delete
      */
-    WebApiBase.prototype.delete = function (entitySet, id) {
-        var req = this.getRequest("DELETE", entitySet + "(" + id.value + ")", null);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        resolve();
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            req.send();
-        });
+    WebApi.prototype.delete = function (entitySet, id) {
+        var config = this.getRequestConfig("DELETE", entitySet + "(" + id.value + ")", null);
+        return axios(config);
     };
     /**
      * Delete a property from a record in CRM. Non navigation properties only
@@ -267,23 +166,10 @@ var WebApiBase = /** @class */ (function () {
      * @param id Id of record to update
      * @param attribute Attribute to delete
      */
-    WebApiBase.prototype.deleteProperty = function (entitySet, id, attribute) {
+    WebApi.prototype.deleteProperty = function (entitySet, id, attribute) {
         var queryString = "/" + attribute;
-        var req = this.getRequest("DELETE", entitySet + "(" + id.value + ")" + queryString, null);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        resolve();
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            req.send();
-        });
+        var config = this.getRequestConfig("DELETE", entitySet + "(" + id.value + ")" + queryString, null);
+        return axios(config);
     };
     /**
      * Associate two records
@@ -294,26 +180,13 @@ var WebApiBase = /** @class */ (function () {
      * @param relatedEntityId Id of secondary record
      * @param impersonateUser Impersonate another user
      */
-    WebApiBase.prototype.associate = function (entitySet, id, relationship, relatedEntitySet, relatedEntityId, queryOptions) {
-        var _this = this;
-        var req = this.getRequest("POST", entitySet + "(" + id.value + ")/" + relationship + "/$ref", queryOptions);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        resolve();
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            var related = {
-                "@odata.id": _this.getClientUrl(relatedEntitySet + "(" + relatedEntityId.value + ")")
-            };
-            req.send(JSON.stringify(related));
-        });
+    WebApi.prototype.associate = function (entitySet, id, relationship, relatedEntitySet, relatedEntityId, queryOptions) {
+        var config = this.getRequestConfig("POST", entitySet + "(" + id.value + ")/" + relationship + "/$ref", queryOptions);
+        var related = {
+            "@odata.id": this.getClientUrl(relatedEntitySet + "(" + relatedEntityId.value + ")")
+        };
+        config.data = JSON.stringify(related);
+        return axios(config);
     };
     /**
      * Disassociate two records
@@ -322,27 +195,14 @@ var WebApiBase = /** @class */ (function () {
      * @param property Schema name of property or relationship
      * @param relatedEntityId Id of secondary record. Only needed for collection-valued navigation properties
      */
-    WebApiBase.prototype.disassociate = function (entitySet, id, property, relatedEntityId) {
+    WebApi.prototype.disassociate = function (entitySet, id, property, relatedEntityId) {
         var queryString = property;
         if (relatedEntityId != null) {
             queryString += "(" + relatedEntityId.value + ")";
         }
         queryString += "/$ref";
-        var req = this.getRequest("DELETE", entitySet + "(" + id.value + ")/" + queryString, null);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 204) {
-                        resolve();
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            req.send();
-        });
+        var config = this.getRequestConfig("DELETE", entitySet + "(" + id.value + ")/" + queryString, null);
+        return axios(config);
     };
     /**
      * Execute a default or custom bound action in CRM
@@ -352,25 +212,12 @@ var WebApiBase = /** @class */ (function () {
      * @param inputs Any inputs required by the action
      * @param impersonateUser Impersonate another user
      */
-    WebApiBase.prototype.boundAction = function (entitySet, id, actionName, inputs, queryOptions) {
-        var req = this.getRequest("POST", entitySet + "(" + id.value + ")/Microsoft.Dynamics.CRM." + actionName, queryOptions);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    }
-                    else if (req.status === 204) {
-                        resolve();
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            inputs != null ? req.send(JSON.stringify(inputs)) : req.send();
-        });
+    WebApi.prototype.boundAction = function (entitySet, id, actionName, inputs, queryOptions) {
+        var config = this.getRequestConfig("POST", entitySet + "(" + id.value + ")/Microsoft.Dynamics.CRM." + actionName, queryOptions);
+        if (inputs != null) {
+            config.data = JSON.stringify(inputs);
+        }
+        return axios(config);
     };
     /**
      * Execute a default or custom unbound action in CRM
@@ -378,25 +225,12 @@ var WebApiBase = /** @class */ (function () {
      * @param inputs Any inputs required by the action
      * @param impersonateUser Impersonate another user
      */
-    WebApiBase.prototype.unboundAction = function (actionName, inputs, queryOptions) {
-        var req = this.getRequest("POST", actionName, queryOptions);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    }
-                    else if (req.status === 204) {
-                        resolve();
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            inputs != null ? req.send(JSON.stringify(inputs)) : req.send();
-        });
+    WebApi.prototype.unboundAction = function (actionName, inputs, queryOptions) {
+        var config = this.getRequestConfig("POST", actionName, queryOptions);
+        if (inputs != null) {
+            config.data = JSON.stringify(inputs);
+        }
+        return axios(config);
     };
     /**
      * Execute a default or custom bound action in CRM
@@ -406,27 +240,14 @@ var WebApiBase = /** @class */ (function () {
      * @param inputs Any inputs required by the action
      * @param impersonateUser Impersonate another user
      */
-    WebApiBase.prototype.boundFunction = function (entitySet, id, functionName, inputs, queryOptions) {
+    WebApi.prototype.boundFunction = function (entitySet, id, functionName, inputs, queryOptions) {
         var queryString = entitySet + "(" + id.value + ")/Microsoft.Dynamics.CRM." + functionName + "(";
         queryString = this.getFunctionInputs(queryString, inputs);
-        var req = this.getRequest("GET", queryString, queryOptions);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    }
-                    else if (req.status === 204) {
-                        resolve();
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            inputs != null ? req.send(JSON.stringify(inputs)) : req.send();
-        });
+        var config = this.getRequestConfig("GET", queryString, queryOptions);
+        if (inputs != null) {
+            config.data = JSON.stringify(inputs);
+        }
+        return axios(config);
     };
     /**
      * Execute an unbound function in CRM
@@ -434,27 +255,14 @@ var WebApiBase = /** @class */ (function () {
      * @param inputs Any inputs required by the action
      * @param impersonateUser Impersonate another user
      */
-    WebApiBase.prototype.unboundFunction = function (functionName, inputs, queryOptions) {
+    WebApi.prototype.unboundFunction = function (functionName, inputs, queryOptions) {
         var queryString = functionName + "(";
         queryString = this.getFunctionInputs(queryString, inputs);
-        var req = this.getRequest("GET", queryString, queryOptions);
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(JSON.parse(req.response));
-                    }
-                    else if (req.status === 204) {
-                        resolve();
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            inputs != null ? req.send(JSON.stringify(inputs)) : req.send();
-        });
+        var config = this.getRequestConfig("GET", queryString, queryOptions);
+        if (inputs != null) {
+            config.data = JSON.stringify(inputs);
+        }
+        return axios(config);
     };
     /**
      * Execute a batch operation in CRM
@@ -464,8 +272,8 @@ var WebApiBase = /** @class */ (function () {
      * @param batchGets Array of get requests for the operation
      * @param impersonateUser Impersonate another user
      */
-    WebApiBase.prototype.batchOperation = function (batchId, changeSetId, changeSets, batchGets, queryOptions) {
-        var req = this.getRequest("POST", "$batch", queryOptions, "multipart/mixed;boundary=batch_" + batchId);
+    WebApi.prototype.batchOperation = function (batchId, changeSetId, changeSets, batchGets, queryOptions) {
+        var config = this.getRequestConfig("POST", "$batch", queryOptions, "multipart/mixed;boundary=batch_" + batchId);
         // build post body
         var body = [];
         if (changeSets.length > 0) {
@@ -503,25 +311,10 @@ var WebApiBase = /** @class */ (function () {
             body.push("");
         }
         body.push("--batch_" + batchId + "--");
-        return new Promise(function (resolve, reject) {
-            req.onreadystatechange = function () {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-                    if (req.status === 200) {
-                        resolve(req.response);
-                    }
-                    else if (req.status === 204) {
-                        resolve();
-                    }
-                    else {
-                        reject(JSON.parse(req.response).error);
-                    }
-                }
-            };
-            req.send(body.join("\r\n"));
-        });
+        config.data = body.join("\r\n");
+        return axios(config);
     };
-    WebApiBase.prototype.getRequest = function (method, queryString, queryOptions, contentType, needsUrl) {
+    WebApi.prototype.getRequestConfig = function (method, queryString, queryOptions, contentType, needsUrl) {
         if (contentType === void 0) { contentType = "application/json; charset=utf-8"; }
         if (needsUrl === void 0) { needsUrl = true; }
         var url;
@@ -531,26 +324,23 @@ var WebApiBase = /** @class */ (function () {
         else {
             url = queryString;
         }
-        // build XMLHttpRequest
-        var request = new XMLHttpRequest();
-        request.open(method, url, true);
-        request.setRequestHeader("Accept", "application/json");
-        request.setRequestHeader("Content-Type", contentType);
-        request.setRequestHeader("OData-MaxVersion", "4.0");
-        request.setRequestHeader("OData-Version", "4.0");
-        request.setRequestHeader("Cache-Control", "no-cache");
+        // Get axios config
+        var config = {
+            url: url,
+            method: method,
+            headers: {
+                "Content-Type": contentType
+            }
+        };
         if (queryOptions != null && typeof (queryOptions) !== "undefined") {
-            request.setRequestHeader("Prefer", this.getPreferHeader(queryOptions));
+            config.headers["Prefer"] = this.getPreferHeader(queryOptions);
             if (queryOptions.impersonateUser != null) {
-                request.setRequestHeader("MSCRMCallerID", queryOptions.impersonateUser.value);
+                config.headers["MSCRMCallerID"] = queryOptions.impersonateUser.value;
             }
         }
-        if (this.accessToken != null) {
-            request.setRequestHeader("Authorization", "Bearer " + this.accessToken);
-        }
-        return request;
+        return config;
     };
-    WebApiBase.prototype.getPreferHeader = function (queryOptions) {
+    WebApi.prototype.getPreferHeader = function (queryOptions) {
         var prefer = [];
         // add max page size to prefer request header
         if (queryOptions.maxPageSize) {
@@ -573,7 +363,7 @@ var WebApiBase = /** @class */ (function () {
         }
         return prefer.join(",");
     };
-    WebApiBase.prototype.getFunctionInputs = function (queryString, inputs) {
+    WebApi.prototype.getFunctionInputs = function (queryString, inputs) {
         if (inputs == null) {
             return queryString + ")";
         }
@@ -594,14 +384,6 @@ var WebApiBase = /** @class */ (function () {
         }
         return queryString;
     };
-    return WebApiBase;
-}());
-export { WebApiBase };
-var WebApi = /** @class */ (function (_super) {
-    __extends(WebApi, _super);
-    function WebApi() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
     return WebApi;
-}(WebApiBase));
+}());
 export { WebApi };

@@ -3,9 +3,9 @@
 |-----|----|---|----------------|
 |[![Build Status](https://img.shields.io/travis/rust-lang/rust/master.svg?style=flat-square)](https://travis-ci.org/derekfinlinson/xrm-webapi)|[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square)](https://gitter.im/xrm-webapi/Lobby)|[![npm](https://img.shields.io/npm/v/xrm-webapi.svg?style=flat-square)](https://www.npmjs.com/package/xrm-webapi)|[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=flat-square)](https://github.com/semantic-release/semantic-release)|
 
-A Dynamics 365 API TypeScript module for use in Web Resources or external web apps.
+A Dynamics 365 API TypeScript module for use in Web Resources or external web apps in the browser or node.
 
-All methods return a Promise. To support IE 11, be sure to include a promise polyfill when deploying to CRM.
+Requests are made using [axios](https://github.com/axios/axios) and thus return Promises. To support IE 11, be sure to include a promise polyfill when deploying to CRM.
 
 *Requires Dynamics CRM 2016 Online/On-Prem or later*
 

@@ -1,7 +1,7 @@
 {
   "name": "xrm-webapi",
   "version": "0.0.0-development",
-  "description": "Dynamics CRM Web Api Typescript Module",
+  "description": "Dynamics 365 Web Api TypeScript Module",
   "main": "./dist/xrm-webapi.js",
   "types": "./dist/xrm-webapi.d.ts",
   "license": "MIT",
@@ -10,6 +10,7 @@
     "url": "https://github.com/derekfinlinson/xrm-webapi.git"
   },
   "scripts": {
+    "prepublishOnly": "npm run build",
     "test": "tsc --noEmit --target es5 --lib dom,es5,es2015.promise test/xrm-webapi-test.ts",
     "build": "tsc -p .",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
@@ -25,7 +26,9 @@
     "cz-conventional-changelog": "^2.1.0",
     "semantic-release": "^12.4.1"
   },
-  "dependencies": {},
+  "dependencies": {
+    "axios": "^0.18.0"
+  },
   "files": [
     "dist"
   ],

@@ -17,7 +17,7 @@ const account: any = {
 
 api.create("accounts", account)
     .then((createdAccount) => {
-        console.log(createdAccount.id);
+        console.log(createdAccount.data.id);
     }, (error) => {
         console.log(error);
     });
@@ -31,7 +31,7 @@ api.createWithReturnData("accounts", account, "$select=name,accountid")
 // demonstrate retrieve
 api.retrieve("accounts", new Guid(""), "$select=name")
     .then((retrieved) => {
-        console.log(retrieved.name);
+        console.log(retrieved.data.name);
     }, (error) => {
         console.log(error);
     });
@@ -43,14 +43,14 @@ api.retrieveMultiple("accounts", options)
     .then(
         (results) => {
             const accounts: any[] = [];
-            for (let record of results.value) {
+            for (let record of results.data.value) {
                 accounts.push(record);
             }
 
             // demonstrate getting next page from retreiveMultiple
             api.getNextPage(results["@odata.nextlink"]).then(
                 (moreResults) => {
-                    console.log(moreResults.value.length);
+                    console.log(moreResults.data.value.length);
                 }
             );
 
@@ -111,14 +111,14 @@ const inputs: object = {
 
 api.boundAction("accounts", new Guid(""), "sample_BoundAction", inputs)
     .then((result) => {
-        console.log(result.annotationid);
+        console.log(result.data.annotationid);
     }, (error) => {
         console.log(error);
     });
 
 api.unboundAction("sample_UnboundAction", inputs)
     .then((result) => {
-        console.log(result.annotationid);
+        console.log(result.data.annotationid);
     }, (error) => {
         console.log(error);
     });
@@ -133,7 +133,7 @@ inputs3.push({
 
 api.boundAction("accounts", new Guid(""), "sample_BoundFunction", inputs3)
     .then((result) => {
-        console.log(result.annotationid);
+        console.log(result.data.annotationid);
     }, (error) => {
         console.log(error);
     });
@@ -149,7 +149,7 @@ inputs4.push({
 
 api.unboundAction("sample_UnboundAction", inputs4)
     .then((result) => {
-        console.log(result.annotationid);
+        console.log(result.data.annotationid);
     }, (error) => {
         console.log(error);
     });
