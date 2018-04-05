@@ -48,6 +48,15 @@ export interface QueryOptions {
     representation?: boolean;
 }
 
+export interface Entity {
+    [propName: string]: any;
+}
+
+export interface RetrieveMultipleResponse {
+    value: Entity[];
+    "@odata.nextlink": string;
+}
+
 export class WebApi {
     private version: string;
     private accessToken: string;
@@ -55,8 +64,9 @@ export class WebApi {
 
     /**
      * Constructor
-     * @param version Version must be 8.0, 8.1 or 8.2
+     * @param version Version must be 8.0, 8.1, 8.2 or 9.0
      * @param accessToken Optional access token if using from outside Dynamics 365
+     * @param url Optional url if using from outside Dynamics 365
      */
     constructor (version: string, accessToken?: string, url?: string) {
         this.version = version;
@@ -94,7 +104,7 @@ export class WebApi {
      * @param queryString OData query string parameters
      * @param queryOptions Various query options for the query
      */
-    public retrieve(entitySet: string, id: Guid, queryString?: string, queryOptions?: QueryOptions): AxiosPromise<any> {
+    public retrieve(entitySet: string, id: Guid, queryString?: string, queryOptions?: QueryOptions): AxiosPromise<Entity> {
         if (queryString != null && ! /^[?]/.test(queryString)) {
             queryString = `?${queryString}`;
         }
@@ -111,7 +121,7 @@ export class WebApi {
      * @param queryString OData query string parameters
      * @param queryOptions Various query options for the query
      */
-    public retrieveMultiple(entitySet: string, queryString?: string, queryOptions?: QueryOptions): AxiosPromise<any> {
+    public retrieveMultiple(entitySet: string, queryString?: string, queryOptions?: QueryOptions): AxiosPromise<RetrieveMultipleResponse> {
         if (queryString != null && ! /^[?]/.test(queryString)) {
             queryString = `?${queryString}`;
         }
@@ -127,7 +137,7 @@ export class WebApi {
      * @param query Query from the @odata.nextlink property of a retrieveMultiple
      * @param queryOptions Various query options for the query
      */
-    public getNextPage(query: string, queryOptions?: QueryOptions): AxiosPromise<any> {
+    public getNextPage(query: string, queryOptions?: QueryOptions): AxiosPromise<RetrieveMultipleResponse> {
         const config: AxiosRequestConfig = this.getRequestConfig("GET", query, queryOptions, null, false);
 
         return axios(config);
@@ -137,9 +147,9 @@ export class WebApi {
      * Create a record in CRM
      * @param entitySet Type of entity to create
      * @param entity Entity to create
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
-    public create(entitySet: string, entity: object, queryOptions?: QueryOptions): AxiosPromise<CreatedEntity> {
+    public create(entitySet: string, entity: Entity, queryOptions?: QueryOptions): AxiosPromise<CreatedEntity> {
         const config: AxiosRequestConfig = this.getRequestConfig("POST", entitySet, queryOptions);
 
         config.transformResponse = (data, headers) => {
@@ -150,7 +160,7 @@ export class WebApi {
 
             data = {
                 id: new Guid(id),
-                uri,
+                uri
             };
         };
         
@@ -164,9 +174,9 @@ export class WebApi {
      * @param entitySet Type of entity to create
      * @param entity Entity to create
      * @param select Select odata query parameter
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
-    public createWithReturnData(entitySet: string, entity: object, select: string, queryOptions?: QueryOptions): AxiosPromise<any> {
+    public createWithReturnData(entitySet: string, entity: Entity, select: string, queryOptions?: QueryOptions): AxiosPromise<Entity> {
         if (select != null && ! /^[?]/.test(select)) {
             select = `?${select}`;
         }
@@ -190,10 +200,37 @@ export class WebApi {
      * @param entitySet Type of entity to update
      * @param id Id of record to update
      * @param entity Entity fields to update
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
-    public update(entitySet: string, id: Guid, entity: object, queryOptions?: QueryOptions): Promise<any> {
+    public update(entitySet: string, id: Guid, entity: Entity, queryOptions?: QueryOptions): AxiosPromise<null> {
         const config: AxiosRequestConfig = this.getRequestConfig("PATCH", `${entitySet}(${id.value})`, queryOptions);
+
+        config.data = JSON.stringify(entity);
+
+        return axios(config);
+    }
+
+    /**
+     * Create a record in CRM and return data
+     * @param entitySet Type of entity to create
+     * @param id Id of record to update
+     * @param entity Entity fields to update
+     * @param select Select odata query parameter
+     * @param queryOptions Various query options for the query
+     */
+    public updateWithReturnData(entitySet: string, entity: Entity, select: string, queryOptions?: QueryOptions): AxiosPromise<Entity> {
+        if (select != null && ! /^[?]/.test(select)) {
+            select = `?${select}`;
+        }
+
+        // set reprensetation
+        if (queryOptions == null) {
+            queryOptions = {};
+        }
+
+        queryOptions.representation = true;
+
+        const config: AxiosRequestConfig = this.getRequestConfig("PATCH", entitySet + select, queryOptions);
 
         config.data = JSON.stringify(entity);
 
@@ -205,9 +242,9 @@ export class WebApi {
      * @param entitySet Type of entity to update
      * @param id Id of record to update
      * @param attribute Attribute to update
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
-    public updateProperty(entitySet: string, id: Guid, attribute: string, value: any, queryOptions?: QueryOptions): AxiosPromise<any> {
+    public updateProperty(entitySet: string, id: Guid, attribute: string, value: any, queryOptions?: QueryOptions): AxiosPromise<null> {
         const config: AxiosRequestConfig = this.getRequestConfig("PUT", `${entitySet}(${id.value})/${attribute}`, queryOptions);
 
         config.data = JSON.stringify({ value: value });
@@ -220,7 +257,7 @@ export class WebApi {
      * @param entitySet Type of entity to delete
      * @param id Id of record to delete
      */
-    public delete(entitySet: string, id: Guid): AxiosPromise<any> {
+    public delete(entitySet: string, id: Guid): AxiosPromise<null> {
         const config: AxiosRequestConfig = this.getRequestConfig("DELETE", `${entitySet}(${id.value})`, null);
 
         return axios(config);
@@ -232,7 +269,7 @@ export class WebApi {
      * @param id Id of record to update
      * @param attribute Attribute to delete
      */
-    public deleteProperty(entitySet: string, id: Guid, attribute: string): AxiosPromise<any> {
+    public deleteProperty(entitySet: string, id: Guid, attribute: string): AxiosPromise<null> {
         let queryString: string = `/${attribute}`;
 
         const config: AxiosRequestConfig = this.getRequestConfig("DELETE", `${entitySet}(${id.value})${queryString}`, null);
@@ -247,10 +284,9 @@ export class WebApi {
      * @param relationship Schema name of relationship
      * @param relatedEntitySet Type of entity for secondary record
      * @param relatedEntityId Id of secondary record
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
-    public associate(entitySet: string, id: Guid, relationship: string, relatedEntitySet: string,
-        relatedEntityId: Guid, queryOptions?: QueryOptions): AxiosPromise<any> {
+    public associate(entitySet: string, id: Guid, relationship: string, relatedEntitySet: string, relatedEntityId: Guid, queryOptions?: QueryOptions): AxiosPromise<null> {
         const config: AxiosRequestConfig = this.getRequestConfig("POST", `${entitySet}(${id.value})/${relationship}/$ref`, queryOptions);
 
         const related: object = {
@@ -269,7 +305,7 @@ export class WebApi {
      * @param property Schema name of property or relationship
      * @param relatedEntityId Id of secondary record. Only needed for collection-valued navigation properties
      */
-    public disassociate(entitySet: string, id: Guid, property: string, relatedEntityId?: Guid): AxiosPromise<any> {
+    public disassociate(entitySet: string, id: Guid, property: string, relatedEntityId?: Guid): AxiosPromise<null> {
         let queryString: string = property;
 
         if (relatedEntityId != null) {
@@ -289,7 +325,7 @@ export class WebApi {
      * @param id Id of record to run the action against
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
     public boundAction(entitySet: string, id: Guid, actionName: string, inputs?: Object, queryOptions?: QueryOptions): AxiosPromise<any> {
         const config: AxiosRequestConfig = this.getRequestConfig("POST", `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${actionName}`, queryOptions);
@@ -305,7 +341,7 @@ export class WebApi {
      * Execute a default or custom unbound action in CRM
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
     public unboundAction(actionName: string, inputs?: Object, queryOptions?: QueryOptions): AxiosPromise<any> {
         const config: AxiosRequestConfig = this.getRequestConfig("POST", actionName, queryOptions);
@@ -323,10 +359,9 @@ export class WebApi {
      * @param id Id of record to run the action against
      * @param functionName Name of the action to run
      * @param inputs Any inputs required by the action
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
-    public boundFunction(entitySet: string, id: Guid, functionName: string, inputs?: FunctionInput[],
-        queryOptions?: QueryOptions): AxiosPromise<any> {
+    public boundFunction(entitySet: string, id: Guid, functionName: string, inputs?: FunctionInput[], queryOptions?: QueryOptions): AxiosPromise<any> {
         let queryString: string = `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${functionName}(`;
         queryString = this.getFunctionInputs(queryString, inputs);
 
@@ -343,7 +378,7 @@ export class WebApi {
      * Execute an unbound function in CRM
      * @param functionName Name of the action to run
      * @param inputs Any inputs required by the action
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
     public unboundFunction(functionName: string, inputs?: FunctionInput[], queryOptions?: QueryOptions): AxiosPromise<any> {
         let queryString: string = `${functionName}(`;
@@ -364,10 +399,9 @@ export class WebApi {
      * @param changeSetId Unique change set id for any changesets in the operation
      * @param changeSets Array of change sets (create or update) for the operation
      * @param batchGets Array of get requests for the operation
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
-    public batchOperation(batchId: string, changeSetId: string, changeSets: ChangeSet[],
-        batchGets: string[], queryOptions?: QueryOptions): AxiosPromise<any> {
+    public batchOperation(batchId: string, changeSetId: string, changeSets: ChangeSet[], batchGets: string[], queryOptions?: QueryOptions): AxiosPromise<any> {
         const config: AxiosRequestConfig = this.getRequestConfig("POST", "$batch", queryOptions, `multipart/mixed;boundary=batch_${batchId}`);
 
         // build post body

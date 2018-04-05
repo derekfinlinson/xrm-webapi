@@ -5,8 +5,9 @@ import {
     ChangeSet,
     FunctionInput,
     Guid,
-    WebApi,
+    WebApi
 } from "../src/xrm-webapi";
+import { AxiosResponse } from "axios";
 
 const api: WebApi = new WebApi("8.1");
 
@@ -48,7 +49,7 @@ api.retrieveMultiple("accounts", options)
             }
 
             // demonstrate getting next page from retreiveMultiple
-            api.getNextPage(results["@odata.nextlink"]).then(
+            api.getNextPage(results.data["@odata.nextlink"]).then(
                 (moreResults) => {
                     console.log(moreResults.data.value.length);
                 }

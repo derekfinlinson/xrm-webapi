@@ -23,8 +23,9 @@ exports.Guid = Guid;
 var WebApi = /** @class */ (function () {
     /**
      * Constructor
-     * @param version Version must be 8.0, 8.1 or 8.2
+     * @param version Version must be 8.0, 8.1, 8.2 or 9.0
      * @param accessToken Optional access token if using from outside Dynamics 365
+     * @param url Optional url if using from outside Dynamics 365
      */
     function WebApi(version, accessToken, url) {
         this.version = version;
@@ -92,7 +93,7 @@ var WebApi = /** @class */ (function () {
      * Create a record in CRM
      * @param entitySet Type of entity to create
      * @param entity Entity to create
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
     WebApi.prototype.create = function (entitySet, entity, queryOptions) {
         var config = this.getRequestConfig("POST", entitySet, queryOptions);
@@ -103,7 +104,7 @@ var WebApi = /** @class */ (function () {
             var id = uri.substring(start, end);
             data = {
                 id: new Guid(id),
-                uri: uri,
+                uri: uri
             };
         };
         config.data = JSON.stringify(entity);
@@ -114,7 +115,7 @@ var WebApi = /** @class */ (function () {
      * @param entitySet Type of entity to create
      * @param entity Entity to create
      * @param select Select odata query parameter
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
     WebApi.prototype.createWithReturnData = function (entitySet, entity, select, queryOptions) {
         if (select != null && !/^[?]/.test(select)) {
@@ -134,10 +135,31 @@ var WebApi = /** @class */ (function () {
      * @param entitySet Type of entity to update
      * @param id Id of record to update
      * @param entity Entity fields to update
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
     WebApi.prototype.update = function (entitySet, id, entity, queryOptions) {
         var config = this.getRequestConfig("PATCH", entitySet + "(" + id.value + ")", queryOptions);
+        config.data = JSON.stringify(entity);
+        return axios_1.default(config);
+    };
+    /**
+     * Create a record in CRM and return data
+     * @param entitySet Type of entity to create
+     * @param id Id of record to update
+     * @param entity Entity fields to update
+     * @param select Select odata query parameter
+     * @param queryOptions Various query options for the query
+     */
+    WebApi.prototype.updateWithReturnData = function (entitySet, entity, select, queryOptions) {
+        if (select != null && !/^[?]/.test(select)) {
+            select = "?" + select;
+        }
+        // set reprensetation
+        if (queryOptions == null) {
+            queryOptions = {};
+        }
+        queryOptions.representation = true;
+        var config = this.getRequestConfig("PATCH", entitySet + select, queryOptions);
         config.data = JSON.stringify(entity);
         return axios_1.default(config);
     };
@@ -146,7 +168,7 @@ var WebApi = /** @class */ (function () {
      * @param entitySet Type of entity to update
      * @param id Id of record to update
      * @param attribute Attribute to update
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
     WebApi.prototype.updateProperty = function (entitySet, id, attribute, value, queryOptions) {
         var config = this.getRequestConfig("PUT", entitySet + "(" + id.value + ")/" + attribute, queryOptions);
@@ -180,7 +202,7 @@ var WebApi = /** @class */ (function () {
      * @param relationship Schema name of relationship
      * @param relatedEntitySet Type of entity for secondary record
      * @param relatedEntityId Id of secondary record
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
     WebApi.prototype.associate = function (entitySet, id, relationship, relatedEntitySet, relatedEntityId, queryOptions) {
         var config = this.getRequestConfig("POST", entitySet + "(" + id.value + ")/" + relationship + "/$ref", queryOptions);
@@ -212,7 +234,7 @@ var WebApi = /** @class */ (function () {
      * @param id Id of record to run the action against
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
     WebApi.prototype.boundAction = function (entitySet, id, actionName, inputs, queryOptions) {
         var config = this.getRequestConfig("POST", entitySet + "(" + id.value + ")/Microsoft.Dynamics.CRM." + actionName, queryOptions);
@@ -225,7 +247,7 @@ var WebApi = /** @class */ (function () {
      * Execute a default or custom unbound action in CRM
      * @param actionName Name of the action to run
      * @param inputs Any inputs required by the action
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
     WebApi.prototype.unboundAction = function (actionName, inputs, queryOptions) {
         var config = this.getRequestConfig("POST", actionName, queryOptions);
@@ -240,7 +262,7 @@ var WebApi = /** @class */ (function () {
      * @param id Id of record to run the action against
      * @param functionName Name of the action to run
      * @param inputs Any inputs required by the action
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
     WebApi.prototype.boundFunction = function (entitySet, id, functionName, inputs, queryOptions) {
         var queryString = entitySet + "(" + id.value + ")/Microsoft.Dynamics.CRM." + functionName + "(";
@@ -255,7 +277,7 @@ var WebApi = /** @class */ (function () {
      * Execute an unbound function in CRM
      * @param functionName Name of the action to run
      * @param inputs Any inputs required by the action
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
     WebApi.prototype.unboundFunction = function (functionName, inputs, queryOptions) {
         var queryString = functionName + "(";
@@ -272,7 +294,7 @@ var WebApi = /** @class */ (function () {
      * @param changeSetId Unique change set id for any changesets in the operation
      * @param changeSets Array of change sets (create or update) for the operation
      * @param batchGets Array of get requests for the operation
-     * @param impersonateUser Impersonate another user
+     * @param queryOptions Various query options for the query
      */
     WebApi.prototype.batchOperation = function (batchId, changeSetId, changeSets, batchGets, queryOptions) {
         var config = this.getRequestConfig("POST", "$batch", queryOptions, "multipart/mixed;boundary=batch_" + batchId);
