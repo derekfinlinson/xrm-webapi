@@ -10,7 +10,6 @@
     "url": "https://github.com/derekfinlinson/xrm-webapi.git"
   },
   "scripts": {
-    "prepublishOnly": "yarn run build",
     "test": "tsc --noEmit --target es5 --lib dom,es5,es2015.promise test/xrm-webapi-test.ts",
     "build": "tsc -p .",
     "semantic-release": "semantic-release",

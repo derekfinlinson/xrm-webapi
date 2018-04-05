@@ -1,4 +1,5 @@
-import axios, { AxiosRequestConfig, AxiosPromise } from 'axios';
+import { AxiosRequestConfig, AxiosPromise } from 'axios';
+import axios from 'axios';
 
 export interface FunctionInput {
     name: string;

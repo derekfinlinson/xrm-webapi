@@ -1,4 +1,6 @@
-import axios from 'axios';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var axios_1 = require("axios");
 var Guid = /** @class */ (function () {
     function Guid(value) {
         value = value.replace(/[{}]/g, "");
@@ -17,7 +19,7 @@ var Guid = /** @class */ (function () {
     };
     return Guid;
 }());
-export { Guid };
+exports.Guid = Guid;
 var WebApi = /** @class */ (function () {
     /**
      * Constructor
@@ -28,11 +30,11 @@ var WebApi = /** @class */ (function () {
         this.version = version;
         this.accessToken = accessToken;
         this.url = url;
-        axios.defaults.headers.common["Accept"] = "application/json";
-        axios.defaults.headers.common["OData-MaxVersion"] = "4.0";
-        axios.defaults.headers.common["OData-Version"] = "4.0";
+        axios_1.default.defaults.headers.common["Accept"] = "application/json";
+        axios_1.default.defaults.headers.common["OData-MaxVersion"] = "4.0";
+        axios_1.default.defaults.headers.common["OData-Version"] = "4.0";
         if (this.accessToken != null) {
-            axios.defaults.headers.common["Authorization"] = "Bearer " + this.accessToken;
+            axios_1.default.defaults.headers.common["Authorization"] = "Bearer " + this.accessToken;
         }
     }
     /**
@@ -61,7 +63,7 @@ var WebApi = /** @class */ (function () {
         }
         var query = (queryString != null) ? entitySet + "(" + id.value + ")" + queryString : entitySet + "(" + id.value + ")";
         var config = this.getRequestConfig("GET", query, queryOptions);
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Retrieve multiple records from CRM
@@ -75,7 +77,7 @@ var WebApi = /** @class */ (function () {
         }
         var query = (queryString != null) ? entitySet + queryString : entitySet;
         var config = this.getRequestConfig("GET", query, queryOptions);
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Retrieve next page from a retrieveMultiple request
@@ -84,7 +86,7 @@ var WebApi = /** @class */ (function () {
      */
     WebApi.prototype.getNextPage = function (query, queryOptions) {
         var config = this.getRequestConfig("GET", query, queryOptions, null, false);
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Create a record in CRM
@@ -105,7 +107,7 @@ var WebApi = /** @class */ (function () {
             };
         };
         config.data = JSON.stringify(entity);
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Create a record in CRM and return data
@@ -125,7 +127,7 @@ var WebApi = /** @class */ (function () {
         queryOptions.representation = true;
         var config = this.getRequestConfig("POST", entitySet + select, queryOptions);
         config.data = JSON.stringify(entity);
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Update a record in CRM
@@ -137,7 +139,7 @@ var WebApi = /** @class */ (function () {
     WebApi.prototype.update = function (entitySet, id, entity, queryOptions) {
         var config = this.getRequestConfig("PATCH", entitySet + "(" + id.value + ")", queryOptions);
         config.data = JSON.stringify(entity);
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Update a single property of a record in CRM
@@ -149,7 +151,7 @@ var WebApi = /** @class */ (function () {
     WebApi.prototype.updateProperty = function (entitySet, id, attribute, value, queryOptions) {
         var config = this.getRequestConfig("PUT", entitySet + "(" + id.value + ")/" + attribute, queryOptions);
         config.data = JSON.stringify({ value: value });
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Delete a record from CRM
@@ -158,7 +160,7 @@ var WebApi = /** @class */ (function () {
      */
     WebApi.prototype.delete = function (entitySet, id) {
         var config = this.getRequestConfig("DELETE", entitySet + "(" + id.value + ")", null);
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Delete a property from a record in CRM. Non navigation properties only
@@ -169,7 +171,7 @@ var WebApi = /** @class */ (function () {
     WebApi.prototype.deleteProperty = function (entitySet, id, attribute) {
         var queryString = "/" + attribute;
         var config = this.getRequestConfig("DELETE", entitySet + "(" + id.value + ")" + queryString, null);
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Associate two records
@@ -186,7 +188,7 @@ var WebApi = /** @class */ (function () {
             "@odata.id": this.getClientUrl(relatedEntitySet + "(" + relatedEntityId.value + ")")
         };
         config.data = JSON.stringify(related);
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Disassociate two records
@@ -202,7 +204,7 @@ var WebApi = /** @class */ (function () {
         }
         queryString += "/$ref";
         var config = this.getRequestConfig("DELETE", entitySet + "(" + id.value + ")/" + queryString, null);
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Execute a default or custom bound action in CRM
@@ -217,7 +219,7 @@ var WebApi = /** @class */ (function () {
         if (inputs != null) {
             config.data = JSON.stringify(inputs);
         }
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Execute a default or custom unbound action in CRM
@@ -230,7 +232,7 @@ var WebApi = /** @class */ (function () {
         if (inputs != null) {
             config.data = JSON.stringify(inputs);
         }
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Execute a default or custom bound action in CRM
@@ -247,7 +249,7 @@ var WebApi = /** @class */ (function () {
         if (inputs != null) {
             config.data = JSON.stringify(inputs);
         }
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Execute an unbound function in CRM
@@ -262,7 +264,7 @@ var WebApi = /** @class */ (function () {
         if (inputs != null) {
             config.data = JSON.stringify(inputs);
         }
-        return axios(config);
+        return axios_1.default(config);
     };
     /**
      * Execute a batch operation in CRM
@@ -312,7 +314,7 @@ var WebApi = /** @class */ (function () {
         }
         body.push("--batch_" + batchId + "--");
         config.data = body.join("\r\n");
-        return axios(config);
+        return axios_1.default(config);
     };
     WebApi.prototype.getRequestConfig = function (method, queryString, queryOptions, contentType, needsUrl) {
         if (contentType === void 0) { contentType = "application/json; charset=utf-8"; }
@@ -386,4 +388,4 @@ var WebApi = /** @class */ (function () {
     };
     return WebApi;
 }());
-export { WebApi };
+exports.WebApi = WebApi;
