@@ -14,7 +14,7 @@ Requests are made using [axios](https://github.com/axios/axios) and thus return 
 ##### Node
 
 ```
-npm install --save-dev xrm-webapi
+yarn install --save-dev xrm-webapi
 ```
 ### Usage
 
@@ -26,9 +26,27 @@ import { WebApi } from "xrm-webapi";
 const api = new WebApi("8.2");
 ```
 
-### Samples
+#### Supported methods
+* Retrieve
+* Retrieve multiple (multiple pages)
+* Retrieve multiple with Fetch XML
+* Create
+* Create with returned data
+* Update
+* Update with returned data
+* Update single property
+* Delete
+* Delete single propert
+* Associate
+* Disassociate
+* Web API Functions
+* Web API Actions
+* Batch operations
+* Impersonation
+
+#### Samples
 See [xrm-webapi-test.ts](test/xrm-webapi-test.ts) for samples
 
 ### Useful Links
 
-[Web API Reference](https://msdn.microsoft.com/en-us/library/mt593051.aspx)
+[Web API Reference](https://docs.microsoft.com/en-us/dynamics365/customer-engagement/developer/webapi/perform-operations-web-api)
