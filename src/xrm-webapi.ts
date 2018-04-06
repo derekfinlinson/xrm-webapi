@@ -223,7 +223,7 @@ export class WebApi {
             select = `?${select}`;
         }
 
-        // set reprensetation
+        // set representation
         if (queryOptions == null) {
             queryOptions = {};
         }
@@ -492,7 +492,9 @@ export class WebApi {
         }
 
         // add formatted values to prefer request header
-        if (queryOptions.includeFormattedValues && queryOptions.includeLookupLogicalNames &&
+        if (queryOptions.representation) {
+            prefer.push("return=representation");
+        } else if (queryOptions.includeFormattedValues && queryOptions.includeLookupLogicalNames &&
             queryOptions.includeAssociatedNavigationProperties) {
             prefer.push("odata.include-annotations=\"*\"");
         } else {
