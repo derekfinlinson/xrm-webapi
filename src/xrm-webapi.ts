@@ -218,7 +218,7 @@ export class WebApi {
      * @param select Select odata query parameter
      * @param queryOptions Various query options for the query
      */
-    public updateWithReturnData(entitySet: string, entity: Entity, select: string, queryOptions?: QueryOptions): AxiosPromise<Entity> {
+    public updateWithReturnData(entitySet: string, id: Guid, entity: Entity, select: string, queryOptions?: QueryOptions): AxiosPromise<Entity> {
         if (select != null && ! /^[?]/.test(select)) {
             select = `?${select}`;
         }
@@ -230,7 +230,7 @@ export class WebApi {
 
         queryOptions.representation = true;
 
-        const config: AxiosRequestConfig = this.getRequestConfig("PATCH", entitySet + select, queryOptions);
+        const config: AxiosRequestConfig = this.getRequestConfig("PATCH", `${entitySet}(${id.value})${select}`, queryOptions);
 
         config.data = JSON.stringify(entity);
 

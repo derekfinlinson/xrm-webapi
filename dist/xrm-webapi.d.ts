@@ -100,7 +100,7 @@ export declare class WebApi {
      * @param select Select odata query parameter
      * @param queryOptions Various query options for the query
      */
-    updateWithReturnData(entitySet: string, entity: Entity, select: string, queryOptions?: QueryOptions): AxiosPromise<Entity>;
+    updateWithReturnData(entitySet: string, id: Guid, entity: Entity, select: string, queryOptions?: QueryOptions): AxiosPromise<Entity>;
     /**
      * Update a single property of a record in CRM
      * @param entitySet Type of entity to update

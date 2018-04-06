@@ -150,7 +150,7 @@ var WebApi = /** @class */ (function () {
      * @param select Select odata query parameter
      * @param queryOptions Various query options for the query
      */
-    WebApi.prototype.updateWithReturnData = function (entitySet, entity, select, queryOptions) {
+    WebApi.prototype.updateWithReturnData = function (entitySet, id, entity, select, queryOptions) {
         if (select != null && !/^[?]/.test(select)) {
             select = "?" + select;
         }
@@ -159,7 +159,7 @@ var WebApi = /** @class */ (function () {
             queryOptions = {};
         }
         queryOptions.representation = true;
-        var config = this.getRequestConfig("PATCH", entitySet + select, queryOptions);
+        var config = this.getRequestConfig("PATCH", entitySet + "(" + id.value + ")" + select, queryOptions);
         config.data = JSON.stringify(entity);
         return axios_1.default(config);
     };
