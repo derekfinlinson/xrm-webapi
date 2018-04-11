@@ -154,14 +154,17 @@ export class WebApi {
 
         config.transformResponse = (data, headers) => {
             const uri: string = headers["odata-entityid"];
-            const start: number = uri.indexOf("(") + 1;
-            const end: number = uri.indexOf(")", start);
-            const id: string = uri.substring(start, end);
 
-            data = {
-                id: new Guid(id),
-                uri
-            };
+            if (uri != null) {
+                const start: number = uri.indexOf("(") + 1;
+                const end: number = uri.indexOf(")", start);
+                const id: string = uri.substring(start, end);
+
+                data = {
+                    id: new Guid(id),
+                    uri
+                };
+            }
 
             return data;
         };

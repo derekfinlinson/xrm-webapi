@@ -99,13 +99,15 @@ var WebApi = /** @class */ (function () {
         var config = this.getRequestConfig("POST", entitySet, queryOptions);
         config.transformResponse = function (data, headers) {
             var uri = headers["odata-entityid"];
-            var start = uri.indexOf("(") + 1;
-            var end = uri.indexOf(")", start);
-            var id = uri.substring(start, end);
-            data = {
-                id: new Guid(id),
-                uri: uri
-            };
+            if (uri != null) {
+                var start = uri.indexOf("(") + 1;
+                var end = uri.indexOf(")", start);
+                var id = uri.substring(start, end);
+                data = {
+                    id: new Guid(id),
+                    uri: uri
+                };
+            }
             return data;
         };
         config.data = JSON.stringify(entity);
