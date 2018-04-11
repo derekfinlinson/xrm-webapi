@@ -153,7 +153,7 @@ export class WebApi {
         const config: AxiosRequestConfig = this.getRequestConfig("POST", entitySet, queryOptions);
 
         config.transformResponse = (data, headers) => {
-            const uri: string = headers["OData-EntityId"];
+            const uri: string = headers["odata-entityid"];
             const start: number = uri.indexOf("(") + 1;
             const end: number = uri.indexOf(")", start);
             const id: string = uri.substring(start, end);
@@ -162,6 +162,8 @@ export class WebApi {
                 id: new Guid(id),
                 uri
             };
+
+            return data;
         };
         
         config.data = JSON.stringify(entity);

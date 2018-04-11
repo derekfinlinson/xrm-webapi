@@ -98,7 +98,7 @@ var WebApi = /** @class */ (function () {
     WebApi.prototype.create = function (entitySet, entity, queryOptions) {
         var config = this.getRequestConfig("POST", entitySet, queryOptions);
         config.transformResponse = function (data, headers) {
-            var uri = headers["OData-EntityId"];
+            var uri = headers["odata-entityid"];
             var start = uri.indexOf("(") + 1;
             var end = uri.indexOf(")", start);
             var id = uri.substring(start, end);
@@ -106,6 +106,7 @@ var WebApi = /** @class */ (function () {
                 id: new Guid(id),
                 uri: uri
             };
+            return data;
         };
         config.data = JSON.stringify(entity);
         return axios_1.default(config);
