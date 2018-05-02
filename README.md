@@ -45,7 +45,7 @@ const api = new WebApi("8.2");
 * Impersonation
 
 #### Samples
-See [xrm-webapi-test.ts](test/xrm-webapi-test.ts) for samples
+See [xrm-webapi-samples.ts](samples/xrm-webapi-samples.ts) for examples
 
 ### Useful Links
 
