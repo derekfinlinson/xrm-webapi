@@ -372,10 +372,6 @@ export class WebApi {
 
         const config: AxiosRequestConfig = this.getRequestConfig("GET", queryString, queryOptions);
 
-        if (inputs != null) {
-            config.data = JSON.stringify(inputs);
-        }
-
         return axios(config);
     }
 
@@ -390,10 +386,6 @@ export class WebApi {
         queryString = this.getFunctionInputs(queryString, inputs);
 
         const config: AxiosRequestConfig = this.getRequestConfig("GET", queryString, queryOptions);
-
-        if (inputs != null) {
-            config.data = JSON.stringify(inputs);
-        }
 
         return axios(config);
     }
@@ -522,14 +514,14 @@ export class WebApi {
             return queryString + ")";
         }
 
-        let aliases: string = "?";
+        let aliases: string[] = [];
 
         for (let i: number = 0; i < inputs.length; i++) {
             queryString += inputs[i].name;
 
             if (inputs[i].alias) {
                 queryString += `=@${inputs[i].alias},`;
-                aliases += `@${inputs[i].alias}=${inputs[i].value}`;
+                aliases.push(`@${inputs[i].alias}=${inputs[i].value}`);
             } else {
                 queryString += `=${inputs[i].value},`;
             }
@@ -537,8 +529,8 @@ export class WebApi {
 
         queryString = queryString.substr(0, queryString.length - 1) + ")";
 
-        if (aliases !== "?") {
-            queryString += aliases;
+        if (aliases.length > 0) {
+            queryString += `?${aliases.join("&")}`;
         }
 
         return queryString;

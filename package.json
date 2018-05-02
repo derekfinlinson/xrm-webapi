@@ -10,7 +10,6 @@
     "url": "https://github.com/derekfinlinson/xrm-webapi.git"
   },
   "scripts": {
-    "test": "tsc --noEmit --target es5 --lib dom,es5,es2015.promise test/xrm-webapi-test.ts",
     "build": "tsc -p .",
     "semantic-release": "semantic-release",
     "travis-deploy-once": "travis-deploy-once"
@@ -24,11 +23,15 @@
     "typescript"
   ],
   "devDependencies": {
+    "@types/jest": "^22.2.3",
     "@types/xrm": "^8.2.5",
+    "adal-node": "^0.1.28",
     "cz-conventional-changelog": "^2.1.0",
+    "jest": "^22.4.3",
     "semantic-release": "^15.1.5",
-    "typescript": "^2.8.1",
-    "travis-deploy-once": "^4.4.1"
+    "travis-deploy-once": "^4.4.1",
+    "ts-jest": "^22.4.2",
+    "typescript": "^2.8.1"
   },
   "dependencies": {
     "axios": "^0.18.0"
@@ -40,5 +43,19 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

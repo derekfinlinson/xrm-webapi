@@ -271,9 +271,6 @@ var WebApi = /** @class */ (function () {
         var queryString = entitySet + "(" + id.value + ")/Microsoft.Dynamics.CRM." + functionName + "(";
         queryString = this.getFunctionInputs(queryString, inputs);
         var config = this.getRequestConfig("GET", queryString, queryOptions);
-        if (inputs != null) {
-            config.data = JSON.stringify(inputs);
-        }
         return axios_1.default(config);
     };
     /**
@@ -286,9 +283,6 @@ var WebApi = /** @class */ (function () {
         var queryString = functionName + "(";
         queryString = this.getFunctionInputs(queryString, inputs);
         var config = this.getRequestConfig("GET", queryString, queryOptions);
-        if (inputs != null) {
-            config.data = JSON.stringify(inputs);
-        }
         return axios_1.default(config);
     };
     /**
@@ -397,20 +391,20 @@ var WebApi = /** @class */ (function () {
         if (inputs == null) {
             return queryString + ")";
         }
-        var aliases = "?";
+        var aliases = [];
         for (var i = 0; i < inputs.length; i++) {
             queryString += inputs[i].name;
             if (inputs[i].alias) {
                 queryString += "=@" + inputs[i].alias + ",";
-                aliases += "@" + inputs[i].alias + "=" + inputs[i].value;
+                aliases.push("@" + inputs[i].alias + "=" + inputs[i].value);
             }
             else {
                 queryString += "=" + inputs[i].value + ",";
             }
         }
         queryString = queryString.substr(0, queryString.length - 1) + ")";
-        if (aliases !== "?") {
-            queryString += aliases;
+        if (aliases.length > 0) {
+            queryString += "?" + aliases.join("&");
         }
         return queryString;
     };
