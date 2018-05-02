@@ -7,9 +7,9 @@ notifications:
 node_js:
   - '8'
 before_deploy:
-  - yarn run build
+  - npm run build
 after_success:
-  - yarn run travis-deploy-once "yarn run semantic-release"
+  - npm run travis-deploy-once "npm run semantic-release"
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
