@@ -20,12 +20,13 @@
     "dynamics 365",
     "webapi",
     "xrm",
-    "typescript"
+    "typescript",
+    "d365"
   ],
   "devDependencies": {
     "@types/jest": "^22.2.3",
+    "@types/node": "^10.3.4",
     "@types/xrm": "^8.2.5",
-    "adal-node": "^0.1.28",
     "cz-conventional-changelog": "^2.1.0",
     "jest": "^22.4.3",
     "semantic-release": "^15.1.5",
@@ -33,9 +34,7 @@
     "ts-jest": "^22.4.2",
     "typescript": "^2.8.1"
   },
-  "dependencies": {
-    "axios": "^0.18.0"
-  },
+  "dependencies": {},
   "files": [
     "dist"
   ],

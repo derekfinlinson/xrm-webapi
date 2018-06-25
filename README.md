@@ -5,7 +5,7 @@
 
 A Dynamics 365 API TypeScript module for use in Web Resources or external web apps in the browser or node.
 
-Requests are made using [axios](https://github.com/axios/axios) and thus return Promises. To support IE 11, be sure to include a promise polyfill when deploying to CRM.
+All requests return Promises. To support IE 11, be sure to include a promise polyfill when deploying to CRM.
 
 *Requires Dynamics CRM 2016 Online/On-Prem or later*
 
@@ -14,7 +14,7 @@ Requests are made using [axios](https://github.com/axios/axios) and thus return 
 ##### Node
 
 ```
-yarn install --save-dev xrm-webapi
+npm install --save-dev xrm-webapi
 ```
 ### Usage
 
