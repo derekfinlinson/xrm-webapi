@@ -27,37 +27,42 @@ export class WebApiRequest {
 
     public submitRequest(config: WebApiRequestConfig, queryOptions: QueryOptions, callback: (result: WebApiRequestResult) => void): void {
         if (typeof window !== "undefined" && typeof window.document !== "undefined") {
-            const req: XMLHttpRequest = new XMLHttpRequest();
-
-            req.open(config.method, encodeURI(`${this._config.url}/${config.queryString}`), true);
-
-            const headers: any = this.getHeaders(config, queryOptions);
-
-            for (let header in headers) {
-                if (headers.hasOwnProperty(header)) {
-                    req.setRequestHeader(header, headers[header]);
-                }
-            }
-
-            req.onreadystatechange = () => {
-                if (req.readyState === 4 /* complete */) {
-                    req.onreadystatechange = null;
-
-                    if ((req.status >= 200) && (req.status < 300)) {
-                        callback({ error: false, response: req.response, headers: req.getAllResponseHeaders() });
-                    } else {
-                        callback({ error: true, response: req.response, headers: req.getAllResponseHeaders() });
-                    }
-                }
-            };
-
-            if (config.body != null) {
-                req.send(config.body);
-            } else {
-                req.send();
-            }
+            this.submitRequestBrowser(config, queryOptions, callback);
         } else {
             this.submitRequestNode(config, queryOptions, callback);
+        }
+    }
+
+    private submitRequestBrowser(config: WebApiRequestConfig, queryOptions: QueryOptions,
+        callback: (result: WebApiRequestResult) => void): void {
+        const req: XMLHttpRequest = new XMLHttpRequest();
+
+        req.open(config.method, encodeURI(`${this._config.url}/${config.queryString}`), true);
+
+        const headers: any = this.getHeaders(config, queryOptions);
+
+        for (let header in headers) {
+            if (headers.hasOwnProperty(header)) {
+                req.setRequestHeader(header, headers[header]);
+            }
+        }
+
+        req.onreadystatechange = () => {
+            if (req.readyState === 4 /* complete */) {
+                req.onreadystatechange = null;
+
+                if ((req.status >= 200) && (req.status < 300)) {
+                    callback({ error: false, response: req.response, headers: req.getAllResponseHeaders() });
+                } else {
+                    callback({ error: true, response: req.response, headers: req.getAllResponseHeaders() });
+                }
+            }
+        };
+
+        if (config.body != null) {
+            req.send(config.body);
+        } else {
+            req.send();
         }
     }
 
