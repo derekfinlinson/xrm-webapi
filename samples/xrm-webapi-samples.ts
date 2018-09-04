@@ -5,22 +5,31 @@ import {
     ChangeSet,
     FunctionInput,
     Guid,
-    WebApi,
-    WebApiConfig
+    create,
+    createWithReturnData,
+    retrieve,
+    retrieveMultiple,
+    update,
+    updateProperty,
+    deleteProperty,
+    deleteRecord,
+    disassociate,
+    associate,
+    boundAction,
+    unboundAction,
+    batchOperation,
+    WebApiConfig,
+    retrieveMultipleNextPage
 } from "../src/xrm-webapi";
 
-const apiConfig: WebApiConfig = {
-    version: "8.1"
-};
-
-const api: WebApi = new WebApi(apiConfig);
+const config: WebApiConfig = new WebApiConfig("8.1");
 
 // demonstrate create
 const account: any = {
     name: "Test Account"
 };
 
-api.create("accounts", account)
+create(config, "accounts", account)
     .then(() => {
         console.log();
     }, (error) => {
@@ -28,13 +37,13 @@ api.create("accounts", account)
     });
 
 // demonstrate create with returned odata
-api.createWithReturnData("accounts", account, "$select=name,accountid")
+createWithReturnData(config, "accounts", account, "$select=name,accountid")
     .then((created: any) => {
         console.log(created.name);
     });
 
 // demonstrate retrieve
-api.retrieve("accounts", new Guid(""), "$select=name")
+retrieve(config, "accounts", new Guid(""), "$select=name")
     .then((retrieved) => {
         console.log(retrieved.data.name);
     }, (error) => {
@@ -44,7 +53,7 @@ api.retrieve("accounts", new Guid(""), "$select=name")
 // demonstrate retrieve multiple
 const options: string = "$filter=name eq 'Test Account'&$select=name,accountid";
 
-api.retrieveMultiple("accounts", options)
+retrieveMultiple(config, "accounts", options)
     .then(
         (results) => {
             const accounts: any[] = [];
@@ -53,7 +62,7 @@ api.retrieveMultiple("accounts", options)
             }
 
             // demonstrate getting next page from retreiveMultiple
-            api.getNextPage(results["@odata.nextlink"]).then(
+            retrieveMultipleNextPage(config, results["@odata.nextlink"]).then(
                 (moreResults) => {
                     console.log(moreResults.value.length);
                 }
@@ -67,43 +76,43 @@ api.retrieveMultiple("accounts", options)
     );
 
 // demonstrate update. Update returns no content
-api.update("accounts", new Guid(""), account)
+update(config, "accounts", new Guid(""), account)
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 // demonstrate update property. Update property returns no content
-api.updateProperty("accounts", new Guid(""), "name", "Updated Account")
+updateProperty(config, "accounts", new Guid(""), "name", "Updated Account")
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 // demonstrate delete. Delete returns no content
-api.delete("accounts", new Guid(""))
+deleteRecord(config, "accounts", new Guid(""))
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 // demonstrate delete property. Delete property returns no content
-api.deleteProperty("accounts", new Guid(""), "address1_line1")
+deleteProperty(config, "accounts", new Guid(""), "address1_line1")
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 // demonstrate delete navigation property. Delete property returns no content
-api.deleteProperty("accounts", new Guid(""), "primarycontactid")
+deleteProperty(config, "accounts", new Guid(""), "primarycontactid")
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 // demonstrate associate. Associate returns no content
-api.associate("accounts", new Guid(""), "contact_customer_accounts", "contacts", new Guid(""))
+associate(config, "accounts", new Guid(""), "contact_customer_accounts", "contacts", new Guid(""))
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 // demonstrate disassociate. Disassociate returns no content
-api.disassociate("accounts", new Guid(""), "contact_customer_accounts")
+disassociate(config, "accounts", new Guid(""), "contact_customer_accounts")
     .then(() => {}, (error) => {
         console.log(error);
     });
@@ -114,14 +123,14 @@ const inputs: object = {
     StringInput: "Text",
 };
 
-api.boundAction("accounts", new Guid(""), "sample_BoundAction", inputs)
+boundAction(config, "accounts", new Guid(""), "sample_BoundAction", inputs)
     .then((result: any) => {
         console.log(result.annotationid);
     }, (error) => {
         console.log(error);
     });
 
-api.unboundAction("sample_UnboundAction", inputs)
+unboundAction(config, "sample_UnboundAction", inputs)
     .then((result: any) => {
         console.log(result.annotationid);
     }, (error) => {
@@ -136,7 +145,7 @@ inputs3.push({
     value: "Value",
 });
 
-api.boundAction("accounts", new Guid(""), "sample_BoundFunction", inputs3)
+boundAction(config, "accounts", new Guid(""), "sample_BoundFunction", inputs3)
     .then((result: any) => {
         console.log(result.annotationid);
     }, (error) => {
@@ -152,7 +161,7 @@ inputs4.push({
     value: "{'@odata.id':'accounts(87989176-0887-45D1-93DA-4D5F228C10E6)'}",
 });
 
-api.unboundAction("sample_UnboundAction", inputs4)
+unboundAction(config, "sample_UnboundAction", inputs4)
     .then((result: any) => {
         console.log(result.annotationid);
     }, (error) => {
@@ -179,7 +188,7 @@ const gets: string[] = [
     "accounts?$select=name",
 ];
 
-api.batchOperation("BATCH123", "CHANGESET123", changeSets, gets)
+batchOperation(config, "BATCH123", "CHANGESET123", changeSets, gets)
     .then((result) => {
         console.log(result);
     }, (error) => {

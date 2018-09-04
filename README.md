@@ -5,7 +5,7 @@
 
 A Dynamics 365 Web Api TypeScript module for use in web resources or external web apps in the browser or node.
 
-All requests return Promises. To support IE 11, be sure to include a promise polyfill when deploying to CRM.
+All requests return Promises. To support Internet Explorer, be sure to include a promise polyfill when deploying to CRM.
 
 *Requires Dynamics CRM 2016 Online/On-Prem or later*
 
@@ -21,10 +21,18 @@ npm install --save-dev xrm-webapi
 Import the module into your TypeScript files
 
 ```typescript
-import { WebApi } from "xrm-webapi";
+import { Guid, retrieve, WebApiConfig } from "xrm-webapi";
 
-const api = new WebApi({ version: "8.2" });
+const config = new WebApiConfig("8.2");
+
+const account = await retrieve(config, "accounts", new Guid(""), "$select=name");
+
+console.log(account.name);
 ```
+
+As of v5, the WebApi class has been replaced by individual functions and is compiled to esnext instead of ES5. This allows for importing individual functions instead of the entire library which should reduce bundle sizes. I recommend using [Babel](https://babeljs.io/) in
+your builds to compile your scripts to browser compliant JavaScript. Feel free to use [d365-cli](https://github.com/derekfinlinson/d365-cli)
+which sets up a ready to use web resources project.
 
 #### Supported methods
 * Retrieve

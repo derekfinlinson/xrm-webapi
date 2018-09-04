@@ -1,3 +1,28 @@
+export class WebApiConfig {
+    version: string;
+    accessToken?: string;
+    url?: string;
+
+    /**
+     * Constructor
+     * @param config WebApiConfig
+     */
+    constructor (version: string, accessToken?: string, url?: string ) {
+        // If URL not provided, get it from Xrm.Context
+        if (url == null) {
+            const context: Xrm.Context = typeof GetGlobalContext !== "undefined" ? GetGlobalContext() : Xrm.Page.context;
+            const url: string = `${context.getClientUrl()}/api/data/v${version}`;
+
+            this.url = url;
+        } else {
+            this.url = `${url}/api/data/v${version}`;
+        }
+
+        this.version = version;
+        this.accessToken = accessToken;
+    }
+}
+
 export class Guid {
     public value: string;
 

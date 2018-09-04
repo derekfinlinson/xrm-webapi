@@ -1,7 +1,5 @@
-import { WebApiConfig } from "./webapi";
-import { QueryOptions } from "./models";
-import { RequestOptions } from "https";
-import { request } from "https";
+import { QueryOptions, WebApiConfig } from "./models";
+import { RequestOptions, request } from "https";
 import { URL } from "url";
 import { ClientRequest } from "http";
 
