@@ -30,7 +30,7 @@ const account = await retrieve(config, "accounts", new Guid(""), "$select=name")
 console.log(account.name);
 ```
 
-As of v5, the WebApi class has been replaced by individual functions and is compiled to esnext instead of ES5. This allows for importing individual functions instead of the entire library to take advantage of tree shaking which should reduce bundle sizes. I recommend using [Babel](https://babeljs.io/) in
+As of v5, the WebApi class has been replaced by individual functions instead of the WebApi class. This allows for importing individual functions instead of the entire library to take advantage of tree shaking to should reduce bundle size. I recommend using [Babel](https://babeljs.io/) in
 your builds to compile your scripts to browser compliant JavaScript. Feel free to use [d365-cli](https://github.com/derekfinlinson/d365-cli)
 which sets up a ready to use web resources project.
 
