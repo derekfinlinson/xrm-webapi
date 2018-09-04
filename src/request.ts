@@ -1,7 +1,7 @@
 import { QueryOptions, WebApiConfig } from "./models";
 import { RequestOptions, request } from "https";
 import { URL } from "url";
-import { ClientRequest } from "http";
+import { ClientRequest, IncomingMessage } from "http";
 
 export interface WebApiRequestResult {
     error: boolean;
@@ -82,12 +82,12 @@ export class WebApiRequest {
         }
 
         const req: ClientRequest = request(options,
-            (result) => {
+            (result: IncomingMessage) => {
                 let body: string = "";
 
                 result.setEncoding("utf8");
 
-                result.on("data", (chunk) => {
+                result.on("data", (chunk: string | Buffer) => {
                     body += chunk;
                 });
 
