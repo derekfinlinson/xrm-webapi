@@ -10,7 +10,8 @@
     "url": "https://github.com/derekfinlinson/xrm-webapi.git"
   },
   "scripts": {
-    "test": "tsc -p .",
+    "build": "tsc -p .",
+    "test": "jest",
     "semantic-release": "semantic-release"
   },
   "author": "Derek Finlinson",
@@ -23,14 +24,14 @@
     "d365"
   ],
   "devDependencies": {
-    "@types/jest": "^22.2.3",
-    "@types/node": "^10.3.4",
+    "@types/jest": "^23.3.2",
+    "@types/node": "^10.9.4",
     "@types/xrm": "^8.2.5",
     "cz-conventional-changelog": "^2.1.0",
-    "jest": "^22.4.3",
-    "semantic-release": "^15.6.0",
-    "ts-jest": "^22.4.2",
-    "typescript": "^2.8.1"
+    "jest": "^23.6.0",
+    "semantic-release": "^15.9.15",
+    "ts-jest": "^23.1.4",
+    "typescript": "^3.0.3"
   },
   "dependencies": {},
   "files": [

@@ -1,19 +1,19 @@
-import { WebApi, WebApiConfig } from "../src/xrm-webapi";
+import { create, createWithReturnData, WebApiConfig } from '../src/xrm-webapi';
 
-describe("WebApi", () => {
-    let api: WebApi;
+describe('WebApi', () => {
+    let config: WebApiConfig;
 
     beforeEach(() => {
-        const config: WebApiConfig = {
-            version: "8.2"
+        config = {
+            version: '8.2'
         };
-
-        api = new WebApi(config);
     });
 
-    test("create an account", async () => {
+    test('create an account', async () => {
+        create(config, 'accounts', { name: 'Test Account'});
     });
 
-    test("create an account with returned data", async () => {
+    test('create an account with returned data', async () => {
+        createWithReturnData(config, 'accounts', { name: 'Test Account'}, '$select=accountid');
     });
 });
