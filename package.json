@@ -11,8 +11,7 @@
   },
   "scripts": {
     "test": "tsc -p .",
-    "semantic-release": "semantic-release",
-    "travis-deploy-once": "travis-deploy-once"
+    "semantic-release": "semantic-release"
   },
   "author": "Derek Finlinson",
   "keywords": [
@@ -30,7 +29,6 @@
     "cz-conventional-changelog": "^2.1.0",
     "jest": "^22.4.3",
     "semantic-release": "^15.6.0",
-    "travis-deploy-once": "^5.0.0",
     "ts-jest": "^22.4.2",
     "typescript": "^2.8.1"
   },
