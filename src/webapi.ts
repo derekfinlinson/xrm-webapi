@@ -680,7 +680,7 @@ export function batchOperation(apiConfig: WebApiConfig, batchId: string, changeS
                     reject(handleError(result.response));
                 } else {
                     if (result.response) {
-                        resolve(JSON.parse(result.response));
+                        resolve(result.response);
                     } else {
                         resolve();
                     }
