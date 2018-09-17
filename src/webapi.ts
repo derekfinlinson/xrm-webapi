@@ -656,6 +656,7 @@ export function batchOperation(apiConfig: WebApiConfig, batchId: string, changeS
         body.push('');
         body.push(`GET ${apiConfig.url}/${get} HTTP/1.1`);
         body.push('Accept: application/json');
+        body.push('');
     }
 
     if (batchGets.length > 0) {
