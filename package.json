@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc -p .",
     "test": "jest",
-    "semantic-release": "semantic-release",
+    "semantic-release": "semantic-release --no-ci",
     "commit": "git-cz"
   },
   "author": "Derek Finlinson",
