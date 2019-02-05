@@ -1,5 +1,57 @@
-import { Guid, QueryOptions, Entity, RetrieveMultipleResponse, FunctionInput, ChangeSet, WebApiConfig } from './models';
-import { WebApiRequest, WebApiRequestConfig, WebApiRequestResult } from './request';
+import { Guid, QueryOptions, Entity, FunctionInput, ChangeSet, WebApiConfig, RetrieveMultipleResponse, WebApiRequestConfig, WebApiRequestResult } from './models';
+
+export function getHeaders(config: WebApiRequestConfig): any {
+    // Get axios config
+    const headers: any = {};
+
+    headers.Accept = 'application/json';
+    headers['OData-MaxVersion'] = '4.0';
+    headers['OData-Version'] = '4.0';
+    headers['Content-Type'] = config.contentType;
+
+    if (this._config.accessToken != null) {
+        headers.Authorization = `Bearer ${this._config.accessToken}`;
+    }
+
+    if (config.queryOptions != null && typeof(config.queryOptions) !== 'undefined') {
+        headers.Prefer = getPreferHeader(config.queryOptions);
+
+        if (config.queryOptions.impersonateUser != null) {
+            headers.MSCRMCallerID = config.queryOptions.impersonateUser.value;
+        }
+    }
+
+    return headers;
+}
+
+function getPreferHeader(queryOptions: QueryOptions): string {
+    let prefer: string[] = [];
+
+    // add max page size to prefer request header
+    if (queryOptions.maxPageSize) {
+        prefer.push(`odata.maxpagesize=${queryOptions.maxPageSize}`);
+    }
+
+    // add formatted values to prefer request header
+    if (queryOptions.representation) {
+        prefer.push('return=representation');
+    } else if (queryOptions.includeFormattedValues && queryOptions.includeLookupLogicalNames &&
+        queryOptions.includeAssociatedNavigationProperties) {
+        prefer.push('odata.include-annotations="*"');
+    } else {
+        const preferExtra: string = [
+            queryOptions.includeFormattedValues ? 'OData.Community.Display.V1.FormattedValue' : '',
+            queryOptions.includeLookupLogicalNames ? 'Microsoft.Dynamics.CRM.lookuplogicalname' : '',
+            queryOptions.includeAssociatedNavigationProperties ? 'Microsoft.Dynamics.CRM.associatednavigationproperty' : '',
+        ].filter((v) => {
+            return v !== '';
+        }).join(',');
+
+        prefer.push('odata.include-annotations="' + preferExtra + '"');
+    }
+
+    return prefer.join(',');
+}
 
 function getFunctionInputs(queryString: string, inputs: FunctionInput[]): string {
     if (inputs == null) {
@@ -44,24 +96,25 @@ function handleError(result: any): any {
  * @param queryString OData query string parameters
  * @param queryOptions Various query options for the query
  */
-export function retrieve(apiConfig: WebApiConfig, entitySet: string, id: Guid,
-    queryString?: string, queryOptions?: QueryOptions): Promise<Entity> {
+export function retrieve(apiConfig: WebApiConfig, entitySet: string, id: Guid,    
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
+    queryString?: string, queryOptions?: QueryOptions,): Promise<Entity> {
     if (queryString != null && ! /^[?]/.test(queryString)) {
         queryString = `?${queryString}`;
     }
 
     let query: string = (queryString != null) ? `${entitySet}(${id.value})${queryString}` : `${entitySet}(${id.value})`;
 
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+    const config = {
         method: 'GET',
         contentType: 'application/json; charset=utf-8',
-        queryString: query
+        queryString: query,
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -80,24 +133,25 @@ export function retrieve(apiConfig: WebApiConfig, entitySet: string, id: Guid,
  * @param queryString OData query string parameters
  * @param queryOptions Various query options for the query
  */
-export function retrieveMultiple(apiConfig: WebApiConfig, entitySet: string, queryString?: string,
-    queryOptions?: QueryOptions): Promise<RetrieveMultipleResponse> {
+export function retrieveMultiple(apiConfig: WebApiConfig, entitySet: string,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
+    queryString?: string, queryOptions?: QueryOptions): Promise<RetrieveMultipleResponse> {
     if (queryString != null && ! /^[?]/.test(queryString)) {
         queryString = `?${queryString}`;
     }
 
     let query: string = (queryString != null) ? entitySet + queryString : entitySet;
 
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+    const config = {
         method: 'GET',
         contentType: 'application/json; charset=utf-8',
-        queryString: query
+        queryString: query,
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -116,19 +170,20 @@ export function retrieveMultiple(apiConfig: WebApiConfig, entitySet: string, que
  * @param queryOptions Various query options for the query
  */
 export function retrieveMultipleNextPage(apiConfig: WebApiConfig, url: string,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
     queryOptions?: QueryOptions): Promise<RetrieveMultipleResponse> {
     apiConfig.url = url;
 
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+    const config = {
         method: 'GET',
         contentType: 'application/json; charset=utf-8',
-        queryString: ''
+        queryString: '',
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -147,18 +202,20 @@ export function retrieveMultipleNextPage(apiConfig: WebApiConfig, url: string,
  * @param entity Entity to create
  * @param queryOptions Various query options for the query
  */
-export function create(apiConfig: WebApiConfig, entitySet: string, entity: Entity, queryOptions?: QueryOptions): Promise<null> {
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+export function create(apiConfig: WebApiConfig, entitySet: string, entity: Entity,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
+    queryOptions?: QueryOptions): Promise<null> {
+    const config = {
         method: 'POST',
         contentType: 'application/json; charset=utf-8',
         queryString: entitySet,
-        body: JSON.stringify(entity)
+        body: JSON.stringify(entity),
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -179,29 +236,30 @@ export function create(apiConfig: WebApiConfig, entitySet: string, entity: Entit
  * @param queryOptions Various query options for the query
  */
 export function createWithReturnData(apiConfig: WebApiConfig, entitySet: string, entity: Entity, select: string,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
     queryOptions?: QueryOptions): Promise<Entity> {
     if (select != null && ! /^[?]/.test(select)) {
         select = `?${select}`;
     }
 
-    // set reprensetation
+    // set representation
     if (queryOptions == null) {
         queryOptions = {};
     }
 
     queryOptions.representation = true;
 
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+    const config = {
         method: 'POST',
         contentType: 'application/json; charset=utf-8',
         queryString: entitySet + select,
-        body: JSON.stringify(entity)
+        body: JSON.stringify(entity),
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -221,18 +279,20 @@ export function createWithReturnData(apiConfig: WebApiConfig, entitySet: string,
  * @param entity Entity fields to update
  * @param queryOptions Various query options for the query
  */
-export function update(apiConfig: WebApiConfig, entitySet: string, id: Guid, entity: Entity, queryOptions?: QueryOptions): Promise<null> {
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+export function update(apiConfig: WebApiConfig, entitySet: string, id: Guid, entity: Entity,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
+    queryOptions?: QueryOptions): Promise<null> {
+    const config = {
         method: 'PATCH',
         contentType: 'application/json; charset=utf-8',
         queryString: `${entitySet}(${id.value})`,
-        body: JSON.stringify(entity)
+        body: JSON.stringify(entity),
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -254,6 +314,7 @@ export function update(apiConfig: WebApiConfig, entitySet: string, id: Guid, ent
  * @param queryOptions Various query options for the query
  */
 export function updateWithReturnData(apiConfig: WebApiConfig, entitySet: string, id: Guid, entity: Entity, select: string,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
     queryOptions?: QueryOptions): Promise<Entity> {
     if (select != null && ! /^[?]/.test(select)) {
         select = `?${select}`;
@@ -266,17 +327,17 @@ export function updateWithReturnData(apiConfig: WebApiConfig, entitySet: string,
 
     queryOptions.representation = true;
 
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+    const config = {
         method: 'PATCH',
         contentType: 'application/json; charset=utf-8',
         queryString: `${entitySet}(${id.value})${select}`,
-        body: JSON.stringify(entity)
+        body: JSON.stringify(entity),
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -297,18 +358,19 @@ export function updateWithReturnData(apiConfig: WebApiConfig, entitySet: string,
  * @param queryOptions Various query options for the query
  */
 export function updateProperty(apiConfig: WebApiConfig, entitySet: string, id: Guid, attribute: string, value: any,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
     queryOptions?: QueryOptions): Promise<null> {
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+    const config = {
         method: 'PUT',
         contentType: 'application/json; charset=utf-8',
         queryString: `${entitySet}(${id.value})/${attribute}`,
-        body: JSON.stringify({ value: value })
+        body: JSON.stringify({ value: value }),
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -326,17 +388,17 @@ export function updateProperty(apiConfig: WebApiConfig, entitySet: string, id: G
  * @param entitySet Type of entity to delete
  * @param id Id of record to delete
  */
-export function deleteRecord(apiConfig: WebApiConfig, entitySet: string, id: Guid): Promise<null> {
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+export function deleteRecord(apiConfig: WebApiConfig, entitySet: string, id: Guid,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,): Promise<null> {
+    const config = {
         method: 'DELETE',
         contentType: 'application/json; charset=utf-8',
-        queryString: `${entitySet}(${id.value})`
+        queryString: `${entitySet}(${id.value})`,
+        config: apiConfig
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, null,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -355,19 +417,19 @@ export function deleteRecord(apiConfig: WebApiConfig, entitySet: string, id: Gui
  * @param id Id of record to update
  * @param attribute Attribute to delete
  */
-export function deleteProperty(apiConfig: WebApiConfig, entitySet: string, id: Guid, attribute: string): Promise<null> {
+export function deleteProperty(apiConfig: WebApiConfig, entitySet: string, id: Guid, attribute: string,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,): Promise<null> {
     let queryString: string = `/${attribute}`;
 
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+    const config = {
         method: 'DELETE',
         contentType: 'application/json; charset=utf-8',
-        queryString: `${entitySet}(${id.value})${queryString}`
+        queryString: `${entitySet}(${id.value})${queryString}`,
+        config: apiConfig
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, null,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -390,22 +452,23 @@ export function deleteProperty(apiConfig: WebApiConfig, entitySet: string, id: G
  * @param queryOptions Various query options for the query
  */
 export function associate(apiConfig: WebApiConfig, entitySet: string, id: Guid, relationship: string, relatedEntitySet: string,
-    relatedEntityId: Guid, queryOptions?: QueryOptions): Promise<null> {
+    relatedEntityId: Guid, submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
+    queryOptions?: QueryOptions): Promise<null> {
     const related: object = {
         '@odata.id': `${apiConfig.url}/${relatedEntitySet}(${relatedEntityId.value})`
     };
 
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+    const config = {
         method: 'POST',
         contentType: 'application/json; charset=utf-8',
         queryString: `${entitySet}(${id.value})/${relationship}/$ref`,
-        body: JSON.stringify(related)
+        body: JSON.stringify(related),
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -426,6 +489,7 @@ export function associate(apiConfig: WebApiConfig, entitySet: string, id: Guid, 
  * @param relatedEntityId Id of secondary record. Only needed for collection-valued navigation properties
  */
 export function disassociate(apiConfig: WebApiConfig, entitySet: string, id: Guid, property: string,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
     relatedEntityId?: Guid): Promise<null> {
     let queryString: string = property;
 
@@ -435,16 +499,15 @@ export function disassociate(apiConfig: WebApiConfig, entitySet: string, id: Gui
 
     queryString += '/$ref';
 
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+    const config = {
         method: 'DELETE',
         contentType: 'application/json; charset=utf-8',
-        queryString: `${entitySet}(${id.value})/${queryString}`
+        queryString: `${entitySet}(${id.value})/${queryString}`,
+        config: apiConfig
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, null,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -465,14 +528,16 @@ export function disassociate(apiConfig: WebApiConfig, entitySet: string, id: Gui
  * @param inputs Any inputs required by the action
  * @param queryOptions Various query options for the query
  */
-export function boundAction(apiConfig: WebApiConfig, entitySet: string, id: Guid, actionName: string, inputs?: Object,
-    queryOptions?: QueryOptions): Promise<any> {
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
+export function boundAction(apiConfig: WebApiConfig, entitySet: string, id: Guid, actionName: string,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
+    inputs?: Object, queryOptions?: QueryOptions): Promise<any> {
+    
     const config: WebApiRequestConfig = {
         method: 'POST',
         contentType: 'application/json; charset=utf-8',
-        queryString: `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${actionName}`
+        queryString: `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${actionName}`,
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     if (inputs != null) {
@@ -480,7 +545,7 @@ export function boundAction(apiConfig: WebApiConfig, entitySet: string, id: Guid
     }
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -503,13 +568,15 @@ export function boundAction(apiConfig: WebApiConfig, entitySet: string, id: Guid
  * @param inputs Any inputs required by the action
  * @param queryOptions Various query options for the query
  */
-export function unboundAction(apiConfig: WebApiConfig, actionName: string, inputs?: Object, queryOptions?: QueryOptions): Promise<any> {
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
+export function unboundAction(apiConfig: WebApiConfig, actionName: string,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
+    inputs?: Object, queryOptions?: QueryOptions): Promise<any> {
     const config: WebApiRequestConfig = {
         method: 'POST',
         contentType: 'application/json; charset=utf-8',
-        queryString: actionName
+        queryString: actionName,
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     if (inputs != null) {
@@ -517,7 +584,7 @@ export function unboundAction(apiConfig: WebApiConfig, actionName: string, input
     }
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -543,20 +610,21 @@ export function unboundAction(apiConfig: WebApiConfig, actionName: string, input
  * @param queryOptions Various query options for the query
  */
 export function boundFunction(apiConfig: WebApiConfig, entitySet: string, id: Guid, functionName: string,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
     inputs?: FunctionInput[], queryOptions?: QueryOptions): Promise<any> {
     let queryString: string = `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${functionName}(`;
     queryString = getFunctionInputs(queryString, inputs);
 
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+    const config = {
         method: 'GET',
         contentType: 'application/json; charset=utf-8',
-        queryString: queryString
+        queryString: queryString,
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -579,21 +647,22 @@ export function boundFunction(apiConfig: WebApiConfig, entitySet: string, id: Gu
  * @param inputs Any inputs required by the action
  * @param queryOptions Various query options for the query
  */
-export function unboundFunction(apiConfig: WebApiConfig, functionName: string, inputs?: FunctionInput[],
-    queryOptions?: QueryOptions): Promise<any> {
+export function unboundFunction(apiConfig: WebApiConfig, functionName: string,
+    submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
+    inputs?: FunctionInput[], queryOptions?: QueryOptions): Promise<any> {
     let queryString: string = `${functionName}(`;
     queryString = getFunctionInputs(queryString, inputs);
 
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+    const config = {
         method: 'GET',
         contentType: 'application/json; charset=utf-8',
-        queryString: queryString
+        queryString: queryString,
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));
@@ -619,7 +688,8 @@ export function unboundFunction(apiConfig: WebApiConfig, functionName: string, i
  * @param queryOptions Various query options for the query
  */
 export function batchOperation(apiConfig: WebApiConfig, batchId: string, changeSetId: string, changeSets: ChangeSet[],
-    batchGets: string[], queryOptions?: QueryOptions): Promise<any> {
+    batchGets: string[], submitRequest: (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void,
+    queryOptions?: QueryOptions): Promise<any> {
     // build post body
     const body: string[] = [];
 
@@ -665,17 +735,17 @@ export function batchOperation(apiConfig: WebApiConfig, batchId: string, changeS
 
     body.push(`--batch_${batchId}--`);
 
-    const request: WebApiRequest = new WebApiRequest(apiConfig);
-
-    const config: WebApiRequestConfig = {
+    const config = {
         method: 'POST',
         contentType: `multipart/mixed;boundary=batch_${batchId}`,
         queryString: '$batch',
-        body: body.join('\r\n')
+        body: body.join('\r\n'),
+        config: apiConfig,
+        queryOptions: queryOptions
     };
 
     return new Promise((resolve, reject) => {
-        request.submitRequest(config, queryOptions,
+        submitRequest(config,
             (result: WebApiRequestResult) => {
                 if (result.error) {
                     reject(handleError(result.response));

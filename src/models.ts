@@ -23,6 +23,21 @@ export class WebApiConfig {
     }
 }
 
+export interface WebApiRequestResult {
+    error: boolean;
+    response: any;
+    headers?: any;
+}
+
+export interface WebApiRequestConfig {
+    method: string;
+    contentType: string;
+    body?: any;
+    queryString: string;
+    config: WebApiConfig;
+    queryOptions?: QueryOptions
+}
+
 export class Guid {
     public value: string;
 
