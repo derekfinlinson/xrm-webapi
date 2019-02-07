@@ -1,6 +1,6 @@
 import { Guid, QueryOptions, Entity, RetrieveMultipleResponse, FunctionInput, ChangeSet, WebApiConfig, WebApiRequestConfig, WebApiRequestResult } from './models';
 import * as webApi from "./webapi";
-import { request } from 'https';
+import { request } from "https";
 
 function submitRequest(config: WebApiRequestConfig,
     callback: (result: WebApiRequestResult) => void): void {
