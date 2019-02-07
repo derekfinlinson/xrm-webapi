@@ -1,2 +1,3 @@
-export * from './webapi';
-export { Guid, QueryOptions, Entity, RetrieveMultipleResponse, FunctionInput, ChangeSet, WebApiConfig } from './models';
+export { Guid, QueryOptions, Entity, RetrieveMultipleResponse, FunctionInput, ChangeSet, WebApiConfig, WebApiRequestConfig, WebApiRequestResult } from "./models";
+export * from "./webapi-browser";
+export * from "./webapi-node";
