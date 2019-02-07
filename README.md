@@ -18,8 +18,7 @@ npm install --save-dev xrm-webapi
 ```
 ### Usage
 
-Import the module into your TypeScript files
-
+#### Browser
 ```typescript
 import { Guid, retrieve, WebApiConfig } from "xrm-webapi";
 
@@ -30,7 +29,33 @@ const account = await retrieve(config, "accounts", new Guid(""), "$select=name")
 console.log(account.name);
 ```
 
-As of v5, the WebApi class has been replaced by individual functions instead of the WebApi class. This allows for importing individual functions instead of the entire library to take advantage of tree shaking to should reduce bundle size. I recommend using [Babel](https://babeljs.io/) in
+#### Node
+```typescript
+import { Guid, retrieveNode, WebApiConfig } from "xrm-webapi";
+
+const config = new WebApiConfig("8.2");
+
+const account = await retrieveNode(config, "accounts", new Guid(""), "$select=name");
+
+console.log(account.name);
+```
+
+#### Angular
+
+For use in Angular applications, I'd first recommend using their built in [HttpClient](https://angular.io/guide/http). Besides batch operations, most D365 Web Api requests are
+pretty simple to construct. If you do want to use this library, you'll need to change how you import the methods.
+
+```typescript
+import { retrieve } from "xrm-webapi/dist/webapi-browser";
+
+const config = new WebApiConfig("8.2");
+
+const account = await retrieveNode(config, "accounts", new Guid(""), "$select=name");
+
+console.log(account.name);
+```
+
+As of v5, the WebApi class has been replaced by individual functions instead of the WebApi class. This allows for importing individual functions instead of the entire library to take advantage of tree shaking to reduce bundle size. I recommend using [Babel](https://babeljs.io/) in
 your builds to compile your scripts to browser compliant JavaScript. Feel free to use [d365-cli](https://github.com/derekfinlinson/d365-cli)
 which sets up a ready to use web resources project.
 
