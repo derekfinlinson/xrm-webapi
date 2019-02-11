@@ -5,7 +5,7 @@ function submitRequest(config: WebApiRequestConfig,
     callback: (result: WebApiRequestResult) => void): void {
     const req: XMLHttpRequest = new XMLHttpRequest();
 
-    req.open(config.method, encodeURI(`${this._config.url}/${config.queryString}`), true);
+    req.open(config.method, encodeURI(`${config.config.url}/${config.queryString}`), true);
 
     const headers: any = webApi.getHeaders(config);
 

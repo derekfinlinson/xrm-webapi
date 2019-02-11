@@ -9,8 +9,8 @@ export function getHeaders(config: WebApiRequestConfig): any {
     headers['OData-Version'] = '4.0';
     headers['Content-Type'] = config.contentType;
 
-    if (this._config.accessToken != null) {
-        headers.Authorization = `Bearer ${this._config.accessToken}`;
+    if (config.config.accessToken != null) {
+        headers.Authorization = `Bearer ${config.config.accessToken}`;
     }
 
     if (config.queryOptions != null && typeof(config.queryOptions) !== 'undefined') {

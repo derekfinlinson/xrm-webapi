@@ -4,7 +4,7 @@ import { request } from "https";
 
 function submitRequest(config: WebApiRequestConfig,
     callback: (result: WebApiRequestResult) => void): void {
-    const url: URL = new URL(`${this._config.url}/${config.queryString}`);
+    const url: URL = new URL(`${config.config.url}/${config.queryString}`);
 
     const headers: any = webApi.getHeaders(config);
 
