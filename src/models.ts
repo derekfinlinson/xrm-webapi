@@ -34,7 +34,7 @@ export interface WebApiRequestConfig {
     contentType: string;
     body?: any;
     queryString: string;
-    config: WebApiConfig;
+    apiConfig: WebApiConfig;
     queryOptions?: QueryOptions
 }
 

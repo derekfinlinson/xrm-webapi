@@ -1,13 +1,13 @@
 import { Guid, QueryOptions, Entity, RetrieveMultipleResponse, FunctionInput, ChangeSet, WebApiConfig, WebApiRequestConfig, WebApiRequestResult } from './models';
 import * as webApi from "./webapi";
 
-function submitRequest(config: WebApiRequestConfig,
+function submitRequest(requestConfig: WebApiRequestConfig,
     callback: (result: WebApiRequestResult) => void): void {
     const req: XMLHttpRequest = new XMLHttpRequest();
 
-    req.open(config.method, encodeURI(`${config.config.url}/${config.queryString}`), true);
+    req.open(requestConfig.method, encodeURI(`${requestConfig.apiConfig.url}/${requestConfig.queryString}`), true);
 
-    const headers: any = webApi.getHeaders(config);
+    const headers: any = webApi.getHeaders(requestConfig);
 
     for (let header in headers) {
         if (headers.hasOwnProperty(header)) {
@@ -27,8 +27,8 @@ function submitRequest(config: WebApiRequestConfig,
         }
     };
 
-    if (config.body != null) {
-        req.send(config.body);
+    if (requestConfig.body != null) {
+        req.send(requestConfig.body);
     } else {
         req.send();
     }

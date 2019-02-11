@@ -2,21 +2,21 @@ import { Guid, QueryOptions, Entity, RetrieveMultipleResponse, FunctionInput, Ch
 import * as webApi from "./webapi";
 import { request } from "https";
 
-function submitRequest(config: WebApiRequestConfig,
+function submitRequest(requestConfig: WebApiRequestConfig,
     callback: (result: WebApiRequestResult) => void): void {
-    const url: URL = new URL(`${config.config.url}/${config.queryString}`);
+    const url: URL = new URL(`${requestConfig.apiConfig.url}/${requestConfig.queryString}`);
 
-    const headers: any = webApi.getHeaders(config);
+    const headers: any = webApi.getHeaders(requestConfig);
 
     const options = {
         hostname: url.hostname,
         path: `${url.pathname}${url.search}`,
-        method: config.method,
+        method: requestConfig.method,
         headers: headers
     };
 
-    if (config.body) {
-        options.headers['Content-Length'] = config.body.length;
+    if (requestConfig.body) {
+        options.headers['Content-Length'] = requestConfig.body.length;
     }
 
     const req = request(options,
@@ -43,8 +43,8 @@ function submitRequest(config: WebApiRequestConfig,
         callback({ error: true, response: error });
     });
 
-    if (config.body != null) {
-        req.write(config.body);
+    if (requestConfig.body != null) {
+        req.write(requestConfig.body);
     }
 
     req.end();

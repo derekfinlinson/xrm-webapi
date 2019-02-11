@@ -9,8 +9,8 @@ export function getHeaders(config: WebApiRequestConfig): any {
     headers['OData-Version'] = '4.0';
     headers['Content-Type'] = config.contentType;
 
-    if (config.config.accessToken != null) {
-        headers.Authorization = `Bearer ${config.config.accessToken}`;
+    if (config.apiConfig.accessToken != null) {
+        headers.Authorization = `Bearer ${config.apiConfig.accessToken}`;
     }
 
     if (config.queryOptions != null && typeof(config.queryOptions) !== 'undefined') {
@@ -109,7 +109,7 @@ export function retrieve(apiConfig: WebApiConfig, entitySet: string, id: Guid,
         method: 'GET',
         contentType: 'application/json; charset=utf-8',
         queryString: query,
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
@@ -146,7 +146,7 @@ export function retrieveMultiple(apiConfig: WebApiConfig, entitySet: string,
         method: 'GET',
         contentType: 'application/json; charset=utf-8',
         queryString: query,
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
@@ -178,7 +178,7 @@ export function retrieveMultipleNextPage(apiConfig: WebApiConfig, url: string,
         method: 'GET',
         contentType: 'application/json; charset=utf-8',
         queryString: '',
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
@@ -210,7 +210,7 @@ export function create(apiConfig: WebApiConfig, entitySet: string, entity: Entit
         contentType: 'application/json; charset=utf-8',
         queryString: entitySet,
         body: JSON.stringify(entity),
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
@@ -254,7 +254,7 @@ export function createWithReturnData(apiConfig: WebApiConfig, entitySet: string,
         contentType: 'application/json; charset=utf-8',
         queryString: entitySet + select,
         body: JSON.stringify(entity),
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
@@ -287,7 +287,7 @@ export function update(apiConfig: WebApiConfig, entitySet: string, id: Guid, ent
         contentType: 'application/json; charset=utf-8',
         queryString: `${entitySet}(${id.value})`,
         body: JSON.stringify(entity),
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
@@ -332,7 +332,7 @@ export function updateWithReturnData(apiConfig: WebApiConfig, entitySet: string,
         contentType: 'application/json; charset=utf-8',
         queryString: `${entitySet}(${id.value})${select}`,
         body: JSON.stringify(entity),
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
@@ -365,7 +365,7 @@ export function updateProperty(apiConfig: WebApiConfig, entitySet: string, id: G
         contentType: 'application/json; charset=utf-8',
         queryString: `${entitySet}(${id.value})/${attribute}`,
         body: JSON.stringify({ value: value }),
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
@@ -394,7 +394,7 @@ export function deleteRecord(apiConfig: WebApiConfig, entitySet: string, id: Gui
         method: 'DELETE',
         contentType: 'application/json; charset=utf-8',
         queryString: `${entitySet}(${id.value})`,
-        config: apiConfig
+        apiConfig: apiConfig
     };
 
     return new Promise((resolve, reject) => {
@@ -425,7 +425,7 @@ export function deleteProperty(apiConfig: WebApiConfig, entitySet: string, id: G
         method: 'DELETE',
         contentType: 'application/json; charset=utf-8',
         queryString: `${entitySet}(${id.value})${queryString}`,
-        config: apiConfig
+        apiConfig: apiConfig
     };
 
     return new Promise((resolve, reject) => {
@@ -463,7 +463,7 @@ export function associate(apiConfig: WebApiConfig, entitySet: string, id: Guid, 
         contentType: 'application/json; charset=utf-8',
         queryString: `${entitySet}(${id.value})/${relationship}/$ref`,
         body: JSON.stringify(related),
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
@@ -503,7 +503,7 @@ export function disassociate(apiConfig: WebApiConfig, entitySet: string, id: Gui
         method: 'DELETE',
         contentType: 'application/json; charset=utf-8',
         queryString: `${entitySet}(${id.value})/${queryString}`,
-        config: apiConfig
+        apiConfig: apiConfig
     };
 
     return new Promise((resolve, reject) => {
@@ -536,7 +536,7 @@ export function boundAction(apiConfig: WebApiConfig, entitySet: string, id: Guid
         method: 'POST',
         contentType: 'application/json; charset=utf-8',
         queryString: `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${actionName}`,
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
@@ -575,7 +575,7 @@ export function unboundAction(apiConfig: WebApiConfig, actionName: string,
         method: 'POST',
         contentType: 'application/json; charset=utf-8',
         queryString: actionName,
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
@@ -619,7 +619,7 @@ export function boundFunction(apiConfig: WebApiConfig, entitySet: string, id: Gu
         method: 'GET',
         contentType: 'application/json; charset=utf-8',
         queryString: queryString,
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
@@ -657,7 +657,7 @@ export function unboundFunction(apiConfig: WebApiConfig, functionName: string,
         method: 'GET',
         contentType: 'application/json; charset=utf-8',
         queryString: queryString,
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
@@ -740,7 +740,7 @@ export function batchOperation(apiConfig: WebApiConfig, batchId: string, changeS
         contentType: `multipart/mixed;boundary=batch_${batchId}`,
         queryString: '$batch',
         body: body.join('\r\n'),
-        config: apiConfig,
+        apiConfig: apiConfig,
         queryOptions: queryOptions
     };
 
