@@ -16,6 +16,7 @@ export class WebApiConfig {
             this.url = url;
         } else {
             this.url = `${url}/api/data/v${version}`;
+            this.url = this.url.replace('//', '/');
         }
 
         this.version = version;
