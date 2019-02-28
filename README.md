@@ -46,11 +46,12 @@ For use in Angular applications, I'd first recommend using their built in [HttpC
 pretty simple to construct. If you do want to use this library, you'll need to change how you import the methods.
 
 ```typescript
+import { WebApiConfig } from "xrm-webapi";
 import { retrieve } from "xrm-webapi/dist/webapi-browser";
 
 const config = new WebApiConfig("8.2");
 
-const account = await retrieveNode(config, "accounts", new Guid(""), "$select=name");
+const account = await retrieve(config, "accounts", new Guid(""), "$select=name");
 
 console.log(account.name);
 ```
