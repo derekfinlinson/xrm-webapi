@@ -8,6 +8,7 @@
         "outDir": "dist"
     },
     "files": [
-        "src/xrm-webapi.ts"
+        "src/xrm-webapi.ts",
+        "src/xrm-webapi-node.ts"
     ]
 }

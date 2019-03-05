@@ -35,11 +35,11 @@ console.log(account.name);
 
 #### Node
 ```typescript
-import { Guid, retrieveNode, WebApiConfig } from "xrm-webapi";
+import { Guid, retrieve, WebApiConfig } from "xrm-webapi/dist/xrm-webapi-node";
 
 const config = new WebApiConfig("8.2");
 
-const account = await retrieveNode(config, "accounts", new Guid(""), "$select=name");
+const account = await retrieve(config, "accounts", new Guid(""), "$select=name");
 
 console.log(account.name);
 ```
@@ -47,11 +47,10 @@ console.log(account.name);
 #### Angular
 
 For use in Angular applications, I'd first recommend using their built in [HttpClient](https://angular.io/guide/http). Besides batch operations, most D365 Web Api requests are
-pretty simple to construct. If you do want to use this library, you'll need to change how you import the methods.
+pretty simple to construct. If you do want to use this library, the usage is the same as the browser usage:
 
 ```typescript
-import { WebApiConfig } from "xrm-webapi";
-import { retrieve } from "xrm-webapi/dist/webapi-browser";
+import { Guid, retrieveNode, WebApiConfig } from "xrm-webapi";
 
 const config = new WebApiConfig("8.2");
 
