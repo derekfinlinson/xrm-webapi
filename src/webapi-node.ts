@@ -1,10 +1,11 @@
 import { Guid, QueryOptions, Entity, RetrieveMultipleResponse, FunctionInput, ChangeSet, WebApiConfig, WebApiRequestConfig, WebApiRequestResult } from './models';
 import * as webApi from "./webapi";
 import { request } from "https";
+import { URL } from "url";
 
 function submitRequest(requestConfig: WebApiRequestConfig,
     callback: (result: WebApiRequestResult) => void): void {
-    const url: URL = new URL(`${requestConfig.apiConfig.url}/${requestConfig.queryString}`);
+    const url = new URL(`${requestConfig.apiConfig.url}/${requestConfig.queryString}`);
 
     const headers: any = webApi.getHeaders(requestConfig);
 
