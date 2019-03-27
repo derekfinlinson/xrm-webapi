@@ -1,17 +1,17 @@
 import { Guid, QueryOptions, Entity, RetrieveMultipleResponse, FunctionInput, ChangeSet, WebApiConfig, WebApiRequestConfig, WebApiRequestResult } from './models';
 import * as webApi from "./webapi";
 import { request } from "https";
-import { URL } from "url";
+import url = require("url");
 
 function submitRequest(requestConfig: WebApiRequestConfig,
     callback: (result: WebApiRequestResult) => void): void {
-    const url = new URL(`${requestConfig.apiConfig.url}/${requestConfig.queryString}`);
+    const apiUrl = new url.URL(`${requestConfig.apiConfig.url}/${requestConfig.queryString}`);
 
     const headers: any = webApi.getHeaders(requestConfig);
 
     const options = {
-        hostname: url.hostname,
-        path: `${url.pathname}${url.search}`,
+        hostname: apiUrl.hostname,
+        path: `${apiUrl.pathname}${apiUrl.search}`,
         method: requestConfig.method,
         headers: headers
     };
