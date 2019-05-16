@@ -1,17 +1,18 @@
 export class WebApiConfig {
-    version: string;
-    accessToken?: string;
-    url?: string;
+    public version: string;
+    public accessToken?: string;
+    public url?: string;
 
     /**
      * Constructor
      * @param config WebApiConfig
      */
-    constructor (version: string, accessToken?: string, url?: string ) {
+    constructor(version: string, accessToken?: string, url?: string ) {
         // If URL not provided, get it from Xrm.Context
         if (url == null) {
-            const context: Xrm.Context = typeof GetGlobalContext !== 'undefined' ? GetGlobalContext() : Xrm.Page.context;
-            const url: string = `${context.getClientUrl()}/api/data/v${version}`;
+            const context: Xrm.Context =
+                typeof GetGlobalContext !== 'undefined' ? GetGlobalContext() : Xrm.Page.context;
+            url = `${context.getClientUrl()}/api/data/v${version}`;
 
             this.url = url;
         } else {
@@ -36,7 +37,7 @@ export interface WebApiRequestConfig {
     body?: any;
     queryString: string;
     apiConfig: WebApiConfig;
-    queryOptions?: QueryOptions
+    queryOptions?: QueryOptions;
 }
 
 export class Guid {
@@ -52,7 +53,7 @@ export class Guid {
         }
     }
 
-    areEqual(compare: Guid): boolean {
+    public areEqual(compare: Guid): boolean {
         if (this === null || compare === null || this === undefined || compare === undefined) {
             return false;
         }

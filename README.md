@@ -18,10 +18,6 @@ npm install --save-dev xrm-webapi
 ```
 ### Usage
 
-As of v5, the WebApi class has been replaced by individual functions instead of the WebApi class. This allows for importing individual functions instead of the entire library to take advantage of tree shaking to reduce bundle size. I recommend using [Babel](https://babeljs.io/) in
-your builds to compile your scripts to browser compliant JavaScript. Feel free to use [d365-cli](https://github.com/derekfinlinson/d365-cli)
-which sets up a ready to use web resources project.
-
 #### Browser
 ```typescript
 import { Guid, retrieve, WebApiConfig } from "xrm-webapi";
