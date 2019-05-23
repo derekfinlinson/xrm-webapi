@@ -20,22 +20,22 @@ npm install --save-dev xrm-webapi
 
 #### Browser
 ```typescript
-import { Guid, retrieve, WebApiConfig } from "xrm-webapi";
+import { parseGuid, retrieve, WebApiConfig } from "xrm-webapi";
 
 const config = new WebApiConfig("8.2");
 
-const account = await retrieve(config, "accounts", new Guid(""), "$select=name");
+const account = await retrieve(config, "accounts", parseGuid("00000000-0000-0000-0000-000000000000"), "$select=name");
 
 console.log(account.name);
 ```
 
 #### Node
 ```typescript
-import { Guid, retrieve, WebApiConfig } from "xrm-webapi/dist/xrm-webapi-node";
+import { parseGuid, retrieve, WebApiConfig } from "xrm-webapi/dist/xrm-webapi-node";
 
 const config = new WebApiConfig("8.2");
 
-const account = await retrieve(config, "accounts", new Guid(""), "$select=name");
+const account = await retrieve(config, "accounts", parseGuid("00000000-0000-0000-0000-000000000000"), "$select=name");
 
 console.log(account.name);
 ```
@@ -46,11 +46,11 @@ For use in Angular applications, I'd first recommend using their built in [HttpC
 pretty simple to construct. If you do want to use this library, the usage is the same as the browser usage:
 
 ```typescript
-import { Guid, retrieveNode, WebApiConfig } from "xrm-webapi";
+import { parseGuid, retrieveNode, WebApiConfig } from "xrm-webapi";
 
 const config = new WebApiConfig("8.2");
 
-const account = await retrieve(config, "accounts", new Guid(""), "$select=name");
+const account = await retrieve(config, "accounts", parseGuid("00000000-0000-0000-0000-000000000000"), "$select=name");
 
 console.log(account.name);
 ```

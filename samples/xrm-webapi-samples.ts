@@ -2,34 +2,34 @@
 // tslint:disable:no-empty
 
 import {
+    associate,
+    batchOperation,
+    boundAction,
     ChangeSet,
-    FunctionInput,
-    Guid,
     create,
     createWithReturnData,
-    retrieve,
-    retrieveMultiple,
-    update,
-    updateProperty,
     deleteProperty,
     deleteRecord,
     disassociate,
-    associate,
-    boundAction,
+    FunctionInput,
+    parseGuid,
+    retrieve,
+    retrieveMultiple,
+    retrieveMultipleNextPage,
     unboundAction,
-    batchOperation,
-    WebApiConfig,
-    retrieveMultipleNextPage
-} from "../src/xrm-webapi";
+    update,
+    updateProperty,
+    WebApiConfig
+} from '../src/xrm-webapi';
 
-const config: WebApiConfig = new WebApiConfig("8.1");
+const config: WebApiConfig = new WebApiConfig('8.1');
 
 // demonstrate create
 const account: any = {
-    name: "Test Account"
+    name: 'Test Account'
 };
 
-create(config, "accounts", account)
+create(config, 'accounts', account)
     .then(() => {
         console.log();
     }, (error) => {
@@ -37,13 +37,13 @@ create(config, "accounts", account)
     });
 
 // demonstrate create with returned odata
-createWithReturnData(config, "accounts", account, "$select=name,accountid")
+createWithReturnData(config, 'accounts', account, '$select=name,accountid')
     .then((created: any) => {
         console.log(created.name);
     });
 
 // demonstrate retrieve
-retrieve(config, "accounts", new Guid(""), "$select=name")
+retrieve(config, 'accounts', parseGuid('00000000-0000-0000-0000-000000000000'), '$select=name')
     .then((retrieved) => {
         console.log(retrieved.data.name);
     }, (error) => {
@@ -51,18 +51,18 @@ retrieve(config, "accounts", new Guid(""), "$select=name")
     });
 
 // demonstrate retrieve multiple
-const options: string = "$filter=name eq 'Test Account'&$select=name,accountid";
+const options: string = '$filter=name eq \'Test Account\'&$select=name,accountid';
 
-retrieveMultiple(config, "accounts", options)
+retrieveMultiple(config, 'accounts', options)
     .then(
         (results) => {
             const accounts: any[] = [];
-            for (let record of results.value) {
+            for (const record of results.value) {
                 accounts.push(record);
             }
 
             // demonstrate getting next page from retreiveMultiple
-            retrieveMultipleNextPage(config, results["@odata.nextlink"]).then(
+            retrieveMultipleNextPage(config, results['@odata.nextlink']).then(
                 (moreResults) => {
                     console.log(moreResults.value.length);
                 }
@@ -76,43 +76,44 @@ retrieveMultiple(config, "accounts", options)
     );
 
 // demonstrate update. Update returns no content
-update(config, "accounts", new Guid(""), account)
+update(config, 'accounts', parseGuid('00000000-0000-0000-0000-000000000000'), account)
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 // demonstrate update property. Update property returns no content
-updateProperty(config, "accounts", new Guid(""), "name", "Updated Account")
+updateProperty(config, 'accounts', parseGuid('00000000-0000-0000-0000-000000000000'), 'name', 'Updated Account')
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 // demonstrate delete. Delete returns no content
-deleteRecord(config, "accounts", new Guid(""))
+deleteRecord(config, 'accounts', parseGuid('00000000-0000-0000-0000-000000000000'))
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 // demonstrate delete property. Delete property returns no content
-deleteProperty(config, "accounts", new Guid(""), "address1_line1")
+deleteProperty(config, 'accounts', parseGuid('00000000-0000-0000-0000-000000000000'), 'address1_line1')
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 // demonstrate delete navigation property. Delete property returns no content
-deleteProperty(config, "accounts", new Guid(""), "primarycontactid")
+deleteProperty(config, 'accounts', parseGuid('00000000-0000-0000-0000-000000000000'), 'primarycontactid')
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 // demonstrate associate. Associate returns no content
-associate(config, "accounts", new Guid(""), "contact_customer_accounts", "contacts", new Guid(""))
+associate(config, 'accounts', parseGuid('00000000-0000-0000-0000-000000000000'),
+    'contact_customer_accounts', 'contacts', parseGuid('00000000-0000-0000-0000-000000000000'))
     .then(() => {}, (error) => {
         console.log(error);
     });
 
 // demonstrate disassociate. Disassociate returns no content
-disassociate(config, "accounts", new Guid(""), "contact_customer_accounts")
+disassociate(config, 'accounts', parseGuid('00000000-0000-0000-0000-000000000000'), 'contact_customer_accounts')
     .then(() => {}, (error) => {
         console.log(error);
     });
@@ -120,17 +121,17 @@ disassociate(config, "accounts", new Guid(""), "contact_customer_accounts")
 // demonstrate bound action
 const inputs: object = {
     NumberInput: 100,
-    StringInput: "Text",
+    StringInput: 'Text',
 };
 
-boundAction(config, "accounts", new Guid(""), "sample_BoundAction", inputs)
+boundAction(config, 'accounts', parseGuid('00000000-0000-0000-0000-000000000000'), 'sample_BoundAction', inputs)
     .then((result: any) => {
         console.log(result.annotationid);
     }, (error) => {
         console.log(error);
     });
 
-unboundAction(config, "sample_UnboundAction", inputs)
+unboundAction(config, 'sample_UnboundAction', inputs)
     .then((result: any) => {
         console.log(result.annotationid);
     }, (error) => {
@@ -141,11 +142,11 @@ unboundAction(config, "sample_UnboundAction", inputs)
 const inputs3: FunctionInput[] = [];
 
 inputs3.push({
-    name: "Argument",
-    value: "Value",
+    name: 'Argument',
+    value: 'Value',
 });
 
-boundAction(config, "accounts", new Guid(""), "sample_BoundFunction", inputs3)
+boundAction(config, 'accounts', parseGuid('00000000-0000-0000-0000-000000000000'), 'sample_BoundFunction', inputs3)
     .then((result: any) => {
         console.log(result.annotationid);
     }, (error) => {
@@ -156,12 +157,12 @@ boundAction(config, "accounts", new Guid(""), "sample_BoundFunction", inputs3)
 const inputs4: FunctionInput[] = [];
 
 inputs4.push({
-    alias: "tid",
-    name: "Target",
-    value: "{'@odata.id':'accounts(87989176-0887-45D1-93DA-4D5F228C10E6)'}",
+    alias: 'tid',
+    name: 'Target',
+    value: '{\'@odata.id\':\'accounts(87989176-0887-45D1-93DA-4D5F228C10E6)\'}',
 });
 
-unboundAction(config, "sample_UnboundAction", inputs4)
+unboundAction(config, 'sample_UnboundAction', inputs4)
     .then((result: any) => {
         console.log(result.annotationid);
     }, (error) => {
@@ -172,23 +173,23 @@ unboundAction(config, "sample_UnboundAction", inputs4)
 const changeSets: ChangeSet[] = [
     {
         entity: {
-            name: "Test 1"
+            name: 'Test 1'
         },
-        queryString: "accounts",
+        queryString: 'accounts',
     },
     {
         entity: {
-            name: "Test 2"
+            name: 'Test 2'
         },
-        queryString: "accounts",
+        queryString: 'accounts',
     },
 ];
 
 const gets: string[] = [
-    "accounts?$select=name",
+    'accounts?$select=name',
 ];
 
-batchOperation(config, "BATCH123", "CHANGESET123", changeSets, gets)
+batchOperation(config, 'BATCH123', 'CHANGESET123', changeSets, gets)
     .then((result) => {
         console.log(result);
     }, (error) => {

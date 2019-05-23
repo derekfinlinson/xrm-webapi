@@ -1,4 +1,4 @@
-import { ChangeSet, Entity, FunctionInput, Guid, QueryOptions, RetrieveMultipleResponse,
+import { ChangeSet, Entity, FunctionInput, QueryOptions, RetrieveMultipleResponse,
     WebApiConfig, WebApiRequestConfig, WebApiRequestResult } from './models';
 
 type RequestCallback = (config: WebApiRequestConfig, callback: (result: WebApiRequestResult) => void) => void;
@@ -18,8 +18,8 @@ export function getHeaders(config: WebApiRequestConfig): any {
     if (config.queryOptions != null && typeof(config.queryOptions) !== 'undefined') {
         headers.Prefer = getPreferHeader(config.queryOptions);
 
-        if (config.queryOptions.impersonateUser != null) {
-            headers.MSCRMCallerID = config.queryOptions.impersonateUser.value;
+        if (config.queryOptions.impersonateUserId != null) {
+            headers.MSCRMCallerID = config.queryOptions.impersonateUserId;
         }
     }
 
@@ -99,14 +99,14 @@ function handleError(result: any): any {
  * @param queryString OData query string parameters
  * @param queryOptions Various query options for the query
  */
-export function retrieve(apiConfig: WebApiConfig, entitySet: string, id: Guid, submitRequest: RequestCallback,
+export function retrieve(apiConfig: WebApiConfig, entitySet: string, id: string, submitRequest: RequestCallback,
                          queryString?: string, queryOptions?: QueryOptions): Promise<Entity> {
     if (queryString != null && ! /^[?]/.test(queryString)) {
         queryString = `?${queryString}`;
     }
 
     const query: string =
-        (queryString != null) ? `${entitySet}(${id.value})${queryString}` : `${entitySet}(${id.value})`;
+        (queryString != null) ? `${entitySet}(${id})${queryString}` : `${entitySet}(${id})`;
 
     const config = {
         method: 'GET',
@@ -279,12 +279,12 @@ export function createWithReturnData(apiConfig: WebApiConfig, entitySet: string,
  * @param entity Entity fields to update
  * @param queryOptions Various query options for the query
  */
-export function update(apiConfig: WebApiConfig, entitySet: string, id: Guid, entity: Entity,
+export function update(apiConfig: WebApiConfig, entitySet: string, id: string, entity: Entity,
                        submitRequest: RequestCallback, queryOptions?: QueryOptions): Promise<null> {
     const config = {
         method: 'PATCH',
         contentType: 'application/json; charset=utf-8',
-        queryString: `${entitySet}(${id.value})`,
+        queryString: `${entitySet}(${id})`,
         body: JSON.stringify(entity),
         apiConfig: apiConfig,
         queryOptions: queryOptions
@@ -312,7 +312,7 @@ export function update(apiConfig: WebApiConfig, entitySet: string, id: Guid, ent
  * @param select Select odata query parameter
  * @param queryOptions Various query options for the query
  */
-export function updateWithReturnData(apiConfig: WebApiConfig, entitySet: string, id: Guid, entity: Entity,
+export function updateWithReturnData(apiConfig: WebApiConfig, entitySet: string, id: string, entity: Entity,
                                      select: string, submitRequest: RequestCallback,
                                      queryOptions?: QueryOptions): Promise<Entity> {
     if (select != null && ! /^[?]/.test(select)) {
@@ -329,7 +329,7 @@ export function updateWithReturnData(apiConfig: WebApiConfig, entitySet: string,
     const config = {
         method: 'PATCH',
         contentType: 'application/json; charset=utf-8',
-        queryString: `${entitySet}(${id.value})${select}`,
+        queryString: `${entitySet}(${id})${select}`,
         body: JSON.stringify(entity),
         apiConfig: apiConfig,
         queryOptions: queryOptions
@@ -356,12 +356,12 @@ export function updateWithReturnData(apiConfig: WebApiConfig, entitySet: string,
  * @param attribute Attribute to update
  * @param queryOptions Various query options for the query
  */
-export function updateProperty(apiConfig: WebApiConfig, entitySet: string, id: Guid, attribute: string, value: any,
+export function updateProperty(apiConfig: WebApiConfig, entitySet: string, id: string, attribute: string, value: any,
                                submitRequest: RequestCallback, queryOptions?: QueryOptions): Promise<null> {
     const config = {
         method: 'PUT',
         contentType: 'application/json; charset=utf-8',
-        queryString: `${entitySet}(${id.value})/${attribute}`,
+        queryString: `${entitySet}(${id})/${attribute}`,
         body: JSON.stringify({ value: value }),
         apiConfig: apiConfig,
         queryOptions: queryOptions
@@ -386,12 +386,12 @@ export function updateProperty(apiConfig: WebApiConfig, entitySet: string, id: G
  * @param entitySet Type of entity to delete
  * @param id Id of record to delete
  */
-export function deleteRecord(apiConfig: WebApiConfig, entitySet: string, id: Guid,
+export function deleteRecord(apiConfig: WebApiConfig, entitySet: string, id: string,
                              submitRequest: RequestCallback): Promise<null> {
     const config = {
         method: 'DELETE',
         contentType: 'application/json; charset=utf-8',
-        queryString: `${entitySet}(${id.value})`,
+        queryString: `${entitySet}(${id})`,
         apiConfig: apiConfig
     };
 
@@ -415,14 +415,14 @@ export function deleteRecord(apiConfig: WebApiConfig, entitySet: string, id: Gui
  * @param id Id of record to update
  * @param attribute Attribute to delete
  */
-export function deleteProperty(apiConfig: WebApiConfig, entitySet: string, id: Guid, attribute: string,
+export function deleteProperty(apiConfig: WebApiConfig, entitySet: string, id: string, attribute: string,
                                submitRequest: RequestCallback): Promise<null> {
     const queryString: string = `/${attribute}`;
 
     const config = {
         method: 'DELETE',
         contentType: 'application/json; charset=utf-8',
-        queryString: `${entitySet}(${id.value})${queryString}`,
+        queryString: `${entitySet}(${id})${queryString}`,
         apiConfig: apiConfig
     };
 
@@ -449,17 +449,17 @@ export function deleteProperty(apiConfig: WebApiConfig, entitySet: string, id: G
  * @param relatedEntityId Id of secondary record
  * @param queryOptions Various query options for the query
  */
-export function associate(apiConfig: WebApiConfig, entitySet: string, id: Guid, relationship: string,
-                          relatedEntitySet: string, relatedEntityId: Guid, submitRequest: RequestCallback,
+export function associate(apiConfig: WebApiConfig, entitySet: string, id: string, relationship: string,
+                          relatedEntitySet: string, relatedEntityId: string, submitRequest: RequestCallback,
                           queryOptions?: QueryOptions): Promise<null> {
     const related: object = {
-        '@odata.id': `${apiConfig.url}/${relatedEntitySet}(${relatedEntityId.value})`
+        '@odata.id': `${apiConfig.url}/${relatedEntitySet}(${relatedEntityId})`
     };
 
     const config = {
         method: 'POST',
         contentType: 'application/json; charset=utf-8',
-        queryString: `${entitySet}(${id.value})/${relationship}/$ref`,
+        queryString: `${entitySet}(${id})/${relationship}/$ref`,
         body: JSON.stringify(related),
         apiConfig: apiConfig,
         queryOptions: queryOptions
@@ -486,12 +486,12 @@ export function associate(apiConfig: WebApiConfig, entitySet: string, id: Guid, 
  * @param property Schema name of property or relationship
  * @param relatedEntityId Id of secondary record. Only needed for collection-valued navigation properties
  */
-export function disassociate(apiConfig: WebApiConfig, entitySet: string, id: Guid, property: string,
-                             submitRequest: RequestCallback, relatedEntityId?: Guid): Promise<null> {
+export function disassociate(apiConfig: WebApiConfig, entitySet: string, id: string, property: string,
+                             submitRequest: RequestCallback, relatedEntityId?: string): Promise<null> {
     let queryString: string = property;
 
     if (relatedEntityId != null) {
-        queryString += `(${relatedEntityId.value})`;
+        queryString += `(${relatedEntityId})`;
     }
 
     queryString += '/$ref';
@@ -499,7 +499,7 @@ export function disassociate(apiConfig: WebApiConfig, entitySet: string, id: Gui
     const config = {
         method: 'DELETE',
         contentType: 'application/json; charset=utf-8',
-        queryString: `${entitySet}(${id.value})/${queryString}`,
+        queryString: `${entitySet}(${id})/${queryString}`,
         apiConfig: apiConfig
     };
 
@@ -525,14 +525,14 @@ export function disassociate(apiConfig: WebApiConfig, entitySet: string, id: Gui
  * @param inputs Any inputs required by the action
  * @param queryOptions Various query options for the query
  */
-export function boundAction(apiConfig: WebApiConfig, entitySet: string, id: Guid, actionName: string,
+export function boundAction(apiConfig: WebApiConfig, entitySet: string, id: string, actionName: string,
                             submitRequest: RequestCallback, inputs?: object,
                             queryOptions?: QueryOptions): Promise<any> {
 
     const config: WebApiRequestConfig = {
         method: 'POST',
         contentType: 'application/json; charset=utf-8',
-        queryString: `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${actionName}`,
+        queryString: `${entitySet}(${id})/Microsoft.Dynamics.CRM.${actionName}`,
         apiConfig: apiConfig,
         queryOptions: queryOptions
     };
@@ -606,10 +606,10 @@ export function unboundAction(apiConfig: WebApiConfig, actionName: string,
  * @param inputs Any inputs required by the action
  * @param queryOptions Various query options for the query
  */
-export function boundFunction(apiConfig: WebApiConfig, entitySet: string, id: Guid, functionName: string,
+export function boundFunction(apiConfig: WebApiConfig, entitySet: string, id: string, functionName: string,
                               submitRequest: RequestCallback, inputs?: FunctionInput[],
                               queryOptions?: QueryOptions): Promise<any> {
-    let queryString: string = `${entitySet}(${id.value})/Microsoft.Dynamics.CRM.${functionName}(`;
+    let queryString: string = `${entitySet}(${id})/Microsoft.Dynamics.CRM.${functionName}(`;
     queryString = getFunctionInputs(queryString, inputs);
 
     const config = {

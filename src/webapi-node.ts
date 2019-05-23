@@ -1,7 +1,7 @@
 // tslint:disable-next-line: ordered-imports
 import { request } from 'https';
 import url = require('url');
-import { ChangeSet, Entity, FunctionInput, Guid, QueryOptions,
+import { ChangeSet, Entity, FunctionInput, QueryOptions,
     RetrieveMultipleResponse, WebApiConfig, WebApiRequestConfig, WebApiRequestResult } from './models';
 import * as webApi from './webapi';
 
@@ -62,7 +62,7 @@ function submitRequest(requestConfig: WebApiRequestConfig, callback: RequestCall
  * @param queryString OData query string parameters
  * @param queryOptions Various query options for the query
  */
-export function retrieve(apiConfig: WebApiConfig, entitySet: string, id: Guid,
+export function retrieve(apiConfig: WebApiConfig, entitySet: string, id: string,
                          queryString?: string, queryOptions?: QueryOptions): Promise<Entity> {
     return webApi.retrieve(apiConfig, entitySet, id, submitRequest, queryString, queryOptions);
 }
@@ -123,7 +123,7 @@ export function createWithReturnData(apiConfig: WebApiConfig, entitySet: string,
  * @param entity Entity fields to update
  * @param queryOptions Various query options for the query
  */
-export function update(apiConfig: WebApiConfig, entitySet: string, id: Guid, entity: Entity,
+export function update(apiConfig: WebApiConfig, entitySet: string, id: string, entity: Entity,
                        queryOptions?: QueryOptions): Promise<null> {
     return webApi.update(apiConfig, entitySet, id, entity, submitRequest, queryOptions);
 }
@@ -137,7 +137,7 @@ export function update(apiConfig: WebApiConfig, entitySet: string, id: Guid, ent
  * @param select Select odata query parameter
  * @param queryOptions Various query options for the query
  */
-export function updateWithReturnData(apiConfig: WebApiConfig, entitySet: string, id: Guid, entity: Entity,
+export function updateWithReturnData(apiConfig: WebApiConfig, entitySet: string, id: string, entity: Entity,
                                      select: string, queryOptions?: QueryOptions): Promise<Entity> {
     return webApi.updateWithReturnData(apiConfig, entitySet, id, entity, select, submitRequest, queryOptions);
 }
@@ -150,7 +150,7 @@ export function updateWithReturnData(apiConfig: WebApiConfig, entitySet: string,
  * @param attribute Attribute to update
  * @param queryOptions Various query options for the query
  */
-export function updateProperty(apiConfig: WebApiConfig, entitySet: string, id: Guid, attribute: string, value: any,
+export function updateProperty(apiConfig: WebApiConfig, entitySet: string, id: string, attribute: string, value: any,
                                queryOptions?: QueryOptions): Promise<null> {
     return webApi.updateProperty(apiConfig, entitySet, id, attribute, value, submitRequest, queryOptions);
 }
@@ -161,7 +161,7 @@ export function updateProperty(apiConfig: WebApiConfig, entitySet: string, id: G
  * @param entitySet Type of entity to delete
  * @param id Id of record to delete
  */
-export function deleteRecord(apiConfig: WebApiConfig, entitySet: string, id: Guid): Promise<null> {
+export function deleteRecord(apiConfig: WebApiConfig, entitySet: string, id: string): Promise<null> {
     return webApi.deleteRecord(apiConfig, entitySet, id, submitRequest);
 }
 
@@ -172,7 +172,7 @@ export function deleteRecord(apiConfig: WebApiConfig, entitySet: string, id: Gui
  * @param id Id of record to update
  * @param attribute Attribute to delete
  */
-export function deleteProperty(apiConfig: WebApiConfig, entitySet: string, id: Guid, attribute: string): Promise<null> {
+export function deleteProperty(apiConfig: WebApiConfig, entitySet: string, id: string, attribute: string): Promise<null> {
     return webApi.deleteProperty(apiConfig, entitySet, id, attribute, submitRequest);
 }
 
@@ -186,8 +186,8 @@ export function deleteProperty(apiConfig: WebApiConfig, entitySet: string, id: G
  * @param relatedEntityId Id of secondary record
  * @param queryOptions Various query options for the query
  */
-export function associate(apiConfig: WebApiConfig, entitySet: string, id: Guid, relationship: string,
-                          relatedEntitySet: string, relatedEntityId: Guid, queryOptions?: QueryOptions): Promise<null> {
+export function associate(apiConfig: WebApiConfig, entitySet: string, id: string, relationship: string,
+                          relatedEntitySet: string, relatedEntityId: string, queryOptions?: QueryOptions): Promise<null> {
     return webApi.associate(apiConfig, entitySet, id, relationship,
         relatedEntitySet, relatedEntityId, submitRequest, queryOptions);
 }
@@ -200,8 +200,8 @@ export function associate(apiConfig: WebApiConfig, entitySet: string, id: Guid, 
  * @param property Schema name of property or relationship
  * @param relatedEntityId Id of secondary record. Only needed for collection-valued navigation properties
  */
-export function disassociate(apiConfig: WebApiConfig, entitySet: string, id: Guid, property: string,
-                             relatedEntityId?: Guid): Promise<null> {
+export function disassociate(apiConfig: WebApiConfig, entitySet: string, id: string, property: string,
+                             relatedEntityId?: string): Promise<null> {
     return webApi.disassociate(apiConfig, entitySet, id, property, submitRequest, relatedEntityId);
 }
 
@@ -214,7 +214,7 @@ export function disassociate(apiConfig: WebApiConfig, entitySet: string, id: Gui
  * @param inputs Any inputs required by the action
  * @param queryOptions Various query options for the query
  */
-export function boundAction(apiConfig: WebApiConfig, entitySet: string, id: Guid, actionName: string, inputs?: object,
+export function boundAction(apiConfig: WebApiConfig, entitySet: string, id: string, actionName: string, inputs?: object,
                             queryOptions?: QueryOptions): Promise<any> {
     return webApi.boundAction(apiConfig, entitySet, id, actionName, submitRequest, inputs, queryOptions);
 }
@@ -240,7 +240,7 @@ export function unboundAction(apiConfig: WebApiConfig, actionName: string,
  * @param inputs Any inputs required by the action
  * @param queryOptions Various query options for the query
  */
-export function boundFunction(apiConfig: WebApiConfig, entitySet: string, id: Guid, functionName: string,
+export function boundFunction(apiConfig: WebApiConfig, entitySet: string, id: string, functionName: string,
                               inputs?: FunctionInput[], queryOptions?: QueryOptions): Promise<any> {
     return webApi.boundFunction(apiConfig, entitySet, id, functionName, submitRequest, inputs, queryOptions);
 }
