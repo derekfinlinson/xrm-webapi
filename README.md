@@ -33,7 +33,7 @@ console.log(account.name);
 ```typescript
 import { parseGuid, retrieve, WebApiConfig } from "xrm-webapi/dist/xrm-webapi-node";
 
-const config = new WebApiConfig("8.2");
+const config = new WebApiConfig("8.2", tokenFromAdal, 'https://org.crm.dynamics.com');
 
 const account = await retrieve(config, "accounts", parseGuid("00000000-0000-0000-0000-000000000000"), "$select=name");
 
@@ -48,7 +48,7 @@ pretty simple to construct. If you do want to use this library, the usage is the
 ```typescript
 import { parseGuid, retrieveNode, WebApiConfig } from "xrm-webapi";
 
-const config = new WebApiConfig("8.2");
+const config = new WebApiConfig("8.2", tokenFromAdal, 'https://org.crm.dynamics.com');
 
 const account = await retrieve(config, "accounts", parseGuid("00000000-0000-0000-0000-000000000000"), "$select=name");
 
