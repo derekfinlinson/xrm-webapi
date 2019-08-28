@@ -25,15 +25,15 @@
     "d365"
   ],
   "devDependencies": {
-    "@types/jest": "^24.0.15",
-    "@types/node": "^10.14.12",
+    "@types/jest": "^24.0.18",
+    "@types/node": "^10.14.16",
     "@types/xrm": "^8.2.5",
-    "commitizen": "^3.1.1",
+    "commitizen": "^3.1.2",
     "cz-conventional-changelog": "^2.1.0",
-    "jest": "^24.8.0",
-    "semantic-release": "^15.13.18",
+    "jest": "^24.9.0",
+    "semantic-release": "^15.13.24",
     "ts-jest": "^24.0.2",
-    "tslint": "^5.18.0",
+    "tslint": "^5.19.0",
     "typescript": "^3.5.3"
   },
   "files": [
