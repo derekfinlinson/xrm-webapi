@@ -1,8 +1,0 @@
-{
-  "type": "minor",
-  "comment": "Allow configurable method for batch change sets",
-  "packageName": "xrm-webapi",
-  "email": "dcfinlinson@gmail.com",
-  "dependentChangeType": "patch",
-  "date": "2020-06-30T14:40:16.986Z"
-}

@@ -1,6 +1,6 @@
 {
   "name": "xrm-webapi",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "description": "Dynamics 365 Web Api TypeScript Module",
   "main": "./dist/xrm-webapi.js",
   "types": "./dist/xrm-webapi.d.ts",
