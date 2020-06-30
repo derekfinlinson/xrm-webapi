@@ -1,6 +1,6 @@
 {
   "name": "xrm-webapi",
-  "version": "0.0.0-development",
+  "version": "7.0.0",
   "description": "Dynamics 365 Web Api TypeScript Module",
   "main": "./dist/xrm-webapi.js",
   "types": "./dist/xrm-webapi.d.ts",
@@ -12,8 +12,9 @@
   "scripts": {
     "build": "tsc -p .",
     "test": "jest",
-    "semantic-release": "semantic-release --no-ci",
-    "commit": "git-cz"
+    "change": "beachball change",
+    "check": "beachball check",
+    "beachball:publish": "beachball publish"
   },
   "author": "Derek Finlinson",
   "keywords": [
@@ -28,10 +29,8 @@
     "@types/jest": "^25.2.1",
     "@types/node": "^13.11.0",
     "@types/xrm": "^9.0.23",
-    "commitizen": "^4.0.3",
-    "cz-conventional-changelog": "^3.1.0",
+    "beachball": "^1.32.0",
     "jest": "^25.2.7",
-    "semantic-release": "^17.0.4",
     "ts-jest": "^25.3.1",
     "tslint": "^6.1.1",
     "typescript": "^3.8.3"
@@ -39,11 +38,6 @@
   "files": [
     "dist"
   ],
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  },
   "jest": {
     "transform": {
       "^.+\\.tsx?$": "ts-jest"

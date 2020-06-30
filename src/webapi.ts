@@ -702,7 +702,7 @@ export function batchOperation(apiConfig: WebApiConfig, batchId: string, changeS
         body.push('Content-Transfer-Encoding:binary');
         body.push(`Content-ID: ${i + 1}`);
         body.push('');
-        body.push(`POST ${apiConfig.url}/${changeSets[i].queryString} HTTP/1.1`);
+        body.push(`${changeSets[i].method} ${apiConfig.url}/${changeSets[i].queryString} HTTP/1.1`);
         body.push('Content-Type: application/json;type=entry');
         body.push('');
 
