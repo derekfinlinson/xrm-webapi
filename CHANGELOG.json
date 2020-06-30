@@ -1,0 +1,20 @@
+{
+  "name": "xrm-webapi",
+  "entries": [
+    {
+      "date": "Tue, 30 Jun 2020 14:48:54 GMT",
+      "tag": "xrm-webapi_v7.1.0",
+      "version": "7.1.0",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Allow configurable method for batch change sets",
+            "author": "dcfinlinson@gmail.com",
+            "commit": "394a23fafe298a7a4b0ab3281e500c18e5d40b8d",
+            "package": "xrm-webapi"
+          }
+        ]
+      }
+    }
+  ]
+}
