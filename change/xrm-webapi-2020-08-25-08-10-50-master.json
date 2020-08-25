@@ -1,0 +1,8 @@
+{
+  "type": "patch",
+  "comment": "Return empty string if null",
+  "packageName": "xrm-webapi",
+  "email": "dcfinlinson@gmail.com",
+  "dependentChangeType": "patch",
+  "date": "2020-08-25T14:10:50.484Z"
+}
