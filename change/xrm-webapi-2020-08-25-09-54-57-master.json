@@ -1,0 +1,8 @@
+{
+  "type": "patch",
+  "comment": "Check empty string in parseGuid",
+  "packageName": "xrm-webapi",
+  "email": "dcfinlinson@gmail.com",
+  "dependentChangeType": "patch",
+  "date": "2020-08-25T15:54:57.699Z"
+}
