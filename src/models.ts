@@ -45,7 +45,7 @@ export interface WebApiRequestConfig {
  * @param id GUID to parse
  */
 export function parseGuid(id: string): string {
-  if (id === null || id === 'undefined') {
+  if (id === null || id === 'undefined' || id === '') {
     return '';
   }
 
