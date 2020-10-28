@@ -64,14 +64,18 @@ export function parseGuid(id: string): string {
  * @param id2 GUID 2
  */
 export function areGuidsEqual(id1: string, id2: string): boolean {
-  id1 = parseGuid(id1);
-  id2 = parseGuid(id2);
+  try {
+    id1 = parseGuid(id1);
+    id2 = parseGuid(id2);
 
-  if (id1 === null || id2 === null || id1 === undefined || id2 === undefined) {
+    if (id1 === null || id2 === null || id1 === undefined || id2 === undefined || id1 === '' || id2 === '') {
+      return false;
+    }
+
+    return id1.toLowerCase() === id2.toLowerCase();
+  } catch (ex) {
     return false;
   }
-
-  return id1.toLowerCase() === id2.toLowerCase();
 }
 
 export interface QueryOptions {
