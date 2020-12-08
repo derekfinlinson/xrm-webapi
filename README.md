@@ -71,7 +71,7 @@ console.log(account.name);
 * Web API Functions
 * Web API Actions
 * Batch operations
-* Impersonation
+* Impersonation using Azure Object Id
 
 #### Samples
 See [xrm-webapi-samples.ts](samples/xrm-webapi-samples.ts) for examples

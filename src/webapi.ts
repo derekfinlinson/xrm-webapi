@@ -19,7 +19,7 @@ export function getHeaders(config: WebApiRequestConfig): any {
         headers.Prefer = getPreferHeader(config.queryOptions);
 
         if (config.queryOptions.impersonateUserId != null) {
-            headers.MSCRMCallerID = config.queryOptions.impersonateUserId;
+            headers.CallerObjectId = config.queryOptions.impersonateUserId;
         }
     }
 
