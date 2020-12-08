@@ -1,0 +1,8 @@
+{
+  "type": "patch",
+  "comment": "Update to new impersonation method",
+  "packageName": "xrm-webapi",
+  "email": "dcfinlinson@gmail.com",
+  "dependentChangeType": "patch",
+  "date": "2020-12-08T19:06:41.151Z"
+}
