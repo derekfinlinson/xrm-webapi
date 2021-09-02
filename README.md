@@ -1,5 +1,4 @@
-# DEPRECATED
-# Use [dataverse-webapi](https://www.npmjs.com/package/dataverse-webapi) Instead 
+# DEPRECATED Use [dataverse-webapi](https://www.npmjs.com/package/dataverse-webapi) Instead 
 
 # xrm-webapi
 |Build|NPM|
